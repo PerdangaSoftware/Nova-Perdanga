@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Tab</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&family=Montserrat:wght@300;400;500&family=Outfit:wght@300;400;500&family=Playfair+Display:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500&family=Roboto+Flex:opsz,wght@8..144,300;8..144,400;8..144,500&family=Roboto+Mono:wght@300;400&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <link rel="icon" href="ico/NovaPerdanga.ico" type="image/x-icon">
+    <script src="startup.js"></script>
+</head>
+<body>
+    <div id="background-wrapper">
+        <div id="bg-1" class="bg-media active"></div>
+        <div id="bg-2" class="bg-media"></div>
+        <div id="bg-overlay"></div>
+    </div>
+
+    <main id="interface">
+        <div id="main-content">
+            <h2 id="greeting"></h2>
+            <div id="time"><h1 id="clock"></h1></div>
+            <p id="date"></p>
+            
+            <a id="weather" href="#" target="_blank" rel="noopener noreferrer" title="Click for detailed weather">
+                <span id="weather-icon"></span>
+                <span id="weather-temp"></span>
+                <span id="weather-desc"></span>
+            </a>
+        </div>
+
+        <form id="search-container" role="search">
+            <ul id="search-suggestions" class="hide" role="listbox" aria-label="Search suggestions"></ul>
+            <div class="search-input-wrapper">
+                <input type="text" id="searchbar" placeholder="Search..." autocomplete="off" spellcheck="false" aria-autocomplete="list" aria-controls="search-suggestions" />
+                
+                <button type="button" id="search-clear-btn" class="hide" aria-label="Clear search" title="Clear">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+
+                <button type="submit" id="search-btn" aria-label="Search" title="Search">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <div id="show-settings">
+        <button id="settings-toggle-btn" aria-label="Toggle settings menu">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+            </svg>
+        </button>
+    </div>
+
+    <aside id="settings">
+        <div class="settings-title">
+            <h2>Search & General</h2>
+            <button id="close-settings-btn" class="close-btn">✕</button>
+        </div>
+
+        <div class="param">
+            <div class="wrapper row-between">
+                <label>Font Family</label>
+                <select id="i_font" class="dark-select">
+                    <option value="'Inter', sans-serif" selected>Inter</option>
+                    <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans</option>
+                    <option value="'Outfit', sans-serif">Outfit</option>
+                    <option value="'Montserrat', sans-serif">Montserrat</option>
+                    <option value="'Roboto Flex', sans-serif">Roboto Flex</option>
+                    <option value="'Space Grotesk', sans-serif">Space Grotesk</option>
+                    <option value="'Playfair Display', serif">Playfair Display</option>
+                    <option value="'Cormorant Garamond', serif">Cormorant Garamond</option>
+                    <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+                    <option value="'Roboto Mono', monospace">Roboto Mono</option>
+                </select>
+            </div>
+            <hr>
+            <div class="wrapper row-between">
+                <label>Text Color</label>
+                <input type="color" id="i_text_color" class="color-picker">
+            </div>
+            <hr>
+            <div class="wrapper row-between">
+                <label>Search Engine</label>
+                <select id="i_engine" class="dark-select">
+                    <option value="google">Google</option>
+                    <option value="ddg">DuckDuckGo</option>
+                    <option value="bing">Bing</option>
+                </select>
+            </div>
+            <hr>
+            <div class="wrapper row-between range-wrapper">
+                <div class="label-with-val">
+                    <label>Search Bar Width</label>
+                    <span class="val-badge" id="v_search_width">500px</span>
+                </div>
+                <input type="range" id="i_search_width" min="300" max="1000" value="500">
+            </div>
+            <hr>
+            <div class="wrapper row-between range-wrapper">
+                <div class="label-with-val">
+                    <label>Search Text Size</label>
+                    <span class="val-badge" id="v_search_font">1.2rem</span>
+                </div>
+                <input type="range" id="i_search_font" min="8" max="24" value="12">
+            </div>
+            <hr>
+            <div class="wrapper row-between range-wrapper">
+                <div class="label-with-val">
+                    <label>Search Bar Blur</label>
+                    <span class="val-badge" id="v_search_blur">10px</span>
+                </div>
+                <input type="range" id="i_search_blur" min="0" max="30" value="10">
+            </div>
+            <hr>
+            <div class="wrapper row-between">
+                <label>Auto-match Search Color</label>
+                <label class="toggle"><input type="checkbox" id="i_search_auto_color"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="wrapper row-between hidden" id="manual-color-wrapper">
+                <label>Manual Search Color</label>
+                <input type="color" id="i_search_bg_color" class="color-picker">
+            </div>
+            <hr>
+            <div class="wrapper row-between range-wrapper">
+                <div class="label-with-val">
+                    <label>Search Bar Opacity</label>
+                    <span class="val-badge" id="v_search_opacity">25%</span>
+                </div>
+                <input type="range" id="i_search_opacity" min="0" max="100" value="25">
+            </div>
+        </div>
+
+        <div class="settings-title"><h2>Time & Date</h2></div>
+        <div class="param">
+            <div class="wrapper row-between">
+                <label>Enable Time</label>
+                <label class="toggle"><input type="checkbox" id="i_time_enable"><span class="toggle-slider"></span></label>
+            </div>
+            <hr>
+            <div class="wrapper row-between">
+                <label>12-Hour Format</label>
+                <label class="toggle"><input type="checkbox" id="i_time_12h"><span class="toggle-slider"></span></label>
+            </div>
+            <hr>
+            <div class="wrapper row-between">
+                <label>Show seconds</label>
+                <label class="toggle"><input type="checkbox" id="i_time_seconds"><span class="toggle-slider"></span></label>
+            </div>
+            <hr>
+            <div class="wrapper row-between range-wrapper">
+                <div class="label-with-val">
+                    <label>Clock Size</label>
+                    <span class="val-badge" id="v_clock_size">8.0rem</span>
+                </div>
+                <input type="range" id="i_clock_size" min="40" max="150" value="80">
+            </div>
+            <hr>
+            <div class="wrapper row-between">
+                <label>Show date</label>
+                <label class="toggle"><input type="checkbox" id="i_date_enable"><span class="toggle-slider"></span></label>
+            </div>
+            <hr>
+            <div class="wrapper row-between range-wrapper">
+                <div class="label-with-val">
+                    <label>Date Size</label>
+                    <span class="val-badge" id="v_date_size">1.5rem</span>
+                </div>
+                <input type="range" id="i_date_size" min="10" max="30" value="15">
+            </div>
+        </div>
+
+        <div class="settings-title"><h2>Weather & Greetings</h2></div>
+        <div class="param">
+            <div class="wrapper row-between">
+                <label>Greetings</label>
+                <label class="toggle"><input type="checkbox" id="i_greetings_enable"><span class="toggle-slider"></span></label>
+            </div>
+            <hr>
+            <div class="wrapper row-between range-wrapper">
+                <div class="label-with-val">
+                    <label>Greeting Size</label>
+                    <span class="val-badge" id="v_greeting_size">2.5rem</span>
+                </div>
+                <input type="range" id="i_greeting_size" min="15" max="50" value="25">
+            </div>
+            <hr>
+            <div class="wrapper row-between">
+                <label>Enable Weather</label>
+                <label class="toggle"><input type="checkbox" id="i_weather_enable"><span class="toggle-slider"></span></label>
+            </div>
+            <hr>
+            <div class="wrapper row-between">
+                <label>Location (Auto)</label>
+                <div class="input-with-btn">
+                    <input type="text" id="i_weather_city" class="dark-input" placeholder="e.g. Kemerovo">
+                    <button id="b_apply_city" class="icon-btn apply-btn" title="Apply Location">✓</button>
+                </div>
+            </div>
+            <hr>
+            <div class="wrapper row-between">
+                <label>Temp Unit</label>
+                <select id="i_weather_unit" class="dark-select">
+                    <option value="celsius">Celsius</option>
+                    <option value="fahrenheit">Fahrenheit</option>
+                </select>
+            </div>
+            <hr>
+            <div class="wrapper row-between">
+                <label>Detailed Forecast</label>
+                <select id="i_weather_service" class="dark-select">
+                    <option value="google" selected>Google</option>
+                    <option value="weathercom">Weather.com</option>
+                    <option value="yandex">Yandex</option>
+                    <option value="ventusky">Ventusky</option>
+                </select>
+            </div>
+            <hr>
+            <div class="wrapper row-between range-wrapper">
+                <div class="label-with-val">
+                    <label>Weather Text Size</label>
+                    <span class="val-badge" id="v_weather_size">1.1rem</span>
+                </div>
+                <input type="range" id="i_weather_size" min="8" max="25" value="11">
+            </div>
+        </div>
+
+        <div class="settings-title"><h2>Background</h2></div>
+        <div class="param bg-panel">
+            <div class="wrapper row-between">
+                <label>Background type</label>
+                <select id="i_bg_type" class="dark-select">
+                    <option value="local">Local files</option>
+                    <option value="wallhaven">Wallhaven</option>
+                </select>
+            </div>
+            <div class="wrapper row-between mt-10">
+                <label>Frequency</label>
+                <div class="input-with-btn">
+                    <select id="i_bg_frequency" class="dark-select">
+                        <option value="every_tab">Every tab</option>
+                        <option value="every_hour">Every hour</option>
+                        <option value="every_day">Every day</option>
+                        <option value="never">Never</option>
+                    </select>
+                    <button id="b_refresh_bg" class="icon-btn" title="Skip to Next Image">↻</button>
+                </div>
+            </div>
+
+            <div id="wallhaven-options" class="bg-settings-group hidden mt-15">
+                <div class="wrapper row-between">
+                    <label>Wallhaven Source</label>
+                    <select id="i_wallhaven_mode" class="dark-select">
+                        <option value="search">Search Tag</option>
+                        <option value="top">Top Rated</option>
+                    </select>
+                </div>
+                <div class="wrapper row-between mt-10" id="wallhaven-query-wrapper">
+                    <label>Query Tag</label>
+                    <div class="input-with-btn">
+                        <input type="text" id="i_wallhaven" class="dark-input" placeholder="e.g. landscape">
+                        <button id="b_apply_wallhaven" class="icon-btn apply-btn" title="Apply Tag">✓</button>
+                    </div>
+                </div>
+                <div class="action-bar mt-10">
+                    <button id="b_prev_bg" class="action-btn" title="Previous Image" disabled>◄ Prev</button>
+                    <button id="b_next_wh" class="action-btn" title="Next Image">Next ►</button>
+                    <button id="b_save_wallhaven" class="action-btn" title="Save to Local files">★ Save</button>
+                </div>
+            </div>
+
+            <div id="local-options" class="bg-settings-group mt-15">
+                <div class="wrapper row-between section-header">
+                    <div class="header-with-badge">
+                        <label style="font-weight: 500;">My files</label>
+                        <span id="gallery-count" class="badge-count">0</span>
+                    </div>
+                    <label for="i_local_upload" class="add-new-btn">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        Add new
+                    </label>
+                    <input type="file" id="i_local_upload" accept="image/*" multiple hidden>
+                </div>
+                <div id="local-gallery" class="gallery-grid-3 mt-10"></div>
+                <div class="action-grid-2x2 mt-10">
+                    <button id="b_view_local" class="action-btn" disabled>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        View
+                    </button>
+                    <button id="b_download_local" class="action-btn" disabled>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Download
+                    </button>
+                    <button id="b_options_local" class="action-btn" disabled>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M12 4v16M8 8l4-4 4 4M8 16l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Position
+                    </button>
+                    <button id="b_local_remove" class="action-btn" disabled>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        Remove
+                    </button>
+                </div>
+                <div class="action-bar mt-10">
+                    <button id="b_download_all_local" class="action-btn" disabled>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        Download All Wallpapers (.zip)
+                    </button>
+                </div>
+                <div id="local-image-options" class="hidden mt-10 param">
+                    <div class="wrapper row-between range-wrapper">
+                        <div class="label-with-val">
+                            <label>Vertical Position</label>
+                            <span class="val-badge" id="v_local_pos">50%</span>
+                        </div>
+                        <input type="range" id="i_local_pos" min="0" max="100" value="50">
+                    </div>
+                </div>
+            </div>
+
+            <hr class="mt-15 mb-15">
+            
+            <div class="wrapper row-between range-wrapper">
+                <div class="label-with-val">
+                    <label>Blur intensity</label>
+                    <span class="val-badge" id="v_blur">0px</span>
+                </div>
+                <input type="range" id="i_blur" min="0" max="20" value="0">
+            </div>
+            <hr>
+            <div class="wrapper row-between range-wrapper">
+                <div class="label-with-val">
+                    <label>Brightness</label>
+                    <span class="val-badge" id="v_brightness">100%</span>
+                </div>
+                <input type="range" id="i_brightness" min="10" max="100" value="100">
+            </div>
+            <hr>
+            <div class="wrapper row-between range-wrapper" id="fade-time-wrapper">
+                <div class="label-with-val">
+                    <label>Fade in time</label>
+                    <span class="val-badge" id="v_fade">1000ms</span>
+                </div>
+                <input type="range" id="i_fade" min="0" max="3000" step="100" value="1000">
+            </div>
+        </div>
+
+        <div class="settings-title"><h2>Shortcuts & Help</h2></div>
+        <div class="param">
+            <div class="wrapper row-between">
+                <label>Keyboard Shortcuts</label>
+                <button id="b_show_shortcuts" class="action-btn" style="max-width: 100px; padding: 5px 10px;">View All</button>
+            </div>
+        </div>
+
+        <div class="settings-title"><h2>Configuration</h2></div>
+        <div class="param mb-15">
+            <div class="action-bar mt-10 mb-10">
+                <button id="b_export" class="action-btn">Export Config</button>
+                <label id="b_import_label" for="i_import" class="action-btn" style="margin: 0; text-align: center; cursor: pointer;">
+                    Import Config
+                </label>
+                <input type="file" id="i_import" accept=".json,.zip" hidden>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Shortcuts Cheat Sheet Modal -->
+    <div id="shortcuts-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Keyboard Shortcuts</h3>
+                <button id="close-shortcuts-btn" class="close-btn">✕</button>
+            </div>
+            <div class="shortcuts-list">
+                <div class="shortcut-group">
+                    <h4>Navigation & Wallpaper</h4>
+                    <div class="shortcut-row"><span>Next Wallpaper</span><div class="keys"><kbd>N</kbd> or <kbd>→</kbd></div></div>
+                    <div class="shortcut-row"><span>Previous Wallpaper</span><div class="keys"><kbd>P</kbd> or <kbd>←</kbd></div></div>
+                    <div class="shortcut-row"><span>Toggle Mode (Wallhaven / Local)</span><div class="keys"><kbd>M</kbd></div></div>
+                    <div class="shortcut-row"><span>Save to Local Files</span><div class="keys"><kbd>S</kbd></div></div>
+                    <div class="shortcut-row"><span>Zen Mode (Hide UI)</span><div class="keys"><kbd>H</kbd> or <kbd>Z</kbd></div></div>
+                </div>
+
+                <div class="shortcut-group">
+                    <h4>Search & Settings</h4>
+                    <div class="shortcut-row"><span>Quick Focus Search</span><div class="keys"><kbd>/</kbd> or <kbd>Space</kbd></div></div>
+                    <div class="shortcut-row"><span>Toggle Settings</span><div class="keys"><kbd>O</kbd> or <kbd>,</kbd></div></div>
+                    <div class="shortcut-row"><span>Exit / Close Modal</span><div class="keys"><kbd>Esc</kbd></div></div>
+                </div>
+
+                <div class="shortcut-group">
+                    <h4>Search Bangs (Type in Search)</h4>
+                    <div class="shortcut-row"><span>YouTube Search</span><div class="keys"><kbd>!y query</kbd></div></div>
+                    <div class="shortcut-row"><span>Wikipedia Article</span><div class="keys"><kbd>!wiki query</kbd></div></div>
+                    <div class="shortcut-row"><span>Reddit Search</span><div class="keys"><kbd>!r query</kbd></div></div>
+                    <div class="shortcut-row"><span>GitLab / Nova-Perdanga</span><div class="keys"><kbd>!gl [query]</kbd></div></div>
+                    <div class="shortcut-row"><span>GitHub Search</span><div class="keys"><kbd>!gh query</kbd></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <script src="timer.js" defer></script>
+    <script src="app.js" defer></script>
+</body>
+</html>

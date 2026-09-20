@@ -1,0 +1,27 @@
+{
+    "manifest_version": 3,
+    "name": "Nova-Perdanga",
+    "version": "1.3",
+    "description": "Your browser's window to Wallhaven.",
+    "chrome_url_overrides": {
+        "newtab": "index.html"
+    },
+    "icons": {
+        "16": "ico/NovaPerdanga.png",
+        "32": "ico/NovaPerdanga.png",
+        "48": "ico/NovaPerdanga.png",
+        "128": "ico/NovaPerdanga.png"
+    },
+    "permissions": [
+        "storage",
+        "unlimitedStorage"
+    ],
+    "host_permissions": [
+        "https://*.wallhaven.cc/*",
+        "https://api.open-meteo.com/*",
+        "https://get.geojs.io/*",
+        "https://suggestqueries.google.com/*",
+        "https://duckduckgo.com/*",
+        "https://api.bing.com/*"
+    ]
+}
