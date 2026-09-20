@@ -5,7 +5,6 @@
   <p><i>Your browser's window to Wallhaven!</i></p>
 </div>
 
----
 
 <div align="center">
   <img src="https://gitlab.com/perdanga/nova-perdanga/-/raw/main/Screenshots/Nova-Perdanga.png?ref_type=heads" alt="NovaPerdanga Interface" width="100%">
@@ -15,7 +14,6 @@
 
 **Nova-Perdanga** transforms your browser's default New Tab into a personal dashboard. It combines the infinite library of **Wallhaven** with your own offline wallpaper collection, smart color adaptation, and power-user keyboard controls.
 
----
 
 ## Installation
 
@@ -31,7 +29,6 @@
 
 ## Features
 
----
 
 ### Wallpaper Engine
 - **Wallhaven Integration**: Automatically stream wallpapers by tags or top-rated collections.
@@ -82,7 +79,6 @@
 - **Binary ZIP Export**: Back up your settings, timers, and high-resolution wallpapers into a `.zip` archive.
 - **Universal Importer**: Effortlessly restore settings from both new `.zip` backups and legacy `.json` files.
 
----
 
 ## Wallpaper & Configuration Controls
 
