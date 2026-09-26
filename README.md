@@ -19,7 +19,7 @@
 
 1. Download or clone this repository:
    ```bash
-   git clone https://gitlab.com/perdanga/nova-perdanga.git
+   git clone https://github.com/PerdangaSoftware/Nova-Perdanga
    ```
 2. Open your Chromium-based browser.
 3. Navigate to `chrome://extensions/`.
