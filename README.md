@@ -7,7 +7,7 @@
 
 
 <div align="center">
-  <img src="https://github.com/perdanga/nova-perdanga/-/raw/main/Screenshots/Nova-Perdanga.png?ref_type=heads" alt="NovaPerdanga Interface" width="100%">
+  <img src="https://github.com/PerdangaSoftware/Nova-Perdanga/blob/main/screenshots/Nova-Perdanga.png?raw=true" alt="NovaPerdanga Interface" width="100%">
 </div>
 
 ## 🗻 Overview
@@ -83,8 +83,8 @@
 ## Wallpaper & Configuration Controls
 
 <p align="center">
-  <img src="https://github.com/perdanga/nova-perdanga/-/raw/main/Screenshots/Background.png?ref_type=heads" alt="Background Settings" width="200" />
-  <img src="https://github.com/perdanga/nova-perdanga/-/raw/main/Screenshots/Timer.png?ref_type=heads" alt="Timer Widget" width="200" />
+  <img src="https://github.com/PerdangaSoftware/Nova-Perdanga/blob/main/screenshots/Background.png?raw=true" alt="Background Settings" width="200" />
+  <img src="https://github.com/PerdangaSoftware/Nova-Perdanga/blob/main/screenshots/Timer.png?raw=true" alt="Timer Widget" width="200" />
 </p>
 
 - **Save from Wallhaven**: Press **S** or click **★ Save** to store any wallpaper directly in local extension storage.
