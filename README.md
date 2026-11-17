@@ -1,25 +1,63 @@
-
 <div align="center">
-  <img src="ico/NovaPerdanga.png" alt="NovaPerdanga Logo" width="128">
+  <img src="assets/icons/NovaPerdanga.png" alt="NovaPerdanga Logo" width="128">
   <h1>Nova-Perdanga</h1>
   <p><i>Your browser's window to Wallhaven!</i></p>
 </div>
 
+---
 
 <div align="center">
-  <img src="https://github.com/PerdangaSoftware/Nova-Perdanga/blob/main/screenshots/Nova-Perdanga.png?raw=true" alt="NovaPerdanga Interface" width="100%">
+  <a href="assets/screenshots/nova-perdanga-showcase.png">
+    <img src="assets/screenshots/nova-perdanga-showcase.png" alt="Nova-Perdanga Interface" width="100%">
+  </a>
 </div>
+
+<table width="100%">
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <a href="assets/screenshots/nova-perdanga-search.png"><img src="assets/screenshots/nova-perdanga-search.png" alt="Smart Search Autocomplete" width="100%"></a>
+      <p align="center"><sub><b>🔍 Smart Search & Real-Time Suggestions</b></sub></p>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <a href="assets/screenshots/nova-perdanga-wallhaven.png"><img src="assets/screenshots/nova-perdanga-wallhaven.png" alt="Wallhaven Hub" width="100%"></a>
+      <p align="center"><sub><b>🎨 Wallhaven Hub & Color Palette Filter</b></sub></p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <a href="assets/screenshots/nova-perdanga-dual.png"><img src="assets/screenshots/nova-perdanga-dual.png" alt="Local Files & Dual Panels" width="100%"></a>
+      <p align="center"><sub><b>📂 Offline Local Library & Dual Drawer Management</b></sub></p>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <a href="assets/screenshots/nova-perdanga-weather.png"><img src="assets/screenshots/nova-perdanga-weather.png" alt="Weather & Greetings" width="100%"></a>
+      <p align="center"><sub><b>🌤️ Accurate Weather Forecast & Dynamic Greetings</b></sub></p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <a href="assets/screenshots/nova-perdanga-timer.png"><img src="assets/screenshots/nova-perdanga-timer.png" alt="Timer Widget" width="100%"></a>
+      <p align="center"><sub><b>⏱️ Draggable Floating Pomodoro Timer</b></sub></p>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <a href="assets/screenshots/nova-perdanga-settings.png"><img src="assets/screenshots/nova-perdanga-settings.png" alt="Customization Controls" width="100%"></a>
+      <p align="center"><sub><b>⚙️ Glassmorphic Controls & 15 Curated Fonts</b></sub></p>
+    </td>
+  </tr>
+</table>
+
+---
 
 ## 🗻 Overview
 
 **Nova-Perdanga** transforms your browser's default New Tab into a personal dashboard. It combines the infinite library of **Wallhaven** with your own offline wallpaper collection, smart color adaptation, and power-user keyboard controls.
 
+---
 
 ## Installation
 
-1. Download or clone this repository:
+1. Git clone this repository:
    ```bash
-   git clone https://github.com/PerdangaSoftware/Nova-Perdanga
+   git clone https://github.com/PerdangaSoftware/Nova-Perdanga.git
    ```
 2. Open your Chromium-based browser.
 3. Navigate to `chrome://extensions/`.
@@ -29,22 +67,22 @@
 
 ## Features
 
+---
 
 ### Wallpaper Engine
-- **Wallhaven Integration**: Automatically stream wallpapers by tags or top-rated collections.
+- **Wallhaven Integration**: Automatically stream wallpapers by tags, collections, or color palette. Press **S** or click **★ Save** to store in local storage.
+- **Wallhaven Hub Drawer**: Browse wallpapers with live pagination, quick filters (**Latest**, **Hot**, **Toplist**, **Random**), and instant thumbnail preview.
 - **Local Storage Gallery**: Upload your personal wallpapers directly into browser-native IndexedDB.
 - **One-Click Batch Download (.zip)**: Export your entire wallpaper collection into a neat `.zip` archive with a single click.
-- **Custom Framing**: Adjust vertical (Y-axis) alignment per wallpaper for optimal positioning.
-- **Seamless Preloader**: Intelligent background preloading ensures smooth, flicker-free crossfades between images.
+- **Custom Framing**: Adjust vertical alignment per wallpaper for optimal positioning.
 
-### Smart Search 
-- **Search Autocomplete**: Real-time suggestions powered by Google, DuckDuckGo, or Bing.
+### Search
+- **Search Autocomplete**: Real-time suggestions.
 - **Dynamic Color Matching**: Automatically extracts the dominant background color to tint the search bar.
 - **Search Bangs**: Jump directly to popular services by prefixing queries:
   - `!y <query>` → YouTube
   - `!wiki <query>` → Wikipedia (supports multilingual & Cyrillic queries)
   - `!r <query>` → Reddit
-  - `!gl [query]` → GitLab (`perdanga/nova-perdanga` repository by default)
   - `!gh <query>` → GitHub
 
 ### ⌨️ Keyboard Shortcuts
@@ -52,47 +90,34 @@
 | Key | Action |
 | :--- | :--- |
 | `/` or `Space` | Focus search |
+| `G` | Toggle Wallhaven drawer |
+| `O` or `,` | Toggle settings |
 | `N` or `→` | Next wallpaper |
 | `P` or `←` | Previous wallpaper |
 | `M` | Switch mode (Wallhaven ⟷ Local) |
 | `S` | Save to local |
 | `H` / `Z`  | Zen Mode (hide UI) |
-| `O` or `,` | Toggle settings |
 | `Esc` | Close / Exit |
-
 
 ### Timer Widget
 - Draggable, collapsible floating timer with circular progress and chime alarms.
-- Quick presets: **5m**, **10m**, **15m**, **25m**, **45m**.
 
 ### Weather & Clock
-- Accurate weather powered by **Open-Meteo** (temperature, weather status, weather icons).
-- Deep-linked forecast providers: **Google**, **Weather.com**, **Yandex**, or **Ventusky**.
+- Accurate weather (temperature, weather status, weather icons).
 - Fully customizable clock (12h/24h, optional seconds), date format, and dynamic greetings.
 
 ### Customization
-- **10 Curated Fonts**: Inter *(default)*, Plus Jakarta Sans, Outfit, Montserrat, Space Grotesk, Roboto Flex, Playfair Display, Cormorant Garamond, JetBrains Mono, and Roboto Mono.
+- **15 Curated Fonts**: Outfit *(default)*, Inter, Plus Jakarta Sans, Montserrat, Manrope, Onest, Unbounded, Space Grotesk, Comfortaa, Roboto Flex, Playfair Display, Cormorant Garamond, Cinzel, JetBrains Mono, and Roboto Mono.
 - **Visual Controls**: Background blur, search bar blur, opacity, brightness, transition speed, and typography sizing.
 - **Live Value Badges**: Real-time numerical feedback for all sliders.
 
 ### Safe Configuration Backup & Restore
-- **Binary ZIP Export**: Back up your settings, timers, and high-resolution wallpapers into a `.zip` archive.
+- **Binary ZIP Export**: Back up your settings, timers, and high-resolution wallpapers into `novaperdanga_backup.zip`.
 - **Universal Importer**: Effortlessly restore settings from both new `.zip` backups and legacy `.json` files.
 
-
-## Wallpaper & Configuration Controls
-
-<p align="center">
-  <img src="https://github.com/PerdangaSoftware/Nova-Perdanga/blob/main/screenshots/Background.png?raw=true" alt="Background Settings" width="200" />
-  <img src="https://github.com/PerdangaSoftware/Nova-Perdanga/blob/main/screenshots/Timer.png?raw=true" alt="Timer Widget" width="200" />
-</p>
-
-- **Save from Wallhaven**: Press **S** or click **★ Save** to store any wallpaper directly in local extension storage.
-- **Batch Export**: Click **Download All Wallpapers (.zip)** in the *Local Files* panel to save your entire gallery.
-- **Backup & Restore**: Click **Export Config** to archive your entire setup, wallpapers, and timer data into `novaperdanga_backup.zip`.
-
+---
 
 ## Privacy
 
 Nova-Perdanga respects your privacy:
-- **No tracking or analytics**: All data, settings, and images stay strictly inside your browser.
+- **No tracking**: All data, settings, and images stay strictly inside your browser.

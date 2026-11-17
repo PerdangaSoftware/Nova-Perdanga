@@ -1,7 +1,6 @@
 (function() {
     'use strict';
 
-    // ===== STATE =====
     const state = {
         isRunning: false,
         endTime: null,
@@ -30,7 +29,6 @@
     let isInitialized = false;
     let originalTitle = "New Tab";
 
-    // ===== STORAGE =====
     async function loadData() {
         const data = await chrome.storage.local.get(['nova_timer_settings', 'nova_timer_state']);
 
@@ -60,7 +58,6 @@
         await chrome.storage.local.set({ nova_timer_settings: { ...settings } });
     }
 
-    // ===== DOM CREATION =====
     function createElements() {
         if (elements.button) return;
 
@@ -171,7 +168,6 @@
         document.title = originalTitle;
     }
 
-    // ===== DRAG FUNCTIONALITY =====
     function handleDragStart(type) {
         return (e) => {
             if (e.button !== 0) return;
@@ -228,7 +224,6 @@
         dragData = null;
     });
 
-    // Window resize viewport boundary clamp
     window.addEventListener('resize', () => {
         if (elements.button) {
             const rect = elements.button.getBoundingClientRect();
@@ -246,7 +241,6 @@
         }
     });
 
-    // ===== EXPAND / COLLAPSE =====
     function expand() {
         if (!elements.button || !elements.widget) return;
         state.isExpanded = true;
@@ -289,7 +283,6 @@
         updateDisplay();
     }
 
-    // ===== TIMER LOGIC =====
     function toggleStartPause() {
         if (state.isRunning) pause(); else start();
     }
@@ -358,7 +351,6 @@
         }
     }
 
-    // ===== DISPLAY =====
     function formatTime(seconds) {
         seconds = Math.max(0, seconds);
         const m = Math.floor(seconds / 60);
@@ -457,7 +449,6 @@
         }
     }
 
-    // ===== RICH AUDIO GENERATION =====
     function playMySound(vol) {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -533,7 +524,6 @@
         saveState();
     }
 
-    // ===== SETTINGS UI =====
     function injectSettings() {
         const settingsPanel = document.getElementById('settings');
         if (!settingsPanel) return;
@@ -647,10 +637,9 @@
 
     function updateSliderFill(slider) {
         const val = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
-        slider.style.background = `linear-gradient(to right, #3b82f6 ${val}%, #333 ${val}%)`;
+        slider.style.background = `linear-gradient(to right, #14b8a6 0%, #14b8a6 ${val}%, rgba(255, 255, 255, 0.12) ${val}%, rgba(255, 255, 255, 0.12) 100%)`;
     }
 
-    // ===== STORAGE CHANGE LISTENER =====
     chrome.storage.onChanged.addListener((changes, area) => {
         if (area !== 'local') return;
 
@@ -734,7 +723,6 @@
         }
     });
 
-    // ===== INITIALIZATION =====
     async function init() {
         if (isInitialized) return;
         isInitialized = true;

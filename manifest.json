@@ -1,16 +1,16 @@
 {
     "manifest_version": 3,
     "name": "Nova-Perdanga",
-    "version": "1.3",
-    "description": "Your browser's window to Wallhaven.",
+    "version": "1.4",
+    "description": "Personal new tab dashboard: Wallhaven library, offline wallpapers, smart color adaptation, and power-user keyboard controls.",
     "chrome_url_overrides": {
         "newtab": "index.html"
     },
     "icons": {
-        "16": "ico/NovaPerdanga.png",
-        "32": "ico/NovaPerdanga.png",
-        "48": "ico/NovaPerdanga.png",
-        "128": "ico/NovaPerdanga.png"
+        "16": "assets/icons/NovaPerdanga.png",
+        "32": "assets/icons/NovaPerdanga.png",
+        "48": "assets/icons/NovaPerdanga.png",
+        "128": "assets/icons/NovaPerdanga.png"
     },
     "permissions": [
         "storage",

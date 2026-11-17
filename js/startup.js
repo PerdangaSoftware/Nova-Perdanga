@@ -10,17 +10,23 @@
         const weatherEnabled = getSetting('nova_weather_enabled', true);
         const greetingsEnabled = getSetting('nova_greetings_enabled', true);
 
-        // 1. Inject synchronous CSS to completely hide elements that were disabled in settings 
-        // without causing any layout shifts during loading.
+        if (localStorage.getItem('nova_settings_open') === '1') {
+            document.documentElement.classList.add('init-settings-open');
+        }
+        if (localStorage.getItem('nova_drawer_open') === '1') {
+            document.documentElement.classList.add('init-drawer-open');
+        }
+        if (localStorage.getItem('nova_zen_mode') === '1') {
+            document.documentElement.classList.add('zen-mode');
+        }
+
         let hideCss = '';
         if (!timeEnabled) hideCss += '#time { display: none !important; }\n';
         if (!dateEnabled) hideCss += '#date { display: none !important; }\n';
         if (!weatherEnabled) hideCss += '#weather { display: none !important; }\n';
         if (!greetingsEnabled) hideCss += '#greeting { display: none !important; }\n';
         
-        // Font: Apply the user's chosen font IMMEDIATELY before first paint to prevent
-        // any font-swap flicker. The font is cached in localStorage by app.js.
-        const cachedFont = localStorage.getItem('nova_font_cache');
+        const cachedFont = localStorage.getItem('nova_font_cache') || "'Outfit', sans-serif";
         if (cachedFont) {
             hideCss += `:root { --font-family: ${cachedFont}; }\n`;
         }
@@ -31,20 +37,16 @@
             document.head.appendChild(style);
         }
 
-        // Preload the user's font using the Font Loading API so it's ready before paint.
-        // This eliminates FOUT (Flash of Unstyled Text) for non-default fonts.
         if (cachedFont && document.fonts && document.fonts.load) {
             const fontNameMatch = cachedFont.match(/['"]?([^'"]+)['"]?/);
             if (fontNameMatch && fontNameMatch[1]) {
                 const fontName = fontNameMatch[1];
-                // Preload all font weights used in the UI
                 document.fonts.load(`400 16px "${fontName}"`).catch(() => {});
                 document.fonts.load(`300 16px "${fontName}"`).catch(() => {});
                 document.fonts.load(`500 16px "${fontName}"`).catch(() => {});
             }
         }
 
-        // 2. Pre-configure the search box coloration seamlessly
         if (localStorage.getItem('nova_search_auto') === 'true') {
             try {
                 const savedColor = localStorage.getItem('nova_startup_bg_color');
@@ -57,7 +59,6 @@
             } catch(e) {}
         }
 
-        // 3. Initiate instantly grabbing High-Res image from IndexedDB.
         window.novaStartupBgPromise = new Promise((resolve) => {
             const startupBgId = localStorage.getItem('nova_startup_bg_id');
             const startupBgUrl = localStorage.getItem('nova_startup_bg');
@@ -71,8 +72,6 @@
                 document.head.appendChild(bgStyle);
             };
 
-            // Only attempt IndexedDB lookup for actual local blob files (type === 'local').
-            // This natively prevents any flicker for Wallhaven saved backgrounds that are direct URLs.
             if (startupBgId && startupBgType === 'local') {
                 const req = indexedDB.open('NovaPerdangaDB', 1);
                 req.onsuccess = (e) => {

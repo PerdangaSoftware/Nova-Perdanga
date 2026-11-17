@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Tab</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&family=Montserrat:wght@300;400;500&family=Outfit:wght@300;400;500&family=Playfair+Display:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500&family=Roboto+Flex:opsz,wght@8..144,300;8..144,400;8..144,500&family=Roboto+Mono:wght@300;400&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Comfortaa:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&family=Manrope:wght@300;400;500&family=Montserrat:wght@300;400;500&family=Onest:wght@300;400;500&family=Outfit:wght@300;400;500&family=Playfair+Display:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500&family=Roboto+Flex:opsz,wght@8..144,300;8..144,400;8..144,500&family=Roboto+Mono:wght@300;400&family=Space+Grotesk:wght@300;400;500&family=Unbounded:wght@300;400;500&display=swap" rel="stylesheet">
     
-    <link rel="icon" href="ico/NovaPerdanga.ico" type="image/x-icon">
-    <script src="startup.js"></script>
+    <link rel="icon" href="assets/icons/NovaPerdanga.ico" type="image/x-icon">
+    <script src="js/startup.js"></script>
 </head>
-<body>
+<body class="preload-no-transition">
     <div id="background-wrapper">
         <div id="bg-1" class="bg-media active"></div>
         <div id="bg-2" class="bg-media"></div>
@@ -57,31 +57,54 @@
     </main>
 
     <div id="show-settings">
+        <button id="wh-drawer-quick-btn" class="quick-drawer-btn" aria-label="Toggle wallpaper gallery" title="Browse Wallpapers (W)">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" shape-rendering="geometricPrecision"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
         <button id="settings-toggle-btn" aria-label="Toggle settings menu">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" shape-rendering="geometricPrecision">
+                <path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.06-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54A.484.484 0 0 0 13.92 2.4h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.73 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.08.63-.08.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
             </svg>
         </button>
     </div>
 
     <aside id="settings">
-        <div class="settings-title">
+        <div class="settings-main-header">
+            <div class="settings-brand">
+                <img src="assets/icons/NovaPerdanga.png" alt="Nova-Perdanga" class="settings-brand-icon">
+                <div class="settings-brand-text">
+                    <span class="settings-brand-name">Nova-Perdanga</span>
+                    <span class="settings-brand-badge">v1.4</span>
+                </div>
+            </div>
+            <button id="close-settings-btn" class="close-btn panel-close-btn" aria-label="Close settings" title="Close Settings">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <div class="settings-title mt-0">
             <h2>Search & General</h2>
-            <button id="close-settings-btn" class="close-btn">✕</button>
         </div>
 
         <div class="param">
             <div class="wrapper row-between">
                 <label>Font Family</label>
                 <select id="i_font" class="dark-select">
-                    <option value="'Inter', sans-serif" selected>Inter</option>
+                    <option value="'Outfit', sans-serif" selected>Outfit</option>
+                    <option value="'Inter', sans-serif">Inter</option>
                     <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans</option>
-                    <option value="'Outfit', sans-serif">Outfit</option>
                     <option value="'Montserrat', sans-serif">Montserrat</option>
-                    <option value="'Roboto Flex', sans-serif">Roboto Flex</option>
+                    <option value="'Manrope', sans-serif">Manrope</option>
+                    <option value="'Onest', sans-serif">Onest</option>
+                    <option value="'Unbounded', sans-serif">Unbounded</option>
                     <option value="'Space Grotesk', sans-serif">Space Grotesk</option>
+                    <option value="'Comfortaa', sans-serif">Comfortaa</option>
+                    <option value="'Roboto Flex', sans-serif">Roboto Flex</option>
                     <option value="'Playfair Display', serif">Playfair Display</option>
                     <option value="'Cormorant Garamond', serif">Cormorant Garamond</option>
+                    <option value="'Cinzel', serif">Cinzel</option>
                     <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
                     <option value="'Roboto Mono', monospace">Roboto Mono</option>
                 </select>
@@ -255,30 +278,38 @@
                         <option value="every_day">Every day</option>
                         <option value="never">Never</option>
                     </select>
-                    <button id="b_refresh_bg" class="icon-btn" title="Skip to Next Image">↻</button>
+                    <button id="b_refresh_bg" class="icon-btn" title="Skip to Next Image" aria-label="Skip to next image">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
-            <div id="wallhaven-options" class="bg-settings-group hidden mt-15">
-                <div class="wrapper row-between">
-                    <label>Wallhaven Source</label>
-                    <select id="i_wallhaven_mode" class="dark-select">
-                        <option value="search">Search Tag</option>
-                        <option value="top">Top Rated</option>
-                    </select>
-                </div>
-                <div class="wrapper row-between mt-10" id="wallhaven-query-wrapper">
-                    <label>Query Tag</label>
-                    <div class="input-with-btn">
-                        <input type="text" id="i_wallhaven" class="dark-input" placeholder="e.g. landscape">
-                        <button id="b_apply_wallhaven" class="icon-btn apply-btn" title="Apply Tag">✓</button>
+            <div class="wrapper mt-15" id="settings-wh-hub-wrapper">
+                <button type="button" id="b_open_wh_drawer" class="wh-hub-launcher-card" title="Open Wallpaper Hub (W)">
+                    <div class="wh-hub-launcher-left">
+                        <div class="wh-hub-launcher-icon">
+                            <svg viewBox="0 0 24 24" width="17" height="17" fill="none">
+                                <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
+                                <path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="wh-hub-launcher-content">
+                            <span class="wh-hub-launcher-title" id="v_hub_launcher_title">Browse Wallpapers</span>
+                            <span class="wh-hub-launcher-sub">Wallpaper Hub <kbd>W</kbd></span>
+                        </div>
                     </div>
-                </div>
-                <div class="action-bar mt-10">
-                    <button id="b_prev_bg" class="action-btn" title="Previous Image" disabled>◄ Prev</button>
-                    <button id="b_next_wh" class="action-btn" title="Next Image">Next ►</button>
-                    <button id="b_save_wallhaven" class="action-btn" title="Save to Local files">★ Save</button>
-                </div>
+                    <div class="wh-hub-launcher-right">
+                        <span id="v_wallhaven_preview_count_badge" class="badge-count hub-count-pill">0</span>
+                        <svg class="wh-hub-launcher-arrow" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
+                </button>
             </div>
 
             <div id="local-options" class="bg-settings-group mt-15">
@@ -376,7 +407,173 @@
         </div>
     </aside>
 
-    <!-- Shortcuts Cheat Sheet Modal -->
+    <aside id="wallhaven-preview-drawer">
+        <div class="wh-drawer-header">
+            <div class="wh-drawer-title-group">
+                <div class="drawer-mode-tabs">
+                    <button id="b_drawer_tab_wallhaven" class="drawer-tab-btn active" type="button">Wallhaven</button>
+                    <button id="b_drawer_tab_local" class="drawer-tab-btn" type="button">Local</button>
+                </div>
+            </div>
+            <div class="wh-drawer-header-actions">
+                <button id="b_drawer_jump_active" class="action-btn-sm" title="Jump to Active Wallpaper">⌖ Active</button>
+                <button id="b_refresh_wh_drawer" class="icon-btn-sm" title="Refresh" aria-label="Refresh wallpapers">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                </button>
+                <button id="close-wh-drawer-btn" class="close-btn panel-close-btn" title="Close Gallery">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="drawer-search-bar" class="drawer-search-bar">
+            <div class="drawer-search-inner">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="i_drawer_query" class="drawer-search-input" placeholder="Search Wallhaven tags (anime, nature...)" autocomplete="off">
+                <button type="button" id="b_drawer_query_clear" class="drawer-query-clear-btn hidden" title="Clear query">✕</button>
+                <button type="button" id="b_drawer_query_submit" class="drawer-query-submit-btn" title="Search tags">Search</button>
+            </div>
+        </div>
+
+        <div class="wh-drawer-pagination-bar">
+            <button id="b_prev_wh_preview" class="pagination-arrow-btn" title="Previous 10" disabled aria-label="Previous 10">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+            <div class="pagination-info-group">
+                <span id="v_wallhaven_preview_count" class="badge-count">0</span>
+                <button id="b_drawer_filter_toggle" class="badge-mode-btn" type="button" title="Quick Filters">
+                    <span id="v_wallhaven_drawer_mode">Toplist</span>
+                    <svg class="filter-toggle-icon" viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+            </div>
+            <button id="b_next_wh_preview" class="pagination-arrow-btn" title="Next 10" disabled aria-label="Next 10">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+        </div>
+
+        <div id="drawer-quick-filters" class="drawer-quick-filters hidden">
+            <div class="filter-chips-row" id="drawer-category-chips">
+                <button type="button" class="filter-chip" data-mode="latest">Latest</button>
+                <button type="button" class="filter-chip" data-mode="hot">Hot</button>
+                <button type="button" class="filter-chip active" data-mode="top">Toplist</button>
+                <button type="button" class="filter-chip" data-mode="random">Random</button>
+            </div>
+            <div id="drawer-top-range-row" class="filter-chips-row sub-chips">
+                <button type="button" class="filter-sub-chip" data-range="1d">1D</button>
+                <button type="button" class="filter-sub-chip" data-range="3d">3D</button>
+                <button type="button" class="filter-sub-chip" data-range="1w">1W</button>
+                <button type="button" class="filter-sub-chip active" data-range="1M">1M</button>
+                <button type="button" class="filter-sub-chip" data-range="3M">3M</button>
+                <button type="button" class="filter-sub-chip" data-range="1y">1Y</button>
+            </div>
+            <div class="filter-selects-row">
+                <div class="filter-select-group">
+                    <label>Ratio</label>
+                    <select id="i_drawer_ratio" class="dark-select filter-select">
+                        <option value="">Any Ratio</option>
+                        <option value="16x9,16x10">Wide</option>
+                        <option value="16x9">16:9</option>
+                        <option value="16x10">16:10</option>
+                        <option value="21x9">21:9 (UW)</option>
+                        <option value="9x16">9:16 (Portrait)</option>
+                    </select>
+                </div>
+                <div class="filter-select-group">
+                    <label>Resolution</label>
+                    <select id="i_drawer_resolution" class="dark-select filter-select">
+                        <option value="">Any Res</option>
+                        <option value="1920x1080">1080p</option>
+                        <option value="2560x1440">1440p (2K)</option>
+                        <option value="3840x2160">2160p (4K)</option>
+                        <option value="2560x1080">2560×1080 (UW)</option>
+                        <option value="3440x1440">3440×1440 (UW)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-color-section">
+                <div class="filter-color-header" id="wallhaven-color-toggle">
+                    <div class="filter-color-label-group">
+                        <label>Color</label>
+                        <span id="wallhaven-color-toggle-arrow" class="collapse-arrow open">▼</span>
+                    </div>
+                    <span id="v_wallhaven_color" class="val-badge">Any</span>
+                </div>
+                <div id="wallhaven-color-grid" class="wh-color-grid"></div>
+            </div>
+        </div>
+
+        <div class="wh-drawer-grid-container">
+            <div id="wallhaven-preview-grid" class="wh-preview-grid"></div>
+
+            <div id="drawer-active-card" class="drawer-active-card hidden">
+                <div class="active-card-header">
+                    <span class="active-card-title">ON SCREEN</span>
+                    <div class="active-card-header-right">
+                        <span class="active-pulse-badge">● Active</span>
+                    </div>
+                </div>
+                <div class="active-card-body">
+                    <div id="active-card-thumb" class="active-card-thumb"></div>
+                    <div class="active-card-meta">
+                        <div id="active-card-res" class="active-meta-row active-meta-res">-</div>
+                        <div id="active-card-colors" class="active-meta-colors"></div>
+                    </div>
+                    <div class="active-card-actions">
+                        <a id="active-card-view-btn" class="active-ext-link" target="_blank" rel="noopener noreferrer">
+                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
+                            <span>Original</span>
+                        </a>
+                        <button type="button" id="active-card-delete-btn" class="active-del-btn hidden" title="Delete from local gallery">
+                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            <span>Delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="drawer-local-upload-card" class="drawer-local-upload-card hidden">
+                <label for="i_drawer_local_upload" class="drawer-upload-label">
+                    <span>+ Upload Wallpaper</span>
+                    <small>PNG, JPG, WebP, GIF</small>
+                </label>
+                <input type="file" id="i_drawer_local_upload" accept="image/*" multiple hidden>
+            </div>
+        </div>
+
+        <div class="wh-drawer-footer">
+            <button id="b_drawer_prev_bg" class="action-btn" title="Previous Wallpaper">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                Prev
+            </button>
+            <button id="b_drawer_next_bg" class="action-btn" title="Next Wallpaper">
+                Next
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+            <button id="b_drawer_save" class="action-btn" title="Save to Local files">★ Save</button>
+        </div>
+    </aside>
+
     <div id="shortcuts-modal" class="modal-overlay hidden">
         <div class="modal-card">
             <div class="modal-header">
@@ -389,6 +586,7 @@
                     <div class="shortcut-row"><span>Next Wallpaper</span><div class="keys"><kbd>N</kbd> or <kbd>→</kbd></div></div>
                     <div class="shortcut-row"><span>Previous Wallpaper</span><div class="keys"><kbd>P</kbd> or <kbd>←</kbd></div></div>
                     <div class="shortcut-row"><span>Toggle Mode (Wallhaven / Local)</span><div class="keys"><kbd>M</kbd></div></div>
+                    <div class="shortcut-row"><span>Toggle Wallpaper Gallery</span><div class="keys"><kbd>W</kbd></div></div>
                     <div class="shortcut-row"><span>Save to Local Files</span><div class="keys"><kbd>S</kbd></div></div>
                     <div class="shortcut-row"><span>Zen Mode (Hide UI)</span><div class="keys"><kbd>H</kbd> or <kbd>Z</kbd></div></div>
                 </div>
@@ -405,7 +603,6 @@
                     <div class="shortcut-row"><span>YouTube Search</span><div class="keys"><kbd>!y query</kbd></div></div>
                     <div class="shortcut-row"><span>Wikipedia Article</span><div class="keys"><kbd>!wiki query</kbd></div></div>
                     <div class="shortcut-row"><span>Reddit Search</span><div class="keys"><kbd>!r query</kbd></div></div>
-                    <div class="shortcut-row"><span>GitLab / Nova-Perdanga</span><div class="keys"><kbd>!gl [query]</kbd></div></div>
                     <div class="shortcut-row"><span>GitHub Search</span><div class="keys"><kbd>!gh query</kbd></div></div>
                 </div>
             </div>
@@ -415,7 +612,7 @@
     <!-- Floating Toast Notifications -->
     <div id="toast-container"></div>
 
-    <script src="timer.js" defer></script>
-    <script src="app.js" defer></script>
+    <script src="js/timer.js" defer></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
