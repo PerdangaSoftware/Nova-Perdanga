@@ -26,7 +26,7 @@
   <tr>
     <td width="50%" align="center" valign="top">
       <a href="assets/screenshots/nova-perdanga-dual.png"><img src="assets/screenshots/nova-perdanga-dual.png" alt="Local Files & Dual Panels" width="100%"></a>
-      <p align="center"><sub><b>Offline Local Library & Dual Drawer Management</b></sub></p>
+      <p align="center"><sub><b>Offline Local Library</b></sub></p>
     </td>
     <td width="50%" align="center" valign="top">
       <a href="assets/screenshots/nova-perdanga-weather.png"><img src="assets/screenshots/nova-perdanga-weather.png" alt="Weather & Greetings" width="100%"></a>
@@ -36,11 +36,11 @@
   <tr>
     <td width="50%" align="center" valign="top">
       <a href="assets/screenshots/nova-perdanga-timer.png"><img src="assets/screenshots/nova-perdanga-timer.png" alt="Timer Widget" width="100%"></a>
-      <p align="center"><sub><b>Draggable Floating Pomodoro Timer</b></sub></p>
+      <p align="center"><sub><b>Draggable Floating Timer</b></sub></p>
     </td>
     <td width="50%" align="center" valign="top">
       <a href="assets/screenshots/nova-perdanga-settings.png"><img src="assets/screenshots/nova-perdanga-settings.png" alt="Customization Controls" width="100%"></a>
-      <p align="center"><sub><b>Glassmorphic Controls & 15 Curated Fonts</b></sub></p>
+      <p align="center"><sub><b>Settings</b></sub></p>
     </td>
   </tr>
 </table>
