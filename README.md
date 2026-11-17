@@ -4,8 +4,6 @@
   <p><i>Your browser's window to Wallhaven!</i></p>
 </div>
 
----
-
 <div align="center">
   <a href="assets/screenshots/nova-perdanga-showcase.png">
     <img src="assets/screenshots/nova-perdanga-showcase.png" alt="Nova-Perdanga Interface" width="100%">
@@ -16,42 +14,38 @@
   <tr>
     <td width="50%" align="center" valign="top">
       <a href="assets/screenshots/nova-perdanga-search.png"><img src="assets/screenshots/nova-perdanga-search.png" alt="Smart Search Autocomplete" width="100%"></a>
-      <p align="center"><sub><b>🔍 Smart Search & Real-Time Suggestions</b></sub></p>
+      <p align="center"><sub><b>Smart Search & Real-Time Suggestions</b></sub></p>
     </td>
     <td width="50%" align="center" valign="top">
       <a href="assets/screenshots/nova-perdanga-wallhaven.png"><img src="assets/screenshots/nova-perdanga-wallhaven.png" alt="Wallhaven Hub" width="100%"></a>
-      <p align="center"><sub><b>🎨 Wallhaven Hub & Color Palette Filter</b></sub></p>
+      <p align="center"><sub><b>Wallhaven Hub & Color Palette Filter</b></sub></p>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center" valign="top">
       <a href="assets/screenshots/nova-perdanga-dual.png"><img src="assets/screenshots/nova-perdanga-dual.png" alt="Local Files & Dual Panels" width="100%"></a>
-      <p align="center"><sub><b>📂 Offline Local Library & Dual Drawer Management</b></sub></p>
+      <p align="center"><sub><b>Offline Local Library & Dual Drawer Management</b></sub></p>
     </td>
     <td width="50%" align="center" valign="top">
       <a href="assets/screenshots/nova-perdanga-weather.png"><img src="assets/screenshots/nova-perdanga-weather.png" alt="Weather & Greetings" width="100%"></a>
-      <p align="center"><sub><b>🌤️ Accurate Weather Forecast & Dynamic Greetings</b></sub></p>
+      <p align="center"><sub><b>Accurate Weather Forecast & Dynamic Greetings</b></sub></p>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center" valign="top">
       <a href="assets/screenshots/nova-perdanga-timer.png"><img src="assets/screenshots/nova-perdanga-timer.png" alt="Timer Widget" width="100%"></a>
-      <p align="center"><sub><b>⏱️ Draggable Floating Pomodoro Timer</b></sub></p>
+      <p align="center"><sub><b>Draggable Floating Pomodoro Timer</b></sub></p>
     </td>
     <td width="50%" align="center" valign="top">
       <a href="assets/screenshots/nova-perdanga-settings.png"><img src="assets/screenshots/nova-perdanga-settings.png" alt="Customization Controls" width="100%"></a>
-      <p align="center"><sub><b>⚙️ Glassmorphic Controls & 15 Curated Fonts</b></sub></p>
+      <p align="center"><sub><b>Glassmorphic Controls & 15 Curated Fonts</b></sub></p>
     </td>
   </tr>
 </table>
 
----
-
-## 🗻 Overview
+## Overview
 
 **Nova-Perdanga** transforms your browser's default New Tab into a personal dashboard. It combines the infinite library of **Wallhaven** with your own offline wallpaper collection, smart color adaptation, and power-user keyboard controls.
-
----
 
 ## Installation
 
@@ -66,8 +60,6 @@
 6. Open a new tab and enjoy!
 
 ## Features
-
----
 
 ### Wallpaper Engine
 - **Wallhaven Integration**: Automatically stream wallpapers by tags, collections, or color palette. Press **S** or click **★ Save** to store in local storage.
@@ -85,7 +77,7 @@
   - `!r <query>` → Reddit
   - `!gh <query>` → GitHub
 
-### ⌨️ Keyboard Shortcuts
+### Keyboard Shortcuts
 
 | Key | Action |
 | :--- | :--- |
@@ -114,8 +106,6 @@
 ### Safe Configuration Backup & Restore
 - **Binary ZIP Export**: Back up your settings, timers, and high-resolution wallpapers into `novaperdanga_backup.zip`.
 - **Universal Importer**: Effortlessly restore settings from both new `.zip` backups and legacy `.json` files.
-
----
 
 ## Privacy
 
