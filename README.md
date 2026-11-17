@@ -13,23 +13,23 @@
 ---
 
 <details>
-  <summary><b>🔍 Smart Search & Real-Time Suggestions</b></summary>
+  <summary><b>Smart Search & Real-Time Suggestions</b></summary>
   <br>
   <a href="assets/screenshots/nova-perdanga-search.png">
-    <img src="assets/screenshots/nova-perdanga-search.png" alt="Smart Search Autocomplete" width="100%">
+    <img src="assets/screenshots/nova-perdanga-search.png" alt="Smart Search & Real-Time Suggestions" width="100%">
   </a>
 </details>
 
 <details>
-  <summary><b>🎨 Wallhaven Hub & Color Palette Filter</b></summary>
+  <summary><b>Wallhaven Hub & Color Palette Filter</b></summary>
   <br>
   <a href="assets/screenshots/nova-perdanga-wallhaven.png">
-    <img src="assets/screenshots/nova-perdanga-wallhaven.png" alt="Wallhaven Hub" width="100%">
+    <img src="assets/screenshots/nova-perdanga-wallhaven.png" alt="Wallhaven Hub & Color Palette Filter" width="100%">
   </a>
 </details>
 
 <details>
-  <summary><b>📂 Offline Local Library</b></summary>
+  <summary><b>Offline Local Library</b></summary>
   <br>
   <a href="assets/screenshots/nova-perdanga-dual.png">
     <img src="assets/screenshots/nova-perdanga-dual.png" alt="Offline Local Library" width="100%">
@@ -37,23 +37,23 @@
 </details>
 
 <details>
-  <summary><b>🌤️ Accurate Weather Forecast & Dynamic Greetings</b></summary>
+  <summary><b>Accurate Weather Forecast & Dynamic Greetings</b></summary>
   <br>
   <a href="assets/screenshots/nova-perdanga-weather.png">
-    <img src="assets/screenshots/nova-perdanga-weather.png" alt="Weather & Greetings" width="100%">
+    <img src="assets/screenshots/nova-perdanga-weather.png" alt="Accurate Weather Forecast & Dynamic Greetings" width="100%">
   </a>
 </details>
 
 <details>
-  <summary><b>⏱️ Draggable Floating Pomodoro Timer</b></summary>
+  <summary><b>Draggable Floating Timer</b></summary>
   <br>
   <a href="assets/screenshots/nova-perdanga-timer.png">
-    <img src="assets/screenshots/nova-perdanga-timer.png" alt="Timer Widget" width="100%">
+    <img src="assets/screenshots/nova-perdanga-timer.png" alt="Draggable Floating Timer" width="100%">
   </a>
 </details>
 
 <details>
-  <summary><b>⚙️ Glassmorphic Settings & 15 Curated Fonts</b></summary>
+  <summary><b>Settings</b></summary>
   <br>
   <a href="assets/screenshots/nova-perdanga-settings.png">
     <img src="assets/screenshots/nova-perdanga-settings.png" alt="Settings" width="100%">
