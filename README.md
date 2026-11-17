@@ -45,7 +45,7 @@
   </tr>
 </table>
 
-## Overview
+## 🗻 Overview
 
 **Nova-Perdanga** transforms your browser's default New Tab into a personal dashboard. It combines the infinite library of **Wallhaven** with your own offline wallpaper collection, smart color adaptation, and power-user keyboard controls.
 
