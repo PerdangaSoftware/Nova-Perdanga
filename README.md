@@ -14,32 +14,28 @@
 
 <table width="100%">
   <tr>
-    <td width="50%" align="center" valign="top">
-      <a href="assets/screenshots/nova-perdanga-search.png"><img src="assets/screenshots/nova-perdanga-search.png" alt="Smart Search Autocomplete" width="100%"></a>
+    <td width="560" align="center" valign="top">
+      <a href="assets/screenshots/nova-perdanga-search.png"><img src="assets/screenshots/nova-perdanga-search.png" width="560" alt="Smart Search Autocomplete"></a>
       <p align="center"><sub><b>Smart Search & Real-Time Suggestions</b></sub></p>
     </td>
-    <td width="50%" align="center" valign="top">
-      <a href="assets/screenshots/nova-perdanga-wallhaven.png"><img src="assets/screenshots/nova-perdanga-wallhaven.png" alt="Wallhaven Hub" width="100%"></a>
+    <td width="560" align="center" valign="top">
+      <a href="assets/screenshots/nova-perdanga-wallhaven.png"><img src="assets/screenshots/nova-perdanga-wallhaven.png" width="560" alt="Wallhaven Hub"></a>
       <p align="center"><sub><b>Wallhaven Hub & Color Palette Filter</b></sub></p>
     </td>
-  </tr>
-  <tr>
-    <td width="50%" align="center" valign="top">
-      <a href="assets/screenshots/nova-perdanga-dual.png"><img src="assets/screenshots/nova-perdanga-dual.png" alt="Local Files & Dual Panels" width="100%"></a>
+    <td width="560" align="center" valign="top">
+      <a href="assets/screenshots/nova-perdanga-dual.png"><img src="assets/screenshots/nova-perdanga-dual.png" width="560" alt="Local Files & Dual Panels"></a>
       <p align="center"><sub><b>Offline Local Library</b></sub></p>
     </td>
-    <td width="50%" align="center" valign="top">
-      <a href="assets/screenshots/nova-perdanga-weather.png"><img src="assets/screenshots/nova-perdanga-weather.png" alt="Weather & Greetings" width="100%"></a>
+    <td width="560" align="center" valign="top">
+      <a href="assets/screenshots/nova-perdanga-weather.png"><img src="assets/screenshots/nova-perdanga-weather.png" width="560" alt="Weather & Greetings"></a>
       <p align="center"><sub><b>Accurate Weather Forecast & Dynamic Greetings</b></sub></p>
     </td>
-  </tr>
-  <tr>
-    <td width="50%" align="center" valign="top">
-      <a href="assets/screenshots/nova-perdanga-timer.png"><img src="assets/screenshots/nova-perdanga-timer.png" alt="Timer Widget" width="100%"></a>
+    <td width="560" align="center" valign="top">
+      <a href="assets/screenshots/nova-perdanga-timer.png"><img src="assets/screenshots/nova-perdanga-timer.png" width="560" alt="Timer Widget"></a>
       <p align="center"><sub><b>Draggable Floating Timer</b></sub></p>
     </td>
-    <td width="50%" align="center" valign="top">
-      <a href="assets/screenshots/nova-perdanga-settings.png"><img src="assets/screenshots/nova-perdanga-settings.png" alt="Customization Controls" width="100%"></a>
+    <td width="560" align="center" valign="top">
+      <a href="assets/screenshots/nova-perdanga-settings.png"><img src="assets/screenshots/nova-perdanga-settings.png" width="560" alt="Customization Controls"></a>
       <p align="center"><sub><b>Settings</b></sub></p>
     </td>
   </tr>
