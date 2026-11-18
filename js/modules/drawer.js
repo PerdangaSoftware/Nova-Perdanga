@@ -590,26 +590,6 @@ export function initDrawer() {
         });
     }
 
-    const btnDrawerJumpActive = document.getElementById('b_drawer_jump_active');
-    if (btnDrawerJumpActive) {
-        btnDrawerJumpActive.addEventListener('click', (e) => {
-            e.stopPropagation();
-            state.activeDrawerTab = state.settings.bgType || 'wallhaven';
-            if (state.activeDrawerTab === 'local') {
-                syncLocalPreviewWithCurrentBackground();
-            } else {
-                syncPreviewWithCurrentBackground();
-            }
-            const grid = document.getElementById('wallhaven-preview-grid');
-            if (grid) {
-                const activeEl = grid.querySelector('.wh-preview-item.selected');
-                if (activeEl) {
-                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }
-        });
-    }
-
     const btnRefreshWhDrawer = document.getElementById('b_refresh_wh_drawer');
     if (btnRefreshWhDrawer) {
         btnRefreshWhDrawer.addEventListener('click', async (e) => {

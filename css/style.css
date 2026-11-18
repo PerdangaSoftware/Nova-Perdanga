@@ -796,25 +796,6 @@ html.init-settings-open.init-drawer-open #show-settings {
     align-items: center;
     gap: 8px;
 }
-.action-btn-sm {
-    background: var(--param-bg);
-    border: 1px solid var(--border-color);
-    color: #dedede;
-    border-radius: 6px;
-    padding: 5px 9px;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    height: 28px;
-    box-sizing: border-box;
-}
-.action-btn-sm:hover {
-    background: rgba(255, 255, 255, 0.15);
-    color: white;
-}
 
 .icon-btn-sm {
     background: var(--param-bg);
