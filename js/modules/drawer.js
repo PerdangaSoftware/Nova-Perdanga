@@ -192,6 +192,10 @@ export async function renderLocalPreviews(explicitOffset = null) {
     const filterToggle = document.getElementById('b_drawer_filter_toggle');
     const quickFilters = document.getElementById('drawer-quick-filters');
 
+    const sh = document.getElementById('startup-hide-css');
+    if (sh) sh.remove();
+    document.documentElement.classList.remove('init-bg-local');
+
     if (tabWh) tabWh.classList.remove('active');
     if (tabLocal) tabLocal.classList.add('active');
     if (drawerMode) drawerMode.textContent = 'Local Files';
@@ -381,7 +385,9 @@ export async function syncPreviewWithActiveWallpaper(targetIdOrUrl = null, force
             ? state.currentLocalOffset 
             : parseInt(localStorage.getItem('nova_local_preview_offset') || '0');
 
-        if (forceJump || currentOffset !== targetOffset) {
+        const grid = document.getElementById('wallhaven-preview-grid');
+        const hasWhItems = grid ? Array.from(grid.querySelectorAll('.wh-preview-item')).some(el => el.dataset.path) : false;
+        if (forceJump || currentOffset !== targetOffset || hasWhItems) {
             await renderLocalPreviews(targetOffset);
         } else {
             updatePreviewHighlight(activeId);
@@ -415,8 +421,9 @@ export async function syncPreviewWithActiveWallpaper(targetIdOrUrl = null, force
         const domCount = grid ? grid.querySelectorAll('.wh-preview-item').length : 0;
         const currentSliceLength = pool.slice(targetOffset, targetOffset + 10).length;
         const activeInDom = grid ? Array.from(grid.querySelectorAll('.wh-preview-item')).some(el => isSameWallpaper(el.dataset.path, currentUrl)) : false;
+        const hasLocalItems = grid ? Array.from(grid.querySelectorAll('.wh-preview-item')).some(el => el.dataset.id) : false;
 
-        if (forceJump || currentOffset !== targetOffset || domCount !== currentSliceLength || (activeIdx !== -1 && !activeInDom)) {
+        if (forceJump || currentOffset !== targetOffset || domCount !== currentSliceLength || hasLocalItems || (activeIdx !== -1 && !activeInDom)) {
             renderWallhavenPreviews(targetOffset);
         } else {
             updatePreviewHighlight(activeIdx !== -1 ? currentUrl : null);
@@ -443,6 +450,10 @@ export function renderWallhavenPreviews(explicitOffset = null) {
     const filterToggle = document.getElementById('b_drawer_filter_toggle');
     const drawerQueryInput = document.getElementById('i_drawer_query');
     const btnDrawerQueryClear = document.getElementById('b_drawer_query_clear');
+
+    const sh = document.getElementById('startup-hide-css');
+    if (sh) sh.remove();
+    document.documentElement.classList.remove('init-bg-local');
 
     if (tabWh) tabWh.classList.add('active');
     if (tabLocal) tabLocal.classList.remove('active');

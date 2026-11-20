@@ -47,32 +47,32 @@
         const greetingsEnabled = getBoolSetting(s.greetingsEnabled, 'nova_greetings_enabled', true);
 
         let hideCss = '';
-        if (!timeEnabled) hideCss += '#time { display: none !important; }\n';
-        if (!dateEnabled) hideCss += '#date { display: none !important; }\n';
-        if (!weatherEnabled) hideCss += '#weather { display: none !important; }\n';
-        if (!greetingsEnabled) hideCss += '#greeting { display: none !important; }\n';
+        if (!timeEnabled) hideCss += 'html:not(.ready) #time { display: none !important; }\n';
+        if (!dateEnabled) hideCss += 'html:not(.ready) #date { display: none !important; }\n';
+        if (!weatherEnabled) hideCss += 'html:not(.ready) #weather { display: none !important; }\n';
+        if (!greetingsEnabled) hideCss += 'html:not(.ready) #greeting { display: none !important; }\n';
         if (s.bgType === 'local') {
-            hideCss += '#drawer-search-bar, #b_drawer_filter_toggle, #drawer-quick-filters, #b_drawer_save { display: none !important; }\n';
-            hideCss += '#drawer-local-upload-card { display: block !important; }\n';
-            hideCss += '#local-options { display: block !important; }\n';
+            hideCss += 'html:not(.ready) #drawer-search-bar, html:not(.ready) #b_drawer_filter_toggle, html:not(.ready) #drawer-quick-filters, html:not(.ready) #b_drawer_save { display: none !important; }\n';
+            hideCss += 'html:not(.ready) #drawer-local-upload-card { display: block !important; }\n';
+            hideCss += 'html:not(.ready) #local-options { display: block !important; }\n';
             const localTotal = parseInt(localStorage.getItem('nova_gallery_count') || '0');
             const localOffset = parseInt(localStorage.getItem('nova_local_preview_offset') || '0');
             if (localTotal > 0) {
                 const countOnPage = Math.min(10, Math.max(1, localTotal - localOffset));
                 const rows = Math.ceil(countOnPage / 2);
                 const approxHeight = rows * 94 + (rows - 1) * 10;
-                hideCss += `#wallhaven-preview-grid { min-height: ${approxHeight}px; }\n`;
+                hideCss += `html:not(.ready) #wallhaven-preview-grid { min-height: ${approxHeight}px; }\n`;
                 const galleryRows = Math.ceil(Math.min(localTotal, 12) / 3);
-                hideCss += `#local-gallery { min-height: ${galleryRows * 72 + (galleryRows - 1) * 8}px; }\n`;
+                hideCss += `html:not(.ready) #local-gallery { min-height: ${galleryRows * 72 + (galleryRows - 1) * 8}px; }\n`;
             }
         } else {
-            hideCss += '#wallhaven-preview-grid { min-height: 508px; }\n';
-            hideCss += '#local-options { display: none !important; }\n';
+            hideCss += 'html:not(.ready) #wallhaven-preview-grid { min-height: 508px; }\n';
+            hideCss += 'html:not(.ready) #local-options { display: none !important; }\n';
         }
         if (s.searchAutoColor === false) {
-            hideCss += '#manual-color-wrapper { display: flex !important; }\n';
+            hideCss += 'html:not(.ready) #manual-color-wrapper { display: flex !important; }\n';
         } else if (s.searchAutoColor === true) {
-            hideCss += '#manual-color-wrapper { display: none !important; }\n';
+            hideCss += 'html:not(.ready) #manual-color-wrapper { display: none !important; }\n';
         }
 
         const cachedFont = s.font || localStorage.getItem('nova_font_cache') || "'Outfit', sans-serif";
@@ -132,6 +132,7 @@
 
         if (hideCss) {
             const style = document.createElement('style');
+            style.id = 'startup-hide-css';
             style.textContent = hideCss;
             document.head.appendChild(style);
         }

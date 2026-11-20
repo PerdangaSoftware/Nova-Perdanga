@@ -746,13 +746,13 @@ html.init-settings-open.init-drawer-open #show-settings {
     right: 780px !important;
     transition: none !important;
 }
-html.init-bg-local #drawer-search-bar,
-html.init-bg-local #b_drawer_filter_toggle,
-html.init-bg-local #drawer-quick-filters,
-html.init-bg-local #b_drawer_save {
+html.init-bg-local:not(.ready) #drawer-search-bar,
+html.init-bg-local:not(.ready) #b_drawer_filter_toggle,
+html.init-bg-local:not(.ready) #drawer-quick-filters,
+html.init-bg-local:not(.ready) #b_drawer_save {
     display: none !important;
 }
-html.init-bg-local #drawer-local-upload-card {
+html.init-bg-local:not(.ready) #drawer-local-upload-card {
     display: block !important;
 }
 

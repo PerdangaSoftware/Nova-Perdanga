@@ -23,6 +23,9 @@ applySettingsToDOM();
 hydrateDrawerHeader();
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const startupHide = document.getElementById('startup-hide-css');
+    if (startupHide) startupHide.remove();
+
     initClock();
     initGallery();
     initSearch();
@@ -41,6 +44,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         requestAnimationFrame(() => {
             document.documentElement.classList.add('ready');
             document.documentElement.classList.remove('init-settings-open', 'init-drawer-open', 'init-bg-local');
+            const sh = document.getElementById('startup-hide-css');
+            if (sh) sh.remove();
+            const sb = document.getElementById('startup-bg-style');
+            if (sb) sb.remove();
         });
     });
 });
