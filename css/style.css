@@ -750,7 +750,8 @@ html.init-bg-local:not(.ready) #drawer-search-bar,
 html.init-bg-local:not(.ready) #b_drawer_filter_toggle,
 html.init-bg-local:not(.ready) #drawer-quick-filters,
 html.init-bg-local:not(.ready) #b_drawer_save,
-html.init-bg-local:not(.ready) #drawer-wh-details-card {
+html.init-bg-local:not(.ready) #drawer-wh-details-card,
+html.init-bg-local:not(.ready) #b_drawer_wh_download {
     display: none !important;
 }
 html.init-bg-local:not(.ready) #drawer-local-upload-card {
@@ -1256,6 +1257,35 @@ html.init-bg-local:not(.ready) #drawer-local-upload-card {
     gap: 5px;
     font-weight: 500;
 }
+.active-download-btn {
+    font-size: 0.72rem;
+    color: #dedede;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 5px 9px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+}
+.active-download-btn svg {
+    display: block;
+}
+.active-download-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #fff;
+    transform: translateY(-1px);
+}
+.active-download-btn:active {
+    transform: scale(0.95);
+}
+.active-download-btn.hidden {
+    display: none !important;
+}
 .active-del-btn svg {
     display: block;
 }
@@ -1319,58 +1349,46 @@ html.init-bg-local:not(.ready) #drawer-local-upload-card {
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.drawer-wh-details-card {
-    background: var(--param-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-top: 10px;
+.active-card-tags-section {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 8px;
+    margin-top: 4px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    box-sizing: border-box;
-    transition: border-color 0.2s, background 0.2s;
+    gap: 6px;
 }
-.drawer-wh-details-card.hidden {
+.active-card-tags-section.hidden {
     display: none !important;
 }
-.wh-details-header {
+.active-tags-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    cursor: pointer;
+    user-select: none;
+    padding: 2px 2px;
+    border-radius: 4px;
+    transition: opacity 0.15s ease;
 }
-.wh-details-title-row {
+.active-tags-header:hover {
+    opacity: 0.85;
+}
+.active-tags-title-row {
     display: flex;
     align-items: center;
     gap: 6px;
     color: #888;
 }
-.wh-details-heading {
+.active-tags-heading {
     font-size: 0.65rem;
     font-weight: 600;
     letter-spacing: 0.5px;
     text-transform: uppercase;
+    color: #888;
 }
-.wh-download-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: rgba(45, 212, 191, 0.12);
-    border: 1px solid rgba(45, 212, 191, 0.35);
-    color: #2dd4bf;
-    padding: 4px 9px;
-    border-radius: 6px;
-    font-size: 0.72rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
-}
-.wh-download-btn:hover {
-    background: rgba(45, 212, 191, 0.22);
-    border-color: #2dd4bf;
-}
-.wh-download-btn:active {
-    transform: scale(0.96);
+.wh-tags-badge {
+    font-size: 0.65rem;
+    padding: 1px 6px;
 }
 .wh-tags-wrap {
     display: flex;
@@ -1380,6 +1398,10 @@ html.init-bg-local:not(.ready) #drawer-local-upload-card {
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    transition: all 0.2s ease;
+}
+.wh-tags-wrap.collapsed {
+    display: none !important;
 }
 .wh-tags-wrap::-webkit-scrollbar {
     width: 4px;

@@ -52,7 +52,7 @@
         if (!weatherEnabled) hideCss += 'html:not(.ready) #weather { display: none !important; }\n';
         if (!greetingsEnabled) hideCss += 'html:not(.ready) #greeting { display: none !important; }\n';
         if (s.bgType === 'local') {
-            hideCss += 'html:not(.ready) #drawer-search-bar, html:not(.ready) #b_drawer_filter_toggle, html:not(.ready) #drawer-quick-filters, html:not(.ready) #b_drawer_save, html:not(.ready) #drawer-wh-details-card { display: none !important; }\n';
+            hideCss += 'html:not(.ready) #drawer-search-bar, html:not(.ready) #b_drawer_filter_toggle, html:not(.ready) #drawer-quick-filters, html:not(.ready) #b_drawer_save, html:not(.ready) #drawer-wh-details-card, html:not(.ready) #b_drawer_wh_download { display: none !important; }\n';
             hideCss += 'html:not(.ready) #drawer-local-upload-card { display: block !important; }\n';
             hideCss += 'html:not(.ready) #local-options { display: block !important; }\n';
             const localTotal = parseInt(localStorage.getItem('nova_gallery_count') || '0');

@@ -55,7 +55,10 @@ export async function updateActiveWallpaperCard() {
     const pulseBadge = activeCard.querySelector('.active-pulse-badge');
 
     activeCard.onclick = (e) => {
-        if (e.target.closest('#active-card-view-btn') || e.target.closest('#active-card-delete-btn')) return;
+        if (e.target.closest('#active-card-view-btn') || 
+            e.target.closest('#active-card-delete-btn') ||
+            e.target.closest('#b_drawer_wh_download') ||
+            e.target.closest('#drawer-wh-details-card')) return;
         jumpToActiveWallpaper();
     };
     activeCard.style.cursor = 'pointer';
@@ -68,6 +71,8 @@ export async function updateActiveWallpaperCard() {
         const current = gallery.find(img => img.id === state.settings.selectedLocalBg) || gallery[0];
         const whDetailsCard = document.getElementById('drawer-wh-details-card');
         if (whDetailsCard) whDetailsCard.classList.add('hidden');
+        const btnWhDownload = document.getElementById('b_drawer_wh_download');
+        if (btnWhDownload) btnWhDownload.classList.add('hidden');
         if (!current) {
             activeCard.classList.add('hidden');
             return;
@@ -174,6 +179,9 @@ export async function updateActiveWallpaperCard() {
         if (delBtn) {
             delBtn.classList.add('hidden');
         }
+        const btnWhDownload = document.getElementById('b_drawer_wh_download');
+        if (btnWhDownload) btnWhDownload.classList.remove('hidden');
+        if (whDetailsCard) whDetailsCard.classList.remove('hidden');
         updateWallhavenTags(currentUrl);
     }
 }
@@ -749,6 +757,7 @@ let currentWhTagsSeq = 0;
 export async function updateWallhavenTags(wallpaperUrl) {
     const card = document.getElementById('drawer-wh-details-card');
     const tagsWrap = document.getElementById('drawer-wh-tags');
+    const countBadge = document.getElementById('drawer-wh-tags-count');
     if (!card || !tagsWrap) return;
 
     if (state.activeDrawerTab === 'local' || state.settings.bgType === 'local') {
@@ -759,6 +768,7 @@ export async function updateWallhavenTags(wallpaperUrl) {
 
     if (!wallpaperUrl) {
         tagsWrap.innerHTML = '<span class="wh-tag-empty">No tags available</span>';
+        if (countBadge) countBadge.textContent = '0';
         return;
     }
 
@@ -769,6 +779,7 @@ export async function updateWallhavenTags(wallpaperUrl) {
 
     if (!id) {
         tagsWrap.innerHTML = '<span class="wh-tag-empty">No tags available</span>';
+        if (countBadge) countBadge.textContent = '0';
         return;
     }
 
@@ -778,6 +789,7 @@ export async function updateWallhavenTags(wallpaperUrl) {
     }
 
     tagsWrap.innerHTML = '<span class="wh-tag-loading">Loading tags...</span>';
+    if (countBadge) countBadge.textContent = '...';
     const thisSeq = ++currentWhTagsSeq;
 
     try {
@@ -796,16 +808,20 @@ export async function updateWallhavenTags(wallpaperUrl) {
     } catch (e) {
         if (thisSeq === currentWhTagsSeq) {
             tagsWrap.innerHTML = '<span class="wh-tag-empty">Tags unavailable</span>';
+            if (countBadge) countBadge.textContent = '0';
         }
     }
 }
 
 function renderWhTags(tags, container) {
     if (!container) return;
+    const countBadge = document.getElementById('drawer-wh-tags-count');
     if (!tags || tags.length === 0) {
         container.innerHTML = '<span class="wh-tag-empty">No tags for this wallpaper</span>';
+        if (countBadge) countBadge.textContent = '0';
         return;
     }
+    if (countBadge) countBadge.textContent = `${tags.length}`;
     container.replaceChildren();
     tags.slice(0, 10).forEach(t => {
         const btn = document.createElement('button');
@@ -1115,6 +1131,26 @@ export function initDrawer() {
             e.stopPropagation();
             await downloadCurrentWallhaven();
         });
+    }
+
+    const tagsToggle = document.getElementById('drawer-wh-tags-toggle');
+    const tagsWrap = document.getElementById('drawer-wh-tags');
+    const tagsArrow = document.getElementById('drawer-wh-tags-arrow');
+    if (tagsToggle && tagsWrap) {
+        tagsToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isCollapsed = tagsWrap.classList.toggle('collapsed');
+            if (tagsArrow) tagsArrow.classList.toggle('open', !isCollapsed);
+            localStorage.setItem('nova_wh_tags_collapsed', isCollapsed ? '1' : '0');
+        });
+        const savedCollapsed = localStorage.getItem('nova_wh_tags_collapsed');
+        if (savedCollapsed === '1') {
+            tagsWrap.classList.add('collapsed');
+            if (tagsArrow) tagsArrow.classList.remove('open');
+        } else {
+            tagsWrap.classList.remove('collapsed');
+            if (tagsArrow) tagsArrow.classList.add('open');
+        }
     }
 
     const btnDrawerFilterToggle = document.getElementById('b_drawer_filter_toggle');
