@@ -1213,29 +1213,39 @@ html.init-bg-local:not(.ready) #drawer-local-upload-card {
     align-items: center;
     gap: 6px;
 }
-.active-card-actions {
-    margin-left: auto;
+.active-card-actions-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+.active-action-btn {
+    flex: 1;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 0.74rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    border: 1px solid transparent;
+    box-sizing: border-box;
+    line-height: 1;
+}
+.active-action-btn svg {
+    display: block;
     flex-shrink: 0;
 }
-.active-ext-link {
-    font-size: 0.72rem;
-    color: #2dd4bf;
-    text-decoration: none;
-    padding: 5px 9px;
-    border-radius: 6px;
-    background: rgba(20, 184, 166, 0.12);
-    border: 1px solid rgba(20, 184, 166, 0.28);
-    transition: all 0.18s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-weight: 500;
+.active-action-btn.hidden {
+    display: none !important;
 }
-.active-ext-link svg {
-    display: block;
+.active-ext-link {
+    color: #2dd4bf;
+    background: rgba(20, 184, 166, 0.12);
+    border-color: rgba(20, 184, 166, 0.28);
 }
 .active-ext-link:hover {
     background: rgba(20, 184, 166, 0.25);
@@ -1243,36 +1253,10 @@ html.init-bg-local:not(.ready) #drawer-local-upload-card {
     color: #fff;
     transform: translateY(-1px);
 }
-.active-del-btn {
-    font-size: 0.72rem;
-    color: #ef4444;
-    background: rgba(239, 68, 68, 0.12);
-    border: 1px solid rgba(239, 68, 68, 0.28);
-    padding: 5px 9px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.18s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-weight: 500;
-}
 .active-download-btn {
-    font-size: 0.72rem;
     color: #dedede;
     background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    padding: 5px 9px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.18s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-weight: 500;
-}
-.active-download-btn svg {
-    display: block;
+    border-color: rgba(255, 255, 255, 0.14);
 }
 .active-download-btn:hover {
     background: rgba(255, 255, 255, 0.14);
@@ -1281,10 +1265,18 @@ html.init-bg-local:not(.ready) #drawer-local-upload-card {
     transform: translateY(-1px);
 }
 .active-download-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.96);
 }
-.active-download-btn.hidden {
-    display: none !important;
+.active-del-btn {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.28);
+}
+.active-del-btn:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(239, 68, 68, 0.55);
+    color: #fff;
+    transform: translateY(-1px);
 }
 .active-del-btn svg {
     display: block;
@@ -1329,7 +1321,7 @@ html.init-bg-local:not(.ready) #drawer-local-upload-card {
     gap: 3px;
 }
 .active-meta-res {
-    font-size: 0.82rem;
+    font-size: 0.88rem;
     font-weight: 600;
     color: #fff;
     white-space: nowrap;
@@ -1338,15 +1330,16 @@ html.init-bg-local:not(.ready) #drawer-local-upload-card {
 }
 .active-meta-colors {
     display: flex;
-    gap: 4px;
-    margin-top: 2px;
-    min-height: 11px;
+    gap: 5px;
+    margin-top: 3px;
+    min-height: 12px;
 }
 .active-color-dot {
-    width: 11px;
-    height: 11px;
+    width: 12px;
+    height: 12px;
     border-radius: 3px;
     border: 1px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
 }
 
 .active-card-tags-section {
@@ -1394,11 +1387,16 @@ html.init-bg-local:not(.ready) #drawer-local-upload-card {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    max-height: 85px;
+    min-height: 48px;
+    max-height: 54px;
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
-    transition: all 0.2s ease;
+    transition: opacity 0.15s ease;
+}
+.wh-tags-wrap.loading-fade {
+    opacity: 0.45;
+    pointer-events: none;
 }
 .wh-tags-wrap.collapsed {
     display: none !important;
@@ -1433,10 +1431,16 @@ html.init-bg-local:not(.ready) #drawer-local-upload-card {
 }
 .wh-tag-loading,
 .wh-tag-empty {
+    width: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     font-size: 0.72rem;
-    color: #666;
+    color: #777;
     font-style: italic;
-    padding: 2px 0;
+    padding: 0;
 }
 
 .drawer-local-upload-card {

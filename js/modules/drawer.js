@@ -767,7 +767,8 @@ export async function updateWallhavenTags(wallpaperUrl) {
     card.classList.remove('hidden');
 
     if (!wallpaperUrl) {
-        tagsWrap.innerHTML = '<span class="wh-tag-empty">No tags available</span>';
+        tagsWrap.classList.remove('loading-fade');
+        tagsWrap.innerHTML = '<div class="wh-tag-empty">No tags available</div>';
         if (countBadge) countBadge.textContent = '0';
         return;
     }
@@ -778,17 +779,24 @@ export async function updateWallhavenTags(wallpaperUrl) {
     const id = meta?.id || (idMatch ? idMatch[1] : null);
 
     if (!id) {
-        tagsWrap.innerHTML = '<span class="wh-tag-empty">No tags available</span>';
+        tagsWrap.classList.remove('loading-fade');
+        tagsWrap.innerHTML = '<div class="wh-tag-empty">No tags available</div>';
         if (countBadge) countBadge.textContent = '0';
         return;
     }
 
     if (whTagsCache.has(id)) {
+        tagsWrap.classList.remove('loading-fade');
         renderWhTags(whTagsCache.get(id), tagsWrap);
         return;
     }
 
-    tagsWrap.innerHTML = '<span class="wh-tag-loading">Loading tags...</span>';
+    if (tagsWrap.children.length === 0 || tagsWrap.querySelector('.wh-tag-empty')) {
+        tagsWrap.innerHTML = '<div class="wh-tag-loading"><svg class="nova-spin" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg><span>Loading tags...</span></div>';
+    } else {
+        tagsWrap.classList.add('loading-fade');
+    }
+
     if (countBadge) countBadge.textContent = '...';
     const thisSeq = ++currentWhTagsSeq;
 
@@ -803,11 +811,13 @@ export async function updateWallhavenTags(wallpaperUrl) {
 
         const currentActive = state.currentActiveWallhavenUrl || getCurrentScreenWallpaperUrl();
         if (isSameWallpaper(currentActive, wallpaperUrl)) {
+            tagsWrap.classList.remove('loading-fade');
             renderWhTags(tags, tagsWrap);
         }
     } catch (e) {
         if (thisSeq === currentWhTagsSeq) {
-            tagsWrap.innerHTML = '<span class="wh-tag-empty">Tags unavailable</span>';
+            tagsWrap.classList.remove('loading-fade');
+            tagsWrap.innerHTML = '<div class="wh-tag-empty">Tags unavailable</div>';
             if (countBadge) countBadge.textContent = '0';
         }
     }
@@ -817,7 +827,7 @@ function renderWhTags(tags, container) {
     if (!container) return;
     const countBadge = document.getElementById('drawer-wh-tags-count');
     if (!tags || tags.length === 0) {
-        container.innerHTML = '<span class="wh-tag-empty">No tags for this wallpaper</span>';
+        container.innerHTML = '<div class="wh-tag-empty">No tags for this wallpaper</div>';
         if (countBadge) countBadge.textContent = '0';
         return;
     }
