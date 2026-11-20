@@ -117,9 +117,9 @@ export async function preCalculateNextBackground() {
                 localStorage.removeItem('nova_startup_bg_id');
                 localStorage.setItem('nova_startup_bg_type', 'wallhaven');
                 localStorage.setItem('nova_startup_bg_pos', '50');
-                localStorage.setItem('nova_active_wh_url', nextThumbUrl);
+                localStorage.setItem('nova_startup_bg_wh_url', nextThumbUrl);
                 try {
-                    localStorage.setItem('nova_active_wh_meta', JSON.stringify({
+                    localStorage.setItem('nova_startup_bg_meta', JSON.stringify({
                         path: pool[targetIndex].path,
                         thumb: pool[targetIndex].thumb,
                         resolution: pool[targetIndex].resolution,
@@ -378,15 +378,37 @@ export async function evaluateFrequencyAdvance(isStartup) {
         } else if (settings.bgType === 'wallhaven') {
             let pool = getWallhavenPool();
             if (pool.length > 1) {
-                const current = state.currentActiveWallhavenUrl || getCurrentScreenWallpaperUrl();
-                let idx = pool.findIndex(item => isSameWallpaper(item.path, current));
-                if (idx === -1) idx = 0;
-                let nextIdx = (idx + 1) % pool.length;
-                const nextUrl = pool[nextIdx].path;
-                state.currentActiveWallhavenUrl = nextUrl;
-                localStorage.setItem('nova_active_wh_url', nextUrl);
-                settings.wallhavenQueue = pool.slice(nextIdx).map(p => p.path);
-                await storage.setSettings(settings);
+                const startupWhUrl = localStorage.getItem('nova_startup_bg_wh_url') || localStorage.getItem('nova_startup_bg');
+                let nextUrl = null;
+                let nextIdx = -1;
+
+                if (startupWhUrl && pool.some(item => isSameWallpaper(item.path, startupWhUrl))) {
+                    nextIdx = pool.findIndex(item => isSameWallpaper(item.path, startupWhUrl));
+                    nextUrl = pool[nextIdx].path;
+                } else {
+                    const current = state.currentActiveWallhavenUrl || localStorage.getItem('nova_active_wh_url') || getCurrentScreenWallpaperUrl();
+                    let idx = pool.findIndex(item => isSameWallpaper(item.path, current));
+                    if (idx === -1) idx = 0;
+                    nextIdx = (idx + 1) % pool.length;
+                    nextUrl = pool[nextIdx].path;
+                }
+
+                if (nextUrl) {
+                    state.currentActiveWallhavenUrl = nextUrl;
+                    localStorage.setItem('nova_active_wh_url', nextUrl);
+                    if (pool[nextIdx]) {
+                        try {
+                            localStorage.setItem('nova_active_wh_meta', JSON.stringify({
+                                path: pool[nextIdx].path,
+                                thumb: pool[nextIdx].thumb,
+                                resolution: pool[nextIdx].resolution,
+                                colors: pool[nextIdx].colors
+                            }));
+                        } catch {}
+                    }
+                    settings.wallhavenQueue = pool.slice(nextIdx).map(p => p.path);
+                    await storage.setSettings(settings);
+                }
             }
         }
     }

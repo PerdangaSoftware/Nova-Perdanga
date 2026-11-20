@@ -189,7 +189,7 @@
         } catch {}
         let whOffset = parseInt(localStorage.getItem('nova_wh_preview_offset') || '0');
         const whTotal = parseInt(localStorage.getItem('nova_wh_total') || '0');
-        const currentActive = localStorage.getItem('nova_active_wh_url') || localStorage.getItem('nova_startup_bg');
+        const currentActive = localStorage.getItem('nova_startup_bg_wh_url') || localStorage.getItem('nova_active_wh_url') || localStorage.getItem('nova_startup_bg');
 
         if (currentActive && pool.length > 0) {
             const activeIdx = pool.findIndex(item => item.path === currentActive || (item.path && currentActive && item.path.split('/').pop() === currentActive.split('/').pop()));
@@ -238,7 +238,7 @@
         }
 
         if (activeCard) {
-            const currentUrl = localStorage.getItem('nova_active_wh_url') || localStorage.getItem('nova_startup_bg');
+            const currentUrl = localStorage.getItem('nova_startup_bg_wh_url') || localStorage.getItem('nova_active_wh_url') || localStorage.getItem('nova_startup_bg');
             if (currentUrl) {
                 activeCard.classList.remove('hidden');
                 const titleEl = activeCard.querySelector('.active-card-title');
