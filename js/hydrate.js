@@ -103,7 +103,7 @@
         if (drawerMode) drawerMode.textContent = 'Local Files';
         if (tabWallhaven) tabWallhaven.classList.remove('active');
         if (tabLocal) tabLocal.classList.add('active');
-        if (btnDrawerSave) btnDrawerSave.innerHTML = '+ Upload';
+        if (btnDrawerSave) btnDrawerSave.classList.add('hidden');
         if (searchBar) searchBar.classList.add('hidden');
         if (filterToggle) filterToggle.classList.add('hidden');
         if (quickFilters) quickFilters.classList.add('hidden');
@@ -176,7 +176,10 @@
             }
         }
     } else {
-        if (btnDrawerSave) btnDrawerSave.innerHTML = '★ Save';
+        if (btnDrawerSave) {
+            btnDrawerSave.classList.remove('hidden');
+            btnDrawerSave.innerHTML = '★ Save';
+        }
         if (searchBar) searchBar.classList.remove('hidden');
         if (filterToggle) filterToggle.classList.remove('hidden');
         if (tabWallhaven) tabWallhaven.classList.add('active');

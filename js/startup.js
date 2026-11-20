@@ -52,7 +52,7 @@
         if (!weatherEnabled) hideCss += '#weather { display: none !important; }\n';
         if (!greetingsEnabled) hideCss += '#greeting { display: none !important; }\n';
         if (s.bgType === 'local') {
-            hideCss += '#drawer-search-bar, #b_drawer_filter_toggle, #drawer-quick-filters { display: none !important; }\n';
+            hideCss += '#drawer-search-bar, #b_drawer_filter_toggle, #drawer-quick-filters, #b_drawer_save { display: none !important; }\n';
             hideCss += '#drawer-local-upload-card { display: block !important; }\n';
             hideCss += '#local-options { display: block !important; }\n';
             const localTotal = parseInt(localStorage.getItem('nova_gallery_count') || '0');

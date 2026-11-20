@@ -748,7 +748,8 @@ html.init-settings-open.init-drawer-open #show-settings {
 }
 html.init-bg-local #drawer-search-bar,
 html.init-bg-local #b_drawer_filter_toggle,
-html.init-bg-local #drawer-quick-filters {
+html.init-bg-local #drawer-quick-filters,
+html.init-bg-local #b_drawer_save {
     display: none !important;
 }
 html.init-bg-local #drawer-local-upload-card {
@@ -1128,11 +1129,13 @@ html.init-bg-local #drawer-local-upload-card {
 .wh-drawer-grid-container::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.35); }
 
 .wh-drawer-footer {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
     gap: 8px;
     padding-top: 14px;
     border-top: 1px solid var(--border-color);
+}
+.wh-drawer-footer .action-btn {
+    flex: 1;
 }
 
 .wh-preview-grid {
