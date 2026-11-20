@@ -959,7 +959,6 @@ export function initDrawer() {
                 if (uploadInput) uploadInput.click();
             } else {
                 await saveCurrentWallhaven();
-                renderLocalPreviews();
             }
         });
     }
