@@ -39,9 +39,15 @@
 <details>
   <summary><b>Accurate Weather Forecast & Dynamic Greetings</b></summary>
   <br>
-  <a href="assets/screenshots/nova-perdanga-weather.png">
-    <img src="assets/screenshots/nova-perdanga-weather.png" alt="Accurate Weather Forecast & Dynamic Greetings" width="100%">
-  </a>
+  <div align="center">
+    <a href="assets/screenshots/nova-perdanga-weather.png">
+      <img src="assets/screenshots/nova-perdanga-weather.png" alt="Accurate Weather Forecast & Dynamic Greetings" width="58%">
+    </a>
+    &nbsp;&nbsp;
+    <a href="assets/screenshots/nova-perdanga-weather-settings.png">
+      <img src="assets/screenshots/nova-perdanga-weather-settings.png" alt="Weather & Greetings Settings" width="38%">
+    </a>
+  </div>
 </details>
 
 <details>
@@ -55,9 +61,11 @@
 <details>
   <summary><b>Settings</b></summary>
   <br>
-  <a href="assets/screenshots/nova-perdanga-settings.png">
-    <img src="assets/screenshots/nova-perdanga-settings.png" alt="Settings" width="100%">
-  </a>
+  <div align="center">
+    <a href="assets/screenshots/nova-perdanga-settings.png">
+      <img src="assets/screenshots/nova-perdanga-settings.png" alt="Settings" width="75%">
+    </a>
+  </div>
 </details>
 
 ## 🗻 Overview
