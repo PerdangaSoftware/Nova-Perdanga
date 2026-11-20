@@ -5,8 +5,8 @@
 </div>
 
 <div align="center">
-  <a href="assets/screenshots/nova-perdanga-showcase.png">
-    <img src="assets/screenshots/nova-perdanga-showcase.png" alt="Nova-Perdanga Interface" width="100%">
+  <a href="assets/screenshots/nova-perdanga-showcase-v1.4.png">
+    <img src="assets/screenshots/nova-perdanga-showcase-v1.4.png" alt="Nova-Perdanga Interface" width="100%">
   </a>
 </div>
 
@@ -33,9 +33,11 @@
 <details>
   <summary><b>Offline Local Library</b></summary>
   <br>
-  <a href="assets/screenshots/nova-perdanga-dual.png">
-    <img src="assets/screenshots/nova-perdanga-dual.png" alt="Offline Local Library" width="100%">
-  </a>
+  <div align="center">
+    <a href="assets/screenshots/nova-perdanga-dual-v1.4.png">
+      <img src="assets/screenshots/nova-perdanga-dual-v1.4.png" alt="Offline Local Library" width="75%">
+    </a>
+  </div>
 </details>
 
 <details>
