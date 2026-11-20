@@ -6,7 +6,7 @@
 
 <div align="center">
   <a href="assets/screenshots/nova-perdanga-showcase.png">
-    <img src="assets/screenshots/nova-perdanga-showcase.png" alt="Nova-Perdanga Interface" width="100%">
+    <img src="assets/screenshots/nova-perdanga-showcase.png?raw=true" alt="Nova-Perdanga Interface" width="100%">
   </a>
 </div>
 
@@ -17,7 +17,7 @@
   <br>
   <div align="center">
     <a href="assets/screenshots/nova-perdanga-search.png">
-      <img src="assets/screenshots/nova-perdanga-search.png" alt="Smart Search & Real-Time Suggestions" width="100%">
+      <img src="assets/screenshots/nova-perdanga-search.png?raw=true" alt="Smart Search & Real-Time Suggestions" width="100%">
     </a>
   </div>
 </details>
@@ -26,7 +26,7 @@
   <summary><b>Wallhaven Hub & Color Palette Filter</b></summary>
   <br>
   <a href="assets/screenshots/nova-perdanga-wallhaven.png">
-    <img src="assets/screenshots/nova-perdanga-wallhaven.png" alt="Wallhaven Hub & Color Palette Filter" width="100%">
+    <img src="assets/screenshots/nova-perdanga-wallhaven.png?raw=true" alt="Wallhaven Hub & Color Palette Filter" width="100%">
   </a>
 </details>
 
@@ -35,7 +35,7 @@
   <br>
   <div align="center">
     <a href="assets/screenshots/nova-perdanga-dual.png">
-      <img src="assets/screenshots/nova-perdanga-dual.png" alt="Offline Local Library" width="75%">
+      <img src="assets/screenshots/nova-perdanga-dual.png?raw=true" alt="Offline Local Library" width="75%">
     </a>
   </div>
 </details>
@@ -48,12 +48,12 @@
       <tr>
         <td align="center" valign="middle" width="60%">
           <a href="assets/screenshots/nova-perdanga-weather.png">
-            <img src="assets/screenshots/nova-perdanga-weather.png" alt="Live Weather & Clock Widget" width="100%">
+            <img src="assets/screenshots/nova-perdanga-weather.png?raw=true" alt="Live Weather & Clock Widget" width="100%">
           </a>
         </td>
         <td align="center" valign="middle" width="40%">
           <a href="assets/screenshots/nova-perdanga-weather-settings.png">
-            <img src="assets/screenshots/nova-perdanga-weather-settings.png" alt="Weather & Greetings Settings" width="100%">
+            <img src="assets/screenshots/nova-perdanga-weather-settings.png?raw=true" alt="Weather & Greetings Settings" width="100%">
           </a>
         </td>
       </tr>
@@ -66,7 +66,7 @@
   <br>
   <div align="center">
     <a href="assets/screenshots/nova-perdanga-timer.png">
-      <img src="assets/screenshots/nova-perdanga-timer.png" alt="Draggable Floating Timer" width="45%">
+      <img src="assets/screenshots/nova-perdanga-timer.png?raw=true" alt="Draggable Floating Timer" width="45%">
     </a>
   </div>
 </details>
@@ -76,7 +76,7 @@
   <br>
   <div align="center">
     <a href="assets/screenshots/nova-perdanga-settings.png">
-      <img src="assets/screenshots/nova-perdanga-settings.png" alt="Settings" width="75%">
+      <img src="assets/screenshots/nova-perdanga-settings.png?raw=true" alt="Settings" width="75%">
     </a>
   </div>
 </details>
