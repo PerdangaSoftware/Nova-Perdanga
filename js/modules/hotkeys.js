@@ -1,10 +1,10 @@
 import state from './state.js';
-import { storage } from './storage.js';
+import { storage, saveSnapshot } from './storage.js';
 import { showToast } from './utils.js';
-import { loadBackground } from './background.js';
+import { loadBackground, switchToNextWallpaper, switchToPrevWallpaper } from './background.js';
 import { saveCurrentWallhaven } from './wallhaven.js';
 import { toggleSettings, updateSetting } from './settings.js';
-import { toggleWhDrawer, syncPreviewWithCurrentBackground } from './drawer.js';
+import { toggleWhDrawer, syncPreviewWithActiveWallpaper } from './drawer.js';
 
 export const toggleShortcutsModal = (forceState) => {
     const shortcutsModal = document.getElementById('shortcuts-modal');
@@ -91,7 +91,7 @@ export function initHotkeys() {
             const newType = state.settings.bgType === 'wallhaven' ? 'local' : 'wallhaven';
             state.activeDrawerTab = newType;
             await updateSetting('bgType', newType, () => loadBackground(false, false));
-            syncPreviewWithCurrentBackground();
+            syncPreviewWithActiveWallpaper(null, true);
             showToast(`Mode: ${newType === 'wallhaven' ? 'Wallhaven' : 'Local files'}`);
             return;
         }
@@ -110,32 +110,13 @@ export function initHotkeys() {
 
         if (code === 'KeyN' || key === 'n' || key === 'т' || code === 'ArrowRight' || key === 'arrowright') {
             e.preventDefault();
-            loadBackground(true, false);
+            await switchToNextWallpaper();
             return;
         }
 
         if (code === 'KeyP' || key === 'p' || key === 'з' || code === 'ArrowLeft' || key === 'arrowleft') {
             e.preventDefault();
-            if (state.settings.bgType === 'wallhaven') {
-                if (state.settings.wallhavenHistory.length > 0) {
-                    const prevUrl = state.settings.wallhavenHistory.pop();
-                    state.settings.wallhavenQueue.unshift(prevUrl);
-                    state.currentActiveWallhavenUrl = prevUrl;
-                    localStorage.setItem('nova_active_wh_url', prevUrl);
-                    syncPreviewWithCurrentBackground(prevUrl);
-                    await storage.setSettings(state.settings);
-                    loadBackground(false, false);
-                }
-            } else {
-                const gallery = await storage.getGallery();
-                if (gallery.length > 1) {
-                    let idx = gallery.findIndex(img => img.id === state.settings.selectedLocalBg);
-                    idx = (idx - 1 + gallery.length) % gallery.length;
-                    state.settings.selectedLocalBg = gallery[idx].id;
-                    await storage.setSettings(state.settings);
-                    loadBackground(false, false);
-                }
-            }
+            await switchToPrevWallpaper();
             return;
         }
 

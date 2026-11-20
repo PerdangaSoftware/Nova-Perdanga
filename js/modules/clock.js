@@ -5,6 +5,29 @@ let lastDateStr = "";
 let lastGreetStr = "";
 let clockInterval = null;
 
+let cachedTimeFormatter = null;
+let cachedTimeFormatterKey = '';
+
+function getTimeFormatter(hour12, withSeconds) {
+    const key = `${hour12}_${withSeconds}`;
+    if (cachedTimeFormatterKey !== key) {
+        cachedTimeFormatterKey = key;
+        cachedTimeFormatter = new Intl.DateTimeFormat([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: withSeconds ? '2-digit' : undefined,
+            hour12: hour12
+        });
+    }
+    return cachedTimeFormatter;
+}
+
+const dateFormatter = new Intl.DateTimeFormat([], { 
+    weekday: 'long', 
+    month: 'long', 
+    day: 'numeric' 
+});
+
 export function hydrateUI() {
     try {
         const timeEnabled = localStorage.getItem('nova_time_enabled') !== 'false';
@@ -15,19 +38,24 @@ export function hydrateUI() {
         if (timeEnabled) {
             const domClock = document.getElementById('clock');
             if (domClock) {
-                let opts = { hour: '2-digit', minute: '2-digit' };
+                let hour12 = false;
+                let withSeconds = false;
                 try {
                     const savedOpts = localStorage.getItem('nova_time_opts');
-                    if (savedOpts) opts = JSON.parse(savedOpts);
-                } catch (e) {}
-                domClock.textContent = new Date().toLocaleTimeString([], opts);
+                    if (savedOpts) {
+                        const parsed = JSON.parse(savedOpts);
+                        hour12 = Boolean(parsed.hour12);
+                        withSeconds = Boolean(parsed.second);
+                    }
+                } catch {}
+                domClock.textContent = getTimeFormatter(hour12, withSeconds).format(new Date());
             }
         }
 
         if (dateEnabled) {
             const domDate = document.getElementById('date');
             if (domDate) {
-                domDate.textContent = new Date().toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+                domDate.textContent = dateFormatter.format(new Date());
             }
         }
 
@@ -56,10 +84,10 @@ export function hydrateUI() {
                     } else {
                         document.getElementById('weather-desc').textContent = "Loading weather...";
                     }
-                } catch(e) {}
+                } catch {}
             }
         }
-    } catch (e) {}
+    } catch {}
 }
 
 export function updateClockAndDate() {
@@ -74,13 +102,8 @@ export function updateClockAndDate() {
     
     if (settings.timeEnabled) {
         domClockBlock.classList.remove('hidden');
-        const opts = { 
-            hour: '2-digit', 
-            minute: '2-digit',
-            second: settings.timeSeconds ? '2-digit' : undefined,
-            hour12: settings.time12h 
-        };
-        const timeStr = now.toLocaleTimeString([], opts);
+        const formatter = getTimeFormatter(Boolean(settings.time12h), Boolean(settings.timeSeconds));
+        const timeStr = formatter.format(now);
         if (timeStr !== lastTimeStr) {
             domClock.textContent = timeStr;
             lastTimeStr = timeStr;
@@ -91,7 +114,7 @@ export function updateClockAndDate() {
 
     if (settings.dateEnabled) {
         domDate.classList.remove('hidden');
-        const dateStr = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+        const dateStr = dateFormatter.format(now);
         if (dateStr !== lastDateStr) {
             domDate.textContent = dateStr;
             lastDateStr = dateStr;

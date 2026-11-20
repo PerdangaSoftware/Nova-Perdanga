@@ -1,4 +1,6 @@
 :root {
+    interpolate-size: allow-keywords;
+    color-scheme: dark;
     --font-family: 'Outfit', sans-serif;
     --text-color: #ffffff;
     --text-shadow: 0 1px 12px rgba(0, 0, 0, 0.4);
@@ -85,7 +87,20 @@ body {
 
 .hidden { display: none !important; }
 
-#search-container { width: 100%; max-width: var(--search-width); position: absolute; bottom: 10vh; }
+#search-container {
+    width: 100%;
+    max-width: var(--search-width);
+    position: absolute;
+    bottom: 10vh;
+    left: 0;
+    right: 0;
+    margin-inline: auto;
+}
+
+.search-form {
+    width: 100%;
+    position: relative;
+}
 
 .search-input-wrapper {
     position: relative;
@@ -152,7 +167,6 @@ body {
     transform: translateY(-50%) scale(0.95);
 }
 
-/* --- AUTOCOMPLETE SUGGESTIONS --- */
 #search-suggestions {
     position: absolute;
     bottom: calc(100% + 15px);
@@ -204,7 +218,6 @@ body {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Settings Toggle Icon */
 #show-settings {
     position: fixed; bottom: 20px; right: 20px; z-index: 30;
     transition: right 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease;
@@ -292,12 +305,13 @@ body:has(#settings.shown):has(#wallhaven-preview-drawer.shown) #show-settings {
 #settings-toggle-btn.active svg { transform: rotate(90deg); }
 #settings-toggle-btn svg { transition: transform 0.4s ease; }
 
-/* Settings Sidebar */
 #settings {
-    position: absolute; top: 0; right: 0; width: 380px; height: 100%;
+    position: fixed; top: 0; right: 0; width: 380px; height: 100%;
     background: var(--panel-bg); color: #ededed; transform: translateX(100%);
     transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 20;
-    overflow-y: auto; border-left: 1px solid var(--border-color);
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+    border-left: 1px solid var(--border-color);
     padding: 30px; padding-bottom: 80px; box-shadow: -10px 0 30px rgba(0,0,0,0.5);
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
@@ -311,6 +325,7 @@ body:has(#settings.shown):has(#wallhaven-preview-drawer.shown) #show-settings {
 #settings::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.18);
     border-radius: 4px;
+    transition: none !important;
 }
 #settings::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.35);
@@ -397,13 +412,11 @@ body:has(#settings.shown):has(#wallhaven-preview-drawer.shown) #show-settings {
     display: block;
 }
 
-/* Blocks */
 .param { background: var(--param-bg); border-radius: 12px; padding: 5px 20px; border: 1px solid var(--border-color); }
 .wrapper { display: flex; flex-direction: column; padding: 12px 0; gap: 8px; }
 .wrapper.row-between { flex-direction: row; justify-content: space-between; align-items: center; }
 .wrapper label { font-size: 0.9rem; color: #dedede; }
 
-/* Badges and values */
 .header-with-badge { display: flex; align-items: center; gap: 8px; }
 .badge-count {
     font-size: 0.75rem;
@@ -412,6 +425,7 @@ body:has(#settings.shown):has(#wallhaven-preview-drawer.shown) #show-settings {
     color: #dedede;
     padding: 2px 7px;
     border-radius: 12px;
+    font-variant-numeric: tabular-nums;
 }
 .label-with-val { display: flex; flex-direction: column; gap: 2px; }
 .val-badge {
@@ -423,7 +437,6 @@ body:has(#settings.shown):has(#wallhaven-preview-drawer.shown) #show-settings {
 hr { border: 0; border-top: 1px solid var(--border-color); margin: 0; }
 .mt-10 { margin-top: 10px; } .mt-15 { margin-top: 15px; } .mb-15 { margin-bottom: 15px; }
 
-/* Inputs and Selects */
 .dark-select, .dark-input {
     background: var(--input-bg); border: 1px solid transparent; color: white; 
     padding: 6px 12px; border-radius: 6px; outline: none; font-family: inherit; font-size: 0.85rem; width: 140px;
@@ -446,7 +459,6 @@ hr { border: 0; border-top: 1px solid var(--border-color); margin: 0; }
 }
 .apply-btn:hover { background: var(--accent-green) !important; color: black; }
 
-/* Color Pickers */
 .color-picker {
     background: none; border: none; width: 30px; height: 30px; cursor: pointer; padding: 0; border-radius: 4px; overflow: hidden;
 }
@@ -460,10 +472,10 @@ input[type="range"] {
     width: 130px;
     height: 6px;
     border-radius: 999px;
-    background: linear-gradient(to right, #14b8a6 50%, rgba(255, 255, 255, 0.12) 50%);
+    background: linear-gradient(to right, #14b8a6 0%, #14b8a6 var(--slider-fill, 0%), rgba(255, 255, 255, 0.12) var(--slider-fill, 0%), rgba(255, 255, 255, 0.12) 100%);
     outline: none;
     cursor: pointer;
-    transition: background 0.15s ease;
+    flex-shrink: 0;
 }
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
@@ -514,7 +526,7 @@ input[type="range"]:active::-moz-range-thumb {
     cursor: grabbing;
 }
 
-.toggle { position: relative; display: inline-block; width: 44px; height: 24px; }
+.toggle { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
 .toggle input { opacity: 0; width: 0; height: 0; }
 .toggle-slider {
     position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
@@ -543,7 +555,6 @@ input[type="range"]:active::-moz-range-thumb {
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
-/* UI Gallery & Action Bars */
 .add-new-btn {
     display: flex; align-items: center; gap: 6px; background: rgba(20, 184, 166, 0.15); 
     color: var(--accent-blue); padding: 5px 12px; border-radius: 14px; font-size: 0.85rem; 
@@ -612,13 +623,13 @@ input[type="range"]:active::-moz-range-thumb {
     grid-template-columns: repeat(10, 1fr);
     gap: 4px;
     padding: 2px 0;
-    max-height: 120px;
+    block-size: auto;
     opacity: 1;
     overflow: hidden;
-    transition: max-height 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease, padding 0.28s ease;
+    transition: block-size 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease, padding 0.28s ease;
 }
 .wh-color-grid.collapsed {
-    max-height: 0;
+    block-size: 0;
     opacity: 0;
     padding: 0 !important;
     pointer-events: none;
@@ -700,12 +711,12 @@ body.settings-open.drawer-open #wallhaven-preview-drawer.shown {
         z-index: 25;
     }
 }
-body.preload-no-transition,
-body.preload-no-transition #interface,
-body.preload-no-transition #settings,
-body.preload-no-transition #wallhaven-preview-drawer,
-body.preload-no-transition #show-settings {
+html:not(.ready),
+html:not(.ready) *,
+html:not(.ready) *::before,
+html:not(.ready) *::after {
     transition: none !important;
+    animation: none !important;
 }
 html.init-settings-open #settings {
     transform: translateX(0) !important;
@@ -734,6 +745,14 @@ html.init-settings-open.init-drawer-open #wallhaven-preview-drawer {
 html.init-settings-open.init-drawer-open #show-settings {
     right: 780px !important;
     transition: none !important;
+}
+html.init-bg-local #drawer-search-bar,
+html.init-bg-local #b_drawer_filter_toggle,
+html.init-bg-local #drawer-quick-filters {
+    display: none !important;
+}
+html.init-bg-local #drawer-local-upload-card {
+    display: block !important;
 }
 
 .wh-drawer-header {
@@ -764,7 +783,7 @@ html.init-settings-open.init-drawer-open #show-settings {
     padding: 4px 10px;
     border-radius: 6px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 .drawer-tab-btn:hover {
     color: #fff;
@@ -953,7 +972,7 @@ html.init-settings-open.init-drawer-open #show-settings {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     outline: none;
 }
 .badge-mode-btn:hover {
@@ -1097,6 +1116,7 @@ html.init-settings-open.init-drawer-open #show-settings {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
+    scrollbar-gutter: stable;
     padding: 4px 6px 20px 6px;
     margin-bottom: 10px;
     scrollbar-width: thin;
@@ -1118,8 +1138,9 @@ html.init-settings-open.init-drawer-open #show-settings {
 .wh-preview-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: max-content;
+    align-content: start;
     gap: 10px;
-    min-height: 480px;
     padding: 2px;
 }
 .wh-preview-item {
@@ -1165,6 +1186,7 @@ html.init-settings-open.init-drawer-open #show-settings {
     flex-direction: column;
     gap: 8px;
     box-sizing: border-box;
+    min-height: 84px;
 }
 .drawer-active-card.hidden {
     display: none !important;
@@ -1284,6 +1306,7 @@ html.init-settings-open.init-drawer-open #show-settings {
     display: flex;
     gap: 4px;
     margin-top: 2px;
+    min-height: 11px;
 }
 .active-color-dot {
     width: 11px;
@@ -1442,7 +1465,6 @@ body.zen-mode .nova-timer-widget {
     pointer-events: none !important;
 }
 
-/* ===== TOAST NOTIFICATIONS ===== */
 #toast-container {
     position: fixed;
     top: 25px;
@@ -1477,7 +1499,6 @@ body.zen-mode .nova-timer-widget {
     transform: translateY(0) scale(1);
 }
 
-/* ===== SHORTCUTS MODAL ===== */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -1568,7 +1589,6 @@ kbd {
     box-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
 }
 
-/* ===== TIMER WIDGET ===== */
 .nova-timer-button {
     position: fixed;
     z-index: 50;

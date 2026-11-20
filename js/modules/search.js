@@ -1,11 +1,12 @@
 import state from './state.js';
 
 export function initSearch() {
-    const searchForm = document.getElementById('search-container');
+    const searchContainer = document.getElementById('search-container');
+    const searchForm = document.getElementById('search-form') || searchContainer;
     const searchInput = document.getElementById('searchbar');
     const searchClearBtn = document.getElementById('search-clear-btn');
     const domSearchSuggestions = document.getElementById('search-suggestions');
-    if (!searchForm || !searchInput || !searchClearBtn || !domSearchSuggestions) return;
+    if (!searchContainer || !searchForm || !searchInput || !searchClearBtn || !domSearchSuggestions) return;
 
     let currentSuggFocus = -1;
     let currentSuggestions = [];
@@ -86,40 +87,63 @@ export function initSearch() {
 
     const renderSuggestions = (suggestions) => {
         currentSuggestions = suggestions;
-        domSearchSuggestions.innerHTML = '';
         currentSuggFocus = -1;
 
         if (!suggestions || suggestions.length === 0) {
+            domSearchSuggestions.replaceChildren();
             domSearchSuggestions.classList.add('hide');
             return;
         }
 
-        suggestions.forEach((sugg, index) => {
+        const items = suggestions.map((sugg, index) => {
             const li = document.createElement('li');
             li.setAttribute('role', 'option');
             li.setAttribute('aria-selected', 'false');
-            li.innerHTML = `
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sugg-icon">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <span>${sugg}</span>
-            `;
-            
+
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 24 24');
+            svg.setAttribute('width', '18');
+            svg.setAttribute('height', '18');
+            svg.setAttribute('fill', 'none');
+            svg.setAttribute('stroke', 'currentColor');
+            svg.setAttribute('stroke-width', '2');
+            svg.setAttribute('stroke-linecap', 'round');
+            svg.setAttribute('stroke-linejoin', 'round');
+            svg.setAttribute('class', 'sugg-icon');
+
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', '11');
+            circle.setAttribute('cy', '11');
+            circle.setAttribute('r', '8');
+
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', '21');
+            line.setAttribute('y1', '21');
+            line.setAttribute('x2', '16.65');
+            line.setAttribute('y2', '16.65');
+
+            svg.append(circle, line);
+
+            const span = document.createElement('span');
+            span.textContent = sugg;
+
+            li.append(svg, span);
+
             li.addEventListener('mousedown', (e) => {
                 e.preventDefault();
                 searchInput.value = sugg;
                 domSearchSuggestions.classList.add('hide');
                 searchForm.dispatchEvent(new Event('submit', { cancelable: true }));
             });
-            
+
             li.addEventListener('mouseenter', () => {
                 updateSuggFocus(index, false);
             });
-            
-            domSearchSuggestions.appendChild(li);
+
+            return li;
         });
 
+        domSearchSuggestions.replaceChildren(...items);
         domSearchSuggestions.classList.remove('hide');
     };
 
@@ -187,7 +211,7 @@ export function initSearch() {
     });
 
     document.addEventListener('click', (e) => {
-        if (!searchForm.contains(e.target)) {
+        if (!searchContainer.contains(e.target)) {
             domSearchSuggestions.classList.add('hide');
         }
     });

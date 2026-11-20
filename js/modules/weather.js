@@ -145,11 +145,8 @@ export function formatTemperature(val, isFahrenheit) {
 }
 
 export async function fetchIpLocation(timeoutMs = 2500) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
     try {
-        const res = await fetch('https://get.geojs.io/v1/ip/geo.json', { signal: controller.signal });
-        clearTimeout(timeoutId);
+        const res = await fetch('https://get.geojs.io/v1/ip/geo.json', { signal: AbortSignal.timeout(timeoutMs) });
         if (!res.ok) throw new Error(`geojs HTTP ${res.status}`);
         const data = await res.json();
         return {
@@ -157,98 +154,81 @@ export async function fetchIpLocation(timeoutMs = 2500) {
             lon: Number(data.longitude),
             city: data.city || ""
         };
-    } catch (err) {
-        clearTimeout(timeoutId);
+    } catch {
         return null;
     }
 }
 
 export async function fetchWttrWeather(city, lat, lon, isFahrenheit, timeoutMs = 4000) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-        let target = '';
-        if (city) {
-            target = encodeURIComponent(city);
-        } else if (lat != null && lon != null) {
-            target = `${lat},${lon}`;
-        }
-        const res = await fetch(`https://wttr.in/${target}?format=j1`, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        if (!res.ok) throw new Error(`wttr HTTP ${res.status}`);
-        const data = await res.json();
-        const curr = data.current_condition?.[0];
-        if (!curr) throw new Error("wttr empty condition");
-        const rawTemp = isFahrenheit ? curr.temp_F : curr.temp_C;
-        const area = data.nearest_area?.[0];
-        const resolvedCity = city || area?.areaName?.[0]?.value || area?.region?.[0]?.value || "";
-        const resolvedLat = area?.latitude ? Number(area.latitude) : lat;
-        const resolvedLon = area?.longitude ? Number(area.longitude) : lon;
-        const hour = new Date().getHours();
-        const isDay = hour >= 6 && hour < 21;
-        const condition = parseWeatherCondition(curr.weatherCode, 'wttr', isDay);
-        const descText = curr.weatherDesc?.[0]?.value ? curr.weatherDesc[0].value.trim() : condition.desc;
-        return {
-            temp: formatTemperature(rawTemp, isFahrenheit),
-            desc: descText,
-            icon: condition.icon,
-            city: resolvedCity,
-            lat: resolvedLat,
-            lon: resolvedLon
-        };
-    } catch (err) {
-        clearTimeout(timeoutId);
-        throw err;
+    let target = '';
+    if (city) {
+        target = encodeURIComponent(city);
+    } else if (lat != null && lon != null) {
+        target = `${lat},${lon}`;
     }
+    const res = await fetch(`https://wttr.in/${target}?format=j1`, { signal: AbortSignal.timeout(timeoutMs) });
+    if (!res.ok) throw new Error(`wttr HTTP ${res.status}`);
+    const data = await res.json();
+    const curr = data.current_condition?.[0];
+    if (!curr) throw new Error("wttr empty condition");
+    const rawTemp = isFahrenheit ? curr.temp_F : curr.temp_C;
+    const area = data.nearest_area?.[0];
+    const resolvedCity = city || area?.areaName?.[0]?.value || area?.region?.[0]?.value || "";
+    const resolvedLat = area?.latitude ? Number(area.latitude) : lat;
+    const resolvedLon = area?.longitude ? Number(area.longitude) : lon;
+    const hour = new Date().getHours();
+    const isDay = hour >= 6 && hour < 21;
+    const condition = parseWeatherCondition(curr.weatherCode, 'wttr', isDay);
+    const descText = curr.weatherDesc?.[0]?.value ? curr.weatherDesc[0].value.trim() : condition.desc;
+    return {
+        temp: formatTemperature(rawTemp, isFahrenheit),
+        desc: descText,
+        icon: condition.icon,
+        city: resolvedCity,
+        lat: resolvedLat,
+        lon: resolvedLon
+    };
 }
 
 export async function fetchOpenMeteoWeather(city, lat, lon, isFahrenheit, timeoutMs = 3000) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-        let resolvedLat = lat;
-        let resolvedLon = lon;
-        let resolvedCity = city;
+    let resolvedLat = lat;
+    let resolvedLon = lon;
+    let resolvedCity = city;
 
-        if (city && (resolvedLat == null || resolvedLon == null)) {
-            const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`, { signal: controller.signal });
-            if (!geoRes.ok) throw new Error(`geocoding HTTP ${geoRes.status}`);
-            const geoData = await geoRes.json();
-            if (geoData.results && geoData.results.length > 0) {
-                resolvedLat = geoData.results[0].latitude;
-                resolvedLon = geoData.results[0].longitude;
-                resolvedCity = geoData.results[0].name;
-            } else {
-                throw new Error("City not found");
-            }
+    if (city && (resolvedLat == null || resolvedLon == null)) {
+        const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`, { signal: AbortSignal.timeout(timeoutMs) });
+        if (!geoRes.ok) throw new Error(`geocoding HTTP ${geoRes.status}`);
+        const geoData = await geoRes.json();
+        if (geoData.results && geoData.results.length > 0) {
+            resolvedLat = geoData.results[0].latitude;
+            resolvedLon = geoData.results[0].longitude;
+            resolvedCity = geoData.results[0].name;
+        } else {
+            throw new Error("City not found");
         }
-
-        if (resolvedLat == null || resolvedLon == null) {
-            throw new Error("Missing coordinates for Open-Meteo");
-        }
-
-        const unit = isFahrenheit ? '&temperature_unit=fahrenheit' : '';
-        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${resolvedLat}&longitude=${resolvedLon}&current_weather=true${unit}`, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
-        const data = await res.json();
-        if (!data.current_weather) throw new Error("Open-Meteo empty current_weather");
-        const isDay = data.current_weather.is_day !== undefined 
-            ? Boolean(data.current_weather.is_day) 
-            : (new Date().getHours() >= 6 && new Date().getHours() < 21);
-        const { desc, icon } = parseWeatherCondition(data.current_weather.weathercode, 'openmeteo', isDay);
-        return {
-            temp: formatTemperature(data.current_weather.temperature, isFahrenheit),
-            desc,
-            icon,
-            city: resolvedCity,
-            lat: resolvedLat,
-            lon: resolvedLon
-        };
-    } catch (err) {
-        clearTimeout(timeoutId);
-        throw err;
     }
+
+    if (resolvedLat == null || resolvedLon == null) {
+        throw new Error("Missing coordinates for Open-Meteo");
+    }
+
+    const unit = isFahrenheit ? '&temperature_unit=fahrenheit' : '';
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${resolvedLat}&longitude=${resolvedLon}&current_weather=true${unit}`, { signal: AbortSignal.timeout(timeoutMs) });
+    if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data.current_weather) throw new Error("Open-Meteo empty current_weather");
+    const isDay = data.current_weather.is_day !== undefined 
+        ? Boolean(data.current_weather.is_day) 
+        : (new Date().getHours() >= 6 && new Date().getHours() < 21);
+    const { desc, icon } = parseWeatherCondition(data.current_weather.weathercode, 'openmeteo', isDay);
+    return {
+        temp: formatTemperature(data.current_weather.temperature, isFahrenheit),
+        desc,
+        icon,
+        city: resolvedCity,
+        lat: resolvedLat,
+        lon: resolvedLon
+    };
 }
 
 export async function updateWeather(force = false) {
@@ -280,7 +260,7 @@ export async function updateWeather(force = false) {
                 domWeather.classList.remove('hidden');
                 return;
             }
-        } catch (err) {}
+        } catch {}
     }
 
     try {
@@ -325,7 +305,7 @@ export async function updateWeather(force = false) {
             cityQuery,
             unit: settings.weatherUnit
         }));
-    } catch (e) {
+    } catch {
         if (!localStorage.getItem('nova_weather_cache')) {
             domWeatherDesc.textContent = "Weather offline";
             domWeatherIcon.textContent = "❌";

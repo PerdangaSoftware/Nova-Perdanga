@@ -1,10 +1,10 @@
 import state, { emit, on } from './state.js';
-import { storage } from './storage.js';
+import { storage, saveSnapshot } from './storage.js';
 import { updateClockAndDate } from './clock.js';
 import { updateWeather } from './weather.js';
-import { loadBackground, preCalculateNextBackground } from './background.js';
+import { loadBackground, preCalculateNextBackground, switchToNextWallpaper } from './background.js';
 import { resetWallhavenSession, doFetchWallhaven } from './wallhaven.js';
-import { renderLocalPreviews, renderWallhavenPreviews, syncLocalPreviewWithCurrentBackground, syncPreviewWithCurrentBackground, toggleWhDrawer } from './drawer.js';
+import { syncPreviewWithActiveWallpaper, toggleWhDrawer, renderLocalPreviews, renderWallhavenPreviews } from './drawer.js';
 
 export const wallhavenColors = [
     '660000', '990000', 'cc0000', 'cc3333', 'ea4c88', '993399',
@@ -17,6 +17,7 @@ export const wallhavenColors = [
 export function updateSliderFill(slider) {
     if (!slider) return;
     const val = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+    slider.style.setProperty('--slider-fill', `${val}%`);
     slider.style.background = `linear-gradient(to right, #14b8a6 0%, #14b8a6 ${val}%, rgba(255, 255, 255, 0.12) ${val}%, rgba(255, 255, 255, 0.12) 100%)`;
 }
 
@@ -28,8 +29,7 @@ export function updateBadge(id, text) {
 export function initWallhavenColorGrid() {
     const grid = document.getElementById('wallhaven-color-grid');
     if (!grid) return;
-    grid.innerHTML = '';
-    wallhavenColors.forEach(hex => {
+    const buttons = wallhavenColors.map(hex => {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'wh-color-item' + (hex === '' ? ' wh-color-none' : '');
@@ -51,8 +51,9 @@ export function initWallhavenColorGrid() {
                 loadBackground(true, false);
             }
         });
-        grid.appendChild(btn);
+        return btn;
     });
+    grid.replaceChildren(...buttons);
 }
 
 export function updateWallhavenColorUI() {
@@ -131,11 +132,6 @@ export function applySettingsToDOM() {
     if (inputWhRatio) inputWhRatio.value = settings.wallhavenRatio;
     updateWallhavenColorUI();
 
-    if (state.activeDrawerTab === 'local' || settings.bgType === 'local') {
-        renderLocalPreviews();
-    } else {
-        renderWallhavenPreviews();
-    }
     const hubTitle = document.getElementById('v_hub_launcher_title');
     if (hubTitle) {
         hubTitle.textContent = (settings.bgType === 'local') ? 'Browse Local Files' : 'Browse Wallhaven';
@@ -239,6 +235,7 @@ export const toggleSettings = (forceState) => {
     domSettingsToggleBtn.classList.toggle('active', stateVal);
     document.body.classList.toggle('settings-open', stateVal);
     localStorage.setItem('nova_settings_open', stateVal ? '1' : '0');
+    saveSnapshot();
 };
 
 export function initSettingsUI() {
@@ -296,11 +293,7 @@ export function initSettingsUI() {
             const val = e.target.value;
             state.activeDrawerTab = val;
             await updateSetting('bgType', val, () => loadBackground(false, false));
-            if (val === 'local') {
-                syncLocalPreviewWithCurrentBackground();
-            } else {
-                syncPreviewWithCurrentBackground();
-            }
+            await syncPreviewWithActiveWallpaper(null, true);
         });
     }
 
@@ -355,7 +348,13 @@ export function initSettingsUI() {
     };
     const btnApplyWh = document.getElementById('b_apply_wallhaven');
     if (btnApplyWh) btnApplyWh.addEventListener('click', applyTag);
-    if (inputWh) inputWh.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applyTag(); } });
+    if (inputWh) inputWh.addEventListener('keydown', (e) => { 
+        if (e.key === 'Enter') { 
+            e.preventDefault(); 
+            if (e.isComposing || e.keyCode === 229) return;
+            applyTag(); 
+        } 
+    });
 
     const timeEnable = document.getElementById('i_time_enable');
     if (timeEnable) timeEnable.addEventListener('change', e => updateSetting('timeEnabled', e.target.checked));
@@ -388,12 +387,18 @@ export function initSettingsUI() {
     };
     const btnApplyCity = document.getElementById('b_apply_city');
     if (btnApplyCity) btnApplyCity.addEventListener('click', applyCity);
-    if (weatherCity) weatherCity.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applyCity(); } });
+    if (weatherCity) weatherCity.addEventListener('keydown', (e) => { 
+        if (e.key === 'Enter') { 
+            e.preventDefault(); 
+            if (e.isComposing || e.keyCode === 229) return;
+            applyCity(); 
+        } 
+    });
 
     const btnRefreshBg = document.getElementById('b_refresh_bg');
-    if (btnRefreshBg) btnRefreshBg.addEventListener('click', () => loadBackground(true, false));
+    if (btnRefreshBg) btnRefreshBg.addEventListener('click', () => switchToNextWallpaper());
     const btnNextWh = document.getElementById('b_next_wh');
-    if (btnNextWh) btnNextWh.addEventListener('click', () => loadBackground(true, false));
+    if (btnNextWh) btnNextWh.addEventListener('click', () => switchToNextWallpaper());
 
     const domSettingsToggleBtn = document.getElementById('settings-toggle-btn');
     if (domSettingsToggleBtn) {

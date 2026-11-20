@@ -1,47 +1,6 @@
-import state from './state.js';
+import state, { defaultSettings } from './state.js';
 
-export const defaultSettings = {
-    font: "'Outfit', sans-serif",
-    textColor: "#ffffff",
-    searchAutoColor: true,
-    searchBgColor: "#ffffff",
-    searchBgOpacity: 25,
-    engine: "google",
-    bgType: "wallhaven", 
-    bgFrequency: "every_tab",
-    wallhavenMode: "search",
-    wallhavenTopRange: "1M",
-    wallhavenQuery: "landscape",
-    wallhavenResolution: "",
-    wallhavenResolutionMode: "atleast",
-    wallhavenRatio: "",
-    wallhavenColor: "",
-    wallhavenQueue: [], 
-    wallhavenHistory: [],
-    selectedLocalBg: "",
-    bgBlur: 0,
-    bgBrightness: 100,
-    bgFadeEnabled: true, 
-    bgFade: 1000,
-    searchBlur: 10,
-    
-    searchWidth: 500,
-    searchFontSize: 12,
-    clockSize: 80,
-    dateSize: 15,
-    greetingSize: 25,
-    weatherSize: 11,
-
-    timeEnabled: true,
-    time12h: false,
-    timeSeconds: false,
-    dateEnabled: true,
-    weatherEnabled: true,
-    weatherCity: "",
-    weatherUnit: "celsius",
-    weatherService: "google",
-    greetingsEnabled: true
-};
+export { defaultSettings };
 
 const idbPromise = new Promise((resolve, reject) => {
     const req = indexedDB.open('NovaPerdangaDB', 1);
@@ -77,11 +36,50 @@ export const idb = {
     }
 };
 
+export function saveSnapshot() {
+    try {
+        const snapshot = {
+            settings: state.settings,
+            ui: {
+                settingsOpen: localStorage.getItem('nova_settings_open') === '1',
+                drawerOpen: localStorage.getItem('nova_drawer_open') === '1',
+                zenMode: localStorage.getItem('nova_zen_mode') === '1'
+            },
+            drawer: {
+                offset: parseInt(localStorage.getItem('nova_wh_preview_offset') || '0'),
+                total: parseInt(localStorage.getItem('nova_wh_total') || '0'),
+                activeWhUrl: localStorage.getItem('nova_active_wh_url') || '',
+                activeTab: state.activeDrawerTab || (state.settings.bgType === 'local' ? 'local' : 'wallhaven')
+            },
+            font: state.settings.font,
+            timeEnabled: state.settings.timeEnabled,
+            dateEnabled: state.settings.dateEnabled,
+            weatherEnabled: state.settings.weatherEnabled,
+            greetingsEnabled: state.settings.greetingsEnabled
+        };
+        localStorage.setItem('nova_snapshot', JSON.stringify(snapshot));
+    } catch {}
+}
+
 export const storage = {
-    getSettings: () => new Promise(res => chrome.storage.local.get(['nova_settings'], data => res(data.nova_settings || defaultSettings))),
-    setSettings: (newData) => new Promise(res => chrome.storage.local.set({ nova_settings: newData }, res)),
-    getGallery: () => new Promise(res => chrome.storage.local.get(['nova_gallery'], data => res(data.nova_gallery || []))),
-    setGallery: (gallery) => new Promise(res => chrome.storage.local.set({ nova_gallery: gallery }, res))
+    getSettings: async () => {
+        const data = await chrome.storage.local.get(['nova_settings']);
+        return data.nova_settings ? structuredClone(data.nova_settings) : structuredClone(defaultSettings);
+    },
+    setSettings: async (newData) => {
+        try {
+            localStorage.setItem('nova_settings_cache', JSON.stringify(newData));
+            saveSnapshot();
+        } catch {}
+        await chrome.storage.local.set({ nova_settings: newData });
+    },
+    getGallery: async () => {
+        const data = await chrome.storage.local.get(['nova_gallery']);
+        return data.nova_gallery || [];
+    },
+    setGallery: async (gallery) => {
+        await chrome.storage.local.set({ nova_gallery: gallery });
+    }
 };
 
 export async function initSettings() {
@@ -93,6 +91,7 @@ export async function initSettings() {
     }
     if (state.settings.wallhavenQueue === undefined) state.settings.wallhavenQueue = [];
     if (state.settings.wallhavenHistory === undefined) state.settings.wallhavenHistory = [];
+    if (state.settings.localHistory === undefined) state.settings.localHistory = [];
     if (state.settings.wallhavenResolution === undefined) state.settings.wallhavenResolution = "";
     if (state.settings.wallhavenResolutionMode === undefined) state.settings.wallhavenResolutionMode = "atleast";
     if (state.settings.wallhavenTopRange === undefined) state.settings.wallhavenTopRange = "1M";
@@ -101,6 +100,10 @@ export async function initSettings() {
 
     state.activeDrawerTab = state.settings.bgType === 'local' ? 'local' : 'wallhaven';
     localStorage.setItem('nova_font_cache', state.settings.font);
+    try {
+        localStorage.setItem('nova_settings_cache', JSON.stringify(state.settings));
+        saveSnapshot();
+    } catch {}
 
     return state.settings;
 }

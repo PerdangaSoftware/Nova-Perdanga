@@ -1,10 +1,72 @@
+export const defaultSettings = {
+    font: "'Outfit', sans-serif",
+    textColor: "#ffffff",
+    searchAutoColor: true,
+    searchBgColor: "#ffffff",
+    searchBgOpacity: 25,
+    engine: "google",
+    bgType: "wallhaven", 
+    bgFrequency: "every_tab",
+    wallhavenMode: "search",
+    wallhavenTopRange: "1M",
+    wallhavenQuery: "landscape",
+    wallhavenResolution: "",
+    wallhavenResolutionMode: "atleast",
+    wallhavenRatio: "",
+    wallhavenColor: "",
+    wallhavenQueue: [], 
+    wallhavenHistory: [],
+    localHistory: [],
+    selectedLocalBg: "",
+    bgBlur: 0,
+    bgBrightness: 100,
+    bgFadeEnabled: true, 
+    bgFade: 1000,
+    searchBlur: 10,
+    searchWidth: 500,
+    searchFontSize: 12,
+    clockSize: 80,
+    dateSize: 15,
+    greetingSize: 25,
+    weatherSize: 11,
+    timeEnabled: true,
+    time12h: false,
+    timeSeconds: false,
+    dateEnabled: true,
+    weatherEnabled: true,
+    weatherCity: "",
+    weatherUnit: "celsius",
+    weatherService: "google",
+    greetingsEnabled: true
+};
+
+function getInitialSettings() {
+    try {
+        const rawSnap = localStorage.getItem('nova_snapshot');
+        if (rawSnap) {
+            const snap = JSON.parse(rawSnap);
+            if (snap && snap.settings) {
+                return { ...defaultSettings, ...snap.settings };
+            }
+        }
+        const cached = localStorage.getItem('nova_settings_cache');
+        if (cached) {
+            return { ...defaultSettings, ...JSON.parse(cached) };
+        }
+    } catch {}
+    return { ...defaultSettings };
+}
+
 const state = {
-    settings: {},
+    settings: getInitialSettings(),
     activeBg: 1,
     activeObjectUrl: null,
     isLoadingBg: false,
-    currentActiveWallhavenUrl: localStorage.getItem('nova_active_wh_url') || '',
-    activeDrawerTab: 'wallhaven',
+    currentActiveWallhavenUrl: localStorage.getItem('nova_active_wh_url') || localStorage.getItem('nova_startup_bg') || '',
+    activeDrawerTab: (getInitialSettings().bgType === 'local') ? 'local' : 'wallhaven',
+    currentLocalOffset: null,
+    currentWhOffset: null,
+    bgSwitchSeq: 0,
     isPagingPreview: false,
     rootStyle: document.documentElement.style
 };

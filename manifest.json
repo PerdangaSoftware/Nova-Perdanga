@@ -7,10 +7,10 @@
         "newtab": "index.html"
     },
     "icons": {
-        "16": "assets/icons/NovaPerdanga.png",
-        "32": "assets/icons/NovaPerdanga.png",
-        "48": "assets/icons/NovaPerdanga.png",
-        "128": "assets/icons/NovaPerdanga.png"
+        "16": "assets/icons/icon-16.png",
+        "32": "assets/icons/icon-32.png",
+        "48": "assets/icons/icon-48.png",
+        "128": "assets/icons/icon-128.png"
     },
     "permissions": [
         "storage",

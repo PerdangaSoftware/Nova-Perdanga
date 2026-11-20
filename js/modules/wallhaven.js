@@ -3,8 +3,17 @@ import { storage, idb } from './storage.js';
 import { showToast, generateThumbnail } from './utils.js';
 import BackgroundPreloader from './preloader.js';
 
+const apiCache = new Map();
+const inFlightRequests = new Map();
+let currentFetchSeq = 0;
+
 export function resetWallhavenSession() {
-    state.settings.wallhavenQueue = [];
+    currentFetchSeq++;
+    state.whFetchSeq = currentFetchSeq;
+    apiCache.clear();
+    inFlightRequests.clear();
+    isFetchingWallhaven = false;
+    state.currentWhOffset = 0;
     localStorage.removeItem('nova_wh_preview');
     localStorage.setItem('nova_wh_pool', '[]');
     localStorage.setItem('nova_wh_preview_offset', '0');
@@ -83,68 +92,88 @@ export function buildWallhavenUrl(page = 1) {
         params.set('colors', settings.wallhavenColor.replace('#', ''));
     }
 
-    params.set('_', String(Date.now()));
     return `https://wallhaven.cc/api/v1/search?${params.toString()}`;
 }
 
-export async function fetchWallhavenApi(page = 1) {
-    const url = buildWallhavenUrl(page);
-    try {
-        const res = await fetch(url, { cache: 'no-store' });
-        const data = await res.json();
-        if (data && data.meta) {
-            if (data.meta.total !== undefined) {
-                localStorage.setItem('nova_wh_total', String(data.meta.total));
-            }
-            if (data.meta.seed) {
-                localStorage.setItem('nova_wh_seed', data.meta.seed);
-            }
-        }
-        if (data && Array.isArray(data.data)) {
-            return data.data;
-        }
-        return [];
-    } catch (e) {
+export async function fetchWallhavenApi(page = 1, seq = null) {
+    if (seq !== null && seq !== currentFetchSeq) {
         return [];
     }
+    const url = buildWallhavenUrl(page);
+    const cached = apiCache.get(url);
+    if (cached && (Date.now() - cached.timestamp < 300000)) {
+        return cached.data;
+    }
+    if (inFlightRequests.has(url)) {
+        return inFlightRequests.get(url);
+    }
+    const fetchPromise = (async () => {
+        try {
+            const res = await fetch(url);
+            if (!res.ok) return [];
+            if (seq !== null && seq !== currentFetchSeq) return [];
+            const data = await res.json();
+            if (seq !== null && seq !== currentFetchSeq) return [];
+            if (data && data.meta) {
+                if (data.meta.total !== undefined) {
+                    localStorage.setItem('nova_wh_total', String(data.meta.total));
+                }
+                if (data.meta.seed) {
+                    localStorage.setItem('nova_wh_seed', data.meta.seed);
+                }
+            }
+            const items = (data && Array.isArray(data.data)) ? data.data : [];
+            apiCache.set(url, { timestamp: Date.now(), data: items });
+            return items;
+        } catch (e) {
+            return [];
+        } finally {
+            inFlightRequests.delete(url);
+        }
+    })();
+    inFlightRequests.set(url, fetchPromise);
+    return fetchPromise;
 }
 
 let isFetchingWallhaven = false;
 export async function fetchWallhavenBatch() {
     if (isFetchingWallhaven) return;
     isFetchingWallhaven = true;
+    const batchSeq = currentFetchSeq;
 
     const executeFetch = async () => {
-        const currentSettings = await storage.getSettings();
-        if (currentSettings.wallhavenQueue && currentSettings.wallhavenQueue.length > state.settings.wallhavenQueue.length) {
-            state.settings.wallhavenQueue = currentSettings.wallhavenQueue;
-        }
-        if (!state.settings.wallhavenQueue || state.settings.wallhavenQueue.length < 5) {
-            await doFetchWallhaven();
-        }
+        if (batchSeq !== currentFetchSeq) return;
+        await doFetchWallhaven();
     };
 
-    if (navigator.locks) {
-        await navigator.locks.request('nova_wallhaven_fetch', executeFetch);
-    } else {
-        await executeFetch();
+    try {
+        if (navigator.locks) {
+            await navigator.locks.request('nova_wallhaven_fetch', executeFetch);
+        } else {
+            await executeFetch();
+        }
+    } finally {
+        isFetchingWallhaven = false;
     }
-    
-    isFetchingWallhaven = false;
 }
 
 export async function doFetchWallhaven(requestedPage = null) {
+    const mySeq = currentFetchSeq;
     let pool = (requestedPage === 1) ? [] : getWallhavenPool();
     if (requestedPage === 1) {
+        state.currentWhOffset = 0;
         localStorage.setItem('nova_wh_preview_offset', '0');
         localStorage.setItem('nova_wh_pool', '[]');
-        state.settings.wallhavenQueue = [];
+        localStorage.setItem('nova_wh_api_page', '1');
     }
     const curApiPage = parseInt(localStorage.getItem('nova_wh_api_page') || '1');
     const pageToFetch = requestedPage || (pool.length === 0 ? 1 : curApiPage + 1);
-    const fetchedItems = await fetchWallhavenApi(pageToFetch);
+    const fetchedItems = await fetchWallhavenApi(pageToFetch, mySeq);
+
+    if (mySeq !== currentFetchSeq) return [];
 
     if (fetchedItems && fetchedItems.length > 0) {
+        if (mySeq !== currentFetchSeq) return [];
         localStorage.setItem('nova_wh_api_page', String(pageToFetch));
         const existingPaths = new Set(pool.map(p => p.path));
         const newItems = fetchedItems
@@ -168,8 +197,15 @@ export async function doFetchWallhaven(requestedPage = null) {
             });
             localStorage.setItem('nova_wh_colors', JSON.stringify(colorMap));
 
-            const newPaths = newItems.map(i => i.path).filter(p => !state.settings.wallhavenQueue.includes(p) && !state.settings.wallhavenHistory.includes(p));
-            state.settings.wallhavenQueue.push(...newPaths);
+            const newPaths = newItems.map(i => i.path);
+            if (requestedPage === 1) {
+                state.settings.wallhavenQueue = newPaths;
+            } else {
+                const existingQueue = new Set(state.settings.wallhavenQueue || []);
+                const toAdd = newPaths.filter(p => !existingQueue.has(p));
+                if (!state.settings.wallhavenQueue) state.settings.wallhavenQueue = [];
+                state.settings.wallhavenQueue.push(...toAdd);
+            }
             if (state.settings.wallhavenQueue.length > 50) {
                 state.settings.wallhavenQueue = state.settings.wallhavenQueue.slice(0, 50);
             }
@@ -178,13 +214,47 @@ export async function doFetchWallhaven(requestedPage = null) {
             const urlsToPreload = state.settings.wallhavenQueue.slice(0, 4);
             BackgroundPreloader.maintain(urlsToPreload);
             urlsToPreload.forEach((pUrl, i) => BackgroundPreloader.preload(pUrl, i === 0));
+
+            if (requestedPage === 1 && pool.length === 24) {
+                const total = parseInt(localStorage.getItem('nova_wh_total') || '0');
+                if (total === 0 || total > 24) {
+                    fetchWallhavenApi(2, mySeq).then(p2Items => {
+                        if (mySeq !== currentFetchSeq) return;
+                        if (p2Items && p2Items.length > 0) {
+                            const latestPool = getWallhavenPool();
+                            const paths = new Set(latestPool.map(p => p.path));
+                            const more = p2Items.filter(img => !paths.has(img.path)).map(img => ({
+                                path: img.path,
+                                thumb: img.thumbs?.small || img.thumbs?.original || img.path,
+                                resolution: img.resolution || '',
+                                colors: img.colors || []
+                            }));
+                            if (more.length > 0) {
+                                latestPool.push(...more);
+                                saveWallhavenPool(latestPool);
+                                localStorage.setItem('nova_wh_api_page', '2');
+                                const colMap = JSON.parse(localStorage.getItem('nova_wh_colors') || '{}');
+                                more.forEach(img => {
+                                    if (img.colors && img.colors.length > 0) {
+                                        colMap[img.path] = img.colors[0];
+                                    }
+                                });
+                                localStorage.setItem('nova_wh_colors', JSON.stringify(colMap));
+                                if (state.activeDrawerTab === 'wallhaven' && state.currentWhOffset >= 20) {
+                                    emit('preview:rerender');
+                                }
+                            }
+                        }
+                    });
+                }
+            }
         }
     }
-    emit('preview:sync');
+    return pool;
 }
 
 export async function saveCurrentWallhaven() {
-    const currentBg = state.settings.wallhavenQueue[0];
+    const currentBg = state.currentActiveWallhavenUrl || (state.settings.wallhavenQueue && state.settings.wallhavenQueue[0]) || '';
     if (!currentBg) {
         showToast("No Wallhaven wallpaper active");
         return false;

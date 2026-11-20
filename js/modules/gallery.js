@@ -17,21 +17,27 @@ export async function renderGallery() {
     const needsRebuild = existingItems.length !== gallery.length || !existingItems.every((el, i) => el.dataset.id === gallery[i].id);
 
     if (needsRebuild) {
-        localGallery.innerHTML = '';
-        gallery.forEach(img => {
+        const items = gallery.map(img => {
             const div = document.createElement('div');
             div.className = `gallery-item ${settings.selectedLocalBg === img.id ? 'selected' : ''}`;
             div.style.backgroundImage = `url(${img.thumb || img.url})`; 
             div.dataset.id = img.id; 
             div.onclick = async () => {
                 if (settings.selectedLocalBg === img.id) return;
+                const prevId = settings.selectedLocalBg;
+                if (!settings.localHistory) settings.localHistory = [];
+                if (prevId && prevId !== img.id) {
+                    settings.localHistory.push(prevId);
+                    if (settings.localHistory.length > 50) settings.localHistory.shift();
+                }
                 settings.selectedLocalBg = img.id;
                 await storage.setSettings(settings);
                 renderGallery(); 
                 if (settings.bgType === 'local') loadBackground(false, false);
             };
-            localGallery.appendChild(div);
+            return div;
         });
+        localGallery.replaceChildren(...items);
     } else {
         existingItems.forEach(el => {
             if (el.dataset.id === settings.selectedLocalBg) el.classList.add('selected');

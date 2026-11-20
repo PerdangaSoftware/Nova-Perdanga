@@ -1,10 +1,48 @@
 import state, { emit, on } from './state.js';
-import { storage, idb } from './storage.js';
-import { isSameWallpaper, getCurrentScreenWallpaperUrl, loadBackground } from './background.js';
+import { storage, idb, saveSnapshot } from './storage.js';
+import { isSameWallpaper, getCurrentScreenWallpaperUrl, loadBackground, switchToNextWallpaper, switchToPrevWallpaper } from './background.js';
 import { getWallhavenPool, saveWallhavenPool, fetchWallhavenApi, resetWallhavenSession, doFetchWallhaven, saveCurrentWallhaven } from './wallhaven.js';
 import { renderGallery } from './gallery.js';
 
-export async function updateActiveWallpaperCard(mode) {
+export function updatePrevButtonState() {
+    const btnPrev = document.getElementById('b_drawer_prev_bg');
+    if (!btnPrev) return;
+    const isLocal = state.settings.bgType === 'local';
+    let canGoPrev = false;
+    if (isLocal) {
+        const localTotal = parseInt(localStorage.getItem('nova_gallery_count') || '0');
+        canGoPrev = localTotal > 1;
+    } else {
+        const pool = getWallhavenPool();
+        canGoPrev = pool.length > 1;
+    }
+    btnPrev.disabled = !canGoPrev;
+    btnPrev.style.opacity = canGoPrev ? '1' : '0.4';
+    btnPrev.style.cursor = canGoPrev ? 'pointer' : 'not-allowed';
+}
+
+export function updatePreviewHighlight(activeTarget = null) {
+    const isLocal = state.settings.bgType === 'local';
+    const target = activeTarget || (isLocal ? state.settings.selectedLocalBg : (state.currentActiveWallhavenUrl || getCurrentScreenWallpaperUrl()));
+    const grid = document.getElementById('wallhaven-preview-grid');
+    if (!grid) return;
+    const items = grid.querySelectorAll('.wh-preview-item');
+    if (state.activeDrawerTab === 'local') {
+        items.forEach(el => {
+            el.classList.toggle('selected', isLocal && el.dataset.id === target);
+        });
+    } else {
+        items.forEach(el => {
+            el.classList.toggle('selected', !isLocal && isSameWallpaper(el.dataset.path, target));
+        });
+    }
+}
+
+export async function jumpToActiveWallpaper() {
+    await syncPreviewWithActiveWallpaper(null, true);
+}
+
+export async function updateActiveWallpaperCard() {
     const activeCard = document.getElementById('drawer-active-card');
     if (!activeCard) return;
 
@@ -13,8 +51,19 @@ export async function updateActiveWallpaperCard(mode) {
     const colorsEl = document.getElementById('active-card-colors');
     const viewBtn = document.getElementById('active-card-view-btn');
     const delBtn = document.getElementById('active-card-delete-btn');
+    const titleEl = activeCard.querySelector('.active-card-title');
+    const pulseBadge = activeCard.querySelector('.active-pulse-badge');
 
-    if (mode === 'local') {
+    activeCard.onclick = (e) => {
+        if (e.target.closest('#active-card-view-btn') || e.target.closest('#active-card-delete-btn')) return;
+        jumpToActiveWallpaper();
+    };
+    activeCard.style.cursor = 'pointer';
+    activeCard.title = 'Jump to active wallpaper';
+
+    const isLocal = state.settings.bgType === 'local';
+
+    if (isLocal) {
         const gallery = await storage.getGallery();
         const current = gallery.find(img => img.id === state.settings.selectedLocalBg) || gallery[0];
         if (!current) {
@@ -22,9 +71,11 @@ export async function updateActiveWallpaperCard(mode) {
             return;
         }
         activeCard.classList.remove('hidden');
+        if (titleEl) titleEl.textContent = 'ON SCREEN (Local)';
+        if (pulseBadge) pulseBadge.textContent = '● Active';
         if (thumbEl) thumbEl.style.backgroundImage = `url('${current.thumb || current.url}')`;
         if (resEl) resEl.textContent = (current.width && current.height) ? `${current.width}×${current.height}` : 'Local File';
-        if (colorsEl) colorsEl.innerHTML = '';
+        if (colorsEl) colorsEl.replaceChildren();
         if (viewBtn) {
             viewBtn.style.display = 'inline-flex';
             const span = viewBtn.querySelector('span');
@@ -58,28 +109,54 @@ export async function updateActiveWallpaperCard(mode) {
             };
         }
     } else {
-        const currentUrl = getCurrentScreenWallpaperUrl();
+        const currentUrl = state.currentActiveWallhavenUrl || getCurrentScreenWallpaperUrl();
         if (!currentUrl) {
             activeCard.classList.add('hidden');
             return;
         }
         activeCard.classList.remove('hidden');
-        const pool = getWallhavenPool();
-        const poolItem = pool.find(item => isSameWallpaper(item.path, currentUrl));
-        const thumbUrl = poolItem?.thumb || currentUrl;
+        if (titleEl) titleEl.textContent = 'ON SCREEN (Wallhaven)';
+        if (pulseBadge) pulseBadge.textContent = '● Active';
 
+        const pool = getWallhavenPool();
+        let meta = pool.find(item => isSameWallpaper(item.path, currentUrl));
+        if (meta) {
+            try {
+                localStorage.setItem('nova_active_wh_meta', JSON.stringify({
+                    path: meta.path,
+                    thumb: meta.thumb,
+                    resolution: meta.resolution,
+                    colors: meta.colors
+                }));
+            } catch {}
+        } else {
+            try {
+                const cachedMeta = localStorage.getItem('nova_active_wh_meta');
+                if (cachedMeta) {
+                    const parsed = JSON.parse(cachedMeta);
+                    if (isSameWallpaper(parsed.path, currentUrl)) {
+                        meta = parsed;
+                    }
+                }
+            } catch {}
+        }
+
+        const thumbUrl = meta?.thumb || currentUrl;
         if (thumbEl) thumbEl.style.backgroundImage = `url('${thumbUrl}')`;
-        if (resEl) resEl.textContent = poolItem?.resolution ? poolItem.resolution : 'Wallhaven HD';
+        if (resEl) resEl.textContent = meta?.resolution ? meta.resolution : 'Wallhaven HD';
+
         if (colorsEl) {
-            colorsEl.innerHTML = '';
-            const colors = poolItem?.colors || [];
+            const colors = meta?.colors || [];
             if (colors.length > 0) {
-                colors.slice(0, 5).forEach(c => {
+                const dots = colors.slice(0, 5).map(c => {
                     const dot = document.createElement('div');
                     dot.className = 'active-color-dot';
                     dot.style.backgroundColor = c.startsWith('#') ? c : '#' + c;
-                    colorsEl.appendChild(dot);
+                    return dot;
                 });
+                colorsEl.replaceChildren(...dots);
+            } else {
+                colorsEl.replaceChildren();
             }
         }
         if (viewBtn) {
@@ -97,21 +174,10 @@ export async function updateActiveWallpaperCard(mode) {
 }
 
 export async function syncLocalPreviewWithCurrentBackground() {
-    const gallery = await storage.getGallery();
-    if (gallery.length === 0) {
-        renderLocalPreviews();
-        return;
-    }
-    const activeId = state.settings.selectedLocalBg || gallery[0].id;
-    const activeIdx = gallery.findIndex(img => img.id === activeId);
-    if (activeIdx !== -1) {
-        const targetOffset = Math.floor(activeIdx / 10) * 10;
-        localStorage.setItem('nova_local_preview_offset', String(targetOffset));
-    }
-    renderLocalPreviews();
+    await syncPreviewWithActiveWallpaper(null, true);
 }
 
-export async function renderLocalPreviews() {
+export async function renderLocalPreviews(explicitOffset = null) {
     const grid = document.getElementById('wallhaven-preview-grid');
     const countBadge = document.getElementById('v_wallhaven_preview_count');
     const launcherBadge = document.getElementById('v_wallhaven_preview_count_badge');
@@ -136,21 +202,29 @@ export async function renderLocalPreviews() {
     if (quickFilters) quickFilters.classList.add('hidden');
 
     const gallery = await storage.getGallery();
-    let offset = parseInt(localStorage.getItem('nova_local_preview_offset') || '0');
+    localStorage.setItem('nova_gallery_count', String(gallery.length));
+    let offset = explicitOffset !== null 
+        ? explicitOffset 
+        : (state.currentLocalOffset !== null 
+            ? state.currentLocalOffset 
+            : parseInt(localStorage.getItem('nova_local_preview_offset') || '0'));
     if (isNaN(offset) || offset < 0) offset = 0;
     if (gallery.length > 0 && offset >= gallery.length) {
-        offset = Math.floor((gallery.length - 1) / 10) * 10;
-        localStorage.setItem('nova_local_preview_offset', String(offset));
+        offset = 0;
     }
+    state.currentLocalOffset = offset;
+    localStorage.setItem('nova_local_preview_offset', String(offset));
 
-    if (btnPrev) btnPrev.disabled = (offset === 0);
-    if (btnNext) btnNext.disabled = (offset + 10 >= gallery.length);
+    const hasMultiplePages = gallery.length > 10;
+    if (btnPrev) btnPrev.disabled = !hasMultiplePages;
+    if (btnNext) btnNext.disabled = !hasMultiplePages;
 
     if (gallery.length === 0) {
         if (countBadge) countBadge.textContent = '0';
         if (launcherBadge) launcherBadge.textContent = '0';
         if (grid) grid.innerHTML = '<div class="wh-preview-empty">No local wallpapers yet</div>';
-        updateActiveWallpaperCard('local');
+        updateActiveWallpaperCard();
+        updatePrevButtonState();
         return;
     }
 
@@ -165,6 +239,19 @@ export async function renderLocalPreviews() {
 
     const activeId = state.settings.selectedLocalBg || (gallery.length > 0 ? gallery[0].id : '');
 
+    try {
+        const sliceData = {
+            offset,
+            total: gallery.length,
+            activeId,
+            items: currentSlice.map(img => ({
+                id: img.id,
+                thumb: img.thumb || img.url
+            }))
+        };
+        localStorage.setItem('nova_local_slice_cache', JSON.stringify(sliceData));
+    } catch {}
+
     const existingItems = grid.querySelectorAll('.wh-preview-item');
     const isSameSlice = existingItems.length === currentSlice.length &&
         Array.from(existingItems).every((el, i) => el.dataset.id === currentSlice[i].id);
@@ -176,13 +263,12 @@ export async function renderLocalPreviews() {
             item.classList.toggle('selected', isSelected);
             item.title = `Wallpaper #${offset + sliceIdx + 1}${isSelected ? '' : ' (Click to set)'}`;
         });
-        updateActiveWallpaperCard('local');
+        updateActiveWallpaperCard();
+        updatePrevButtonState();
         return;
     }
 
-    grid.innerHTML = '';
-
-    currentSlice.forEach((img, sliceIdx) => {
+    const items = currentSlice.map((img, sliceIdx) => {
         const isSelected = (state.settings.bgType === 'local' && img.id === activeId);
         const item = document.createElement('div');
         item.className = 'wh-preview-item' + (isSelected ? ' selected' : '');
@@ -192,6 +278,14 @@ export async function renderLocalPreviews() {
         item.addEventListener('click', async (e) => {
             e.stopPropagation();
             if (state.settings.selectedLocalBg === img.id && state.settings.bgType === 'local') return;
+
+            const prevId = state.settings.selectedLocalBg;
+            if (!state.settings.localHistory) state.settings.localHistory = [];
+            if (prevId && prevId !== img.id) {
+                state.settings.localHistory.push(prevId);
+                if (state.settings.localHistory.length > 50) state.settings.localHistory.shift();
+            }
+
             state.settings.bgType = 'local';
             state.settings.selectedLocalBg = img.id;
             const bgTypeInput = document.getElementById('i_bg_type');
@@ -199,46 +293,142 @@ export async function renderLocalPreviews() {
             const hubTitle = document.getElementById('v_hub_launcher_title');
             if (hubTitle) hubTitle.textContent = 'Browse Local Files';
             await storage.setSettings(state.settings);
-            grid.querySelectorAll('.wh-preview-item').forEach(el => {
-                el.classList.toggle('selected', el.dataset.id === img.id);
-            });
-            updateActiveWallpaperCard('local');
+            updatePreviewHighlight(img.id);
+            updateActiveWallpaperCard();
+            updatePrevButtonState();
             renderGallery();
             await loadBackground(false, false);
         });
-        grid.appendChild(item);
+        return item;
     });
 
-    updateActiveWallpaperCard('local');
+    grid.replaceChildren(...items);
+
+    updateActiveWallpaperCard();
+    updatePrevButtonState();
 }
 
-export function syncPreviewWithCurrentBackground(currentUrl = null) {
-    if (state.activeDrawerTab === 'local') {
-        syncLocalPreviewWithCurrentBackground();
-        return;
-    }
-    const targetUrl = currentUrl || getCurrentScreenWallpaperUrl();
-    if (targetUrl) {
-        state.currentActiveWallhavenUrl = targetUrl;
-        localStorage.setItem('nova_active_wh_url', targetUrl);
-    }
+export function hydrateDrawerHeader() {
+    const countBadge = document.getElementById('v_wallhaven_preview_count');
+    const launcherBadge = document.getElementById('v_wallhaven_preview_count_badge');
+    const drawerMode = document.getElementById('v_wallhaven_drawer_mode');
     const pool = getWallhavenPool();
-    if (pool.length === 0) {
-        renderWallhavenPreviews();
+    const total = parseInt(localStorage.getItem('nova_wh_total') || '0');
+    let offset = parseInt(localStorage.getItem('nova_wh_preview_offset') || '0');
+    if (isNaN(offset) || offset < 0) offset = 0;
+    const settings = state.settings;
+
+    if (state.activeDrawerTab === 'local' || settings.bgType === 'local') {
+        if (drawerMode) drawerMode.textContent = 'Local Files';
+        const localTotal = parseInt(localStorage.getItem('nova_gallery_count') || '0');
+        let localOffset = parseInt(localStorage.getItem('nova_local_preview_offset') || '0');
+        if (localTotal > 0) {
+            const fromNum = localOffset + 1;
+            const toNum = Math.min(localOffset + 10, localTotal);
+            const countText = `${fromNum}-${toNum} / ${localTotal}`;
+            if (countBadge) countBadge.textContent = countText;
+            if (launcherBadge) launcherBadge.textContent = countText;
+        }
         return;
     }
 
-    if (targetUrl) {
-        const activeIdx = pool.findIndex(item => isSameWallpaper(item.path, targetUrl));
-        if (activeIdx !== -1) {
-            const targetOffset = Math.floor(activeIdx / 10) * 10;
-            localStorage.setItem('nova_wh_preview_offset', String(targetOffset));
+    if (drawerMode) {
+        const mode = settings.wallhavenMode || 'search';
+        if (mode === 'top') {
+            drawerMode.textContent = `Toplist (${settings.wallhavenTopRange || '1M'})`;
+        } else if (mode === 'search') {
+            drawerMode.textContent = settings.wallhavenQuery ? `Tag: ${settings.wallhavenQuery}` : 'Search';
+        } else {
+            drawerMode.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
         }
     }
-    renderWallhavenPreviews();
+
+    if (pool.length > 0) {
+        const currentSlice = pool.slice(offset, offset + 10);
+        const fromNum = offset + 1;
+        const toNum = offset + currentSlice.length;
+        const countText = total > 0 ? `${fromNum}-${toNum} / ${total}` : `${fromNum}-${toNum}`;
+        if (countBadge) countBadge.textContent = countText;
+        if (launcherBadge) launcherBadge.textContent = countText;
+    } else if (total > 0) {
+        const fromNum = offset + 1;
+        const toNum = offset + 10;
+        const countText = `${fromNum}-${toNum} / ${total}`;
+        if (countBadge) countBadge.textContent = countText;
+        if (launcherBadge) launcherBadge.textContent = countText;
+    }
 }
 
-export function renderWallhavenPreviews() {
+export async function syncPreviewWithActiveWallpaper(targetIdOrUrl = null, forceJump = false) {
+    const isLocal = state.settings.bgType === 'local';
+    state.activeDrawerTab = isLocal ? 'local' : 'wallhaven';
+
+    updateActiveWallpaperCard();
+    updatePrevButtonState();
+
+    if (isLocal) {
+        const gallery = await storage.getGallery();
+        if (gallery.length === 0) {
+            await renderLocalPreviews(0);
+            return;
+        }
+        const activeId = targetIdOrUrl || state.settings.selectedLocalBg || gallery[0].id;
+        let activeIdx = gallery.findIndex(img => img.id === activeId);
+        if (activeIdx === -1) activeIdx = 0;
+
+        const targetOffset = Math.floor(activeIdx / 10) * 10;
+        const currentOffset = state.currentLocalOffset !== null 
+            ? state.currentLocalOffset 
+            : parseInt(localStorage.getItem('nova_local_preview_offset') || '0');
+
+        if (forceJump || currentOffset !== targetOffset) {
+            await renderLocalPreviews(targetOffset);
+        } else {
+            updatePreviewHighlight(activeId);
+        }
+    } else {
+        let pool = getWallhavenPool();
+        const currentUrl = targetIdOrUrl || state.currentActiveWallhavenUrl || getCurrentScreenWallpaperUrl();
+        if (pool.length === 0) {
+            await doFetchWallhaven(1);
+            pool = getWallhavenPool();
+        }
+        if (pool.length === 0) {
+            renderWallhavenPreviews(0);
+            return;
+        }
+
+        let activeIdx = pool.findIndex(item => isSameWallpaper(item.path, currentUrl));
+        let targetOffset;
+        if (activeIdx !== -1) {
+            targetOffset = Math.floor(activeIdx / 10) * 10;
+        } else {
+            targetOffset = state.currentWhOffset !== null ? state.currentWhOffset : 0;
+            if (forceJump) targetOffset = 0;
+        }
+
+        const currentOffset = state.currentWhOffset !== null 
+            ? state.currentWhOffset 
+            : parseInt(localStorage.getItem('nova_wh_preview_offset') || '0');
+
+        const grid = document.getElementById('wallhaven-preview-grid');
+        const domCount = grid ? grid.querySelectorAll('.wh-preview-item').length : 0;
+        const currentSliceLength = pool.slice(targetOffset, targetOffset + 10).length;
+        const activeInDom = grid ? Array.from(grid.querySelectorAll('.wh-preview-item')).some(el => isSameWallpaper(el.dataset.path, currentUrl)) : false;
+
+        if (forceJump || currentOffset !== targetOffset || domCount !== currentSliceLength || (activeIdx !== -1 && !activeInDom)) {
+            renderWallhavenPreviews(targetOffset);
+        } else {
+            updatePreviewHighlight(activeIdx !== -1 ? currentUrl : null);
+        }
+    }
+}
+
+export function syncPreviewWithCurrentBackground(currentUrl = null, forceJump = false) {
+    syncPreviewWithActiveWallpaper(currentUrl, forceJump);
+}
+
+export function renderWallhavenPreviews(explicitOffset = null) {
     const grid = document.getElementById('wallhaven-preview-grid');
     const countBadge = document.getElementById('v_wallhaven_preview_count');
     const launcherBadge = document.getElementById('v_wallhaven_preview_count_badge');
@@ -280,47 +470,69 @@ export function renderWallhavenPreviews() {
     }
 
     const pool = getWallhavenPool();
-    let offset = parseInt(localStorage.getItem('nova_wh_preview_offset') || '0');
+    let offset = explicitOffset !== null
+        ? explicitOffset
+        : (state.currentWhOffset !== null 
+            ? state.currentWhOffset 
+            : parseInt(localStorage.getItem('nova_wh_preview_offset') || '0'));
     if (isNaN(offset) || offset < 0) offset = 0;
     if (pool.length > 0 && offset >= pool.length) {
         offset = Math.floor((pool.length - 1) / 10) * 10;
-        localStorage.setItem('nova_wh_preview_offset', String(offset));
     }
+    state.currentWhOffset = offset;
+    localStorage.setItem('nova_wh_preview_offset', String(offset));
 
     const total = parseInt(localStorage.getItem('nova_wh_total') || '0');
 
-    if (btnPrev) {
-        btnPrev.disabled = (offset === 0);
+    if (offset + 10 > pool.length && (total === 0 || pool.length < total)) {
+        fetchWallhavenBatch().then(() => {
+            if (state.activeDrawerTab === 'wallhaven') {
+                renderWallhavenPreviews(state.currentWhOffset);
+            }
+        });
     }
 
     if (pool.length === 0) {
         if (countBadge) countBadge.textContent = '0';
         if (launcherBadge) launcherBadge.textContent = '0';
+        if (btnPrev) btnPrev.disabled = true;
         if (btnNext) btnNext.disabled = true;
         if (grid) grid.innerHTML = '<div class="wh-preview-empty">No previews available</div>';
-        updateActiveWallpaperCard('wallhaven');
+        updateActiveWallpaperCard();
+        updatePrevButtonState();
         return;
     }
+
+    const hasMultiplePages = pool.length > 10 || total > 10;
+    if (btnPrev) btnPrev.disabled = !hasMultiplePages;
+    if (btnNext) btnNext.disabled = !hasMultiplePages;
 
     const currentSlice = pool.slice(offset, offset + 10);
     const fromNum = offset + 1;
     const toNum = offset + currentSlice.length;
 
     const countText = total > 0 ? `${fromNum}-${toNum} / ${total}` : `${fromNum}-${toNum}`;
-    if (countBadge) countBadge.textContent = countText;
-    if (launcherBadge) launcherBadge.textContent = countText;
-
-    if (btnNext) {
-        if (total > 0 && offset + 10 >= total) {
-            btnNext.disabled = true;
-        } else {
-            btnNext.disabled = false;
-        }
-    }
+    if (countBadge && countBadge.textContent !== countText) countBadge.textContent = countText;
+    if (launcherBadge && launcherBadge.textContent !== countText) launcherBadge.textContent = countText;
 
     if (!grid) return;
 
     const currentActive = (state.settings.bgType === 'wallhaven') ? getCurrentScreenWallpaperUrl() : null;
+
+    try {
+        const sliceData = {
+            offset,
+            total,
+            currentActive,
+            items: currentSlice.map(img => ({
+                id: img.id,
+                path: img.path,
+                thumb: img.thumb,
+                resolution: img.resolution
+            }))
+        };
+        localStorage.setItem('nova_wh_slice_cache', JSON.stringify(sliceData));
+    } catch {}
 
     const existingItems = grid.querySelectorAll('.wh-preview-item');
     const isSameSlice = existingItems.length === currentSlice.length &&
@@ -335,13 +547,12 @@ export function renderWallhavenPreviews() {
                 item.title = `${img.resolution}${isSelected ? '' : ' (Click to set)'}`;
             }
         });
-        updateActiveWallpaperCard('wallhaven');
+        updateActiveWallpaperCard();
+        updatePrevButtonState();
         return;
     }
 
-    grid.innerHTML = '';
-
-    currentSlice.forEach(img => {
+    const items = currentSlice.map(img => {
         const isSelected = isSameWallpaper(currentActive, img.path);
         const item = document.createElement('div');
         item.className = 'wh-preview-item' + (isSelected ? ' selected' : '');
@@ -354,10 +565,13 @@ export function renderWallhavenPreviews() {
             e.stopPropagation();
             selectWallhavenPreviewImage(img);
         });
-        grid.appendChild(item);
+        return item;
     });
 
-    updateActiveWallpaperCard('wallhaven');
+    grid.replaceChildren(...items);
+
+    updateActiveWallpaperCard();
+    updatePrevButtonState();
 }
 
 export async function changeWallhavenPreviewOffset(delta) {
@@ -366,65 +580,37 @@ export async function changeWallhavenPreviewOffset(delta) {
 
     try {
         let pool = getWallhavenPool();
-        const currentOffset = parseInt(localStorage.getItem('nova_wh_preview_offset') || '0');
-        const targetOffset = Math.max(0, currentOffset + delta);
+        let currentOffset = state.currentWhOffset !== null 
+            ? state.currentWhOffset 
+            : parseInt(localStorage.getItem('nova_wh_preview_offset') || '0');
+        if (isNaN(currentOffset) || currentOffset < 0) currentOffset = 0;
 
-        if (targetOffset === currentOffset && delta <= 0) {
-            return;
-        }
+        const total = parseInt(localStorage.getItem('nova_wh_total') || '0');
+        let targetOffset = currentOffset + delta;
 
         if (delta > 0) {
-            if (targetOffset + 10 > pool.length) {
+            if (targetOffset + 10 > pool.length && (total === 0 || pool.length < total)) {
                 const btnNext = document.getElementById('b_next_wh_preview');
                 if (btnNext) btnNext.style.opacity = '0.5';
 
-                const curPage = parseInt(localStorage.getItem('nova_wh_api_page') || '1');
-                const nextPage = curPage + 1;
-                const fetched = await fetchWallhavenApi(nextPage);
+                await doFetchWallhaven();
+                pool = getWallhavenPool();
 
                 if (btnNext) btnNext.style.opacity = '1';
-
-                if (fetched && fetched.length > 0) {
-                    localStorage.setItem('nova_wh_api_page', String(nextPage));
-                    const existingPaths = new Set(pool.map(p => p.path));
-                    const newItems = fetched
-                        .filter(img => !existingPaths.has(img.path))
-                        .map(img => ({
-                            path: img.path,
-                            thumb: img.thumbs?.small || img.thumbs?.original || img.path,
-                            resolution: img.resolution || '',
-                            colors: img.colors || []
-                        }));
-
-                    if (newItems.length > 0) {
-                        pool.push(...newItems);
-                        saveWallhavenPool(pool);
-
-                        const colorMap = JSON.parse(localStorage.getItem('nova_wh_colors') || '{}');
-                        newItems.forEach(img => {
-                            if (img.colors && img.colors.length > 0) {
-                                colorMap[img.path] = img.colors[0];
-                            }
-                        });
-                        localStorage.setItem('nova_wh_colors', JSON.stringify(colorMap));
-
-                        const newPaths = newItems.map(i => i.path).filter(p => !state.settings.wallhavenQueue.includes(p) && !state.settings.wallhavenHistory.includes(p));
-                        state.settings.wallhavenQueue.push(...newPaths);
-                        if (state.settings.wallhavenQueue.length > 50) {
-                            state.settings.wallhavenQueue = state.settings.wallhavenQueue.slice(0, 50);
-                        }
-                        await storage.setSettings(state.settings);
-                    }
-                }
             }
 
             if (targetOffset >= pool.length) {
-                return;
+                targetOffset = 0;
+            }
+        } else if (delta < 0) {
+            if (targetOffset < 0) {
+                targetOffset = Math.floor(Math.max(0, pool.length - 1) / 10) * 10;
             }
         }
 
+        state.currentWhOffset = targetOffset;
         localStorage.setItem('nova_wh_preview_offset', String(targetOffset));
-        renderWallhavenPreviews();
+        renderWallhavenPreviews(targetOffset);
     } finally {
         state.isPagingPreview = false;
     }
@@ -432,17 +618,28 @@ export async function changeWallhavenPreviewOffset(delta) {
 
 export async function selectWallhavenPreviewImage(img) {
     if (!img || !img.path) return;
+
+    const prevUrl = state.currentActiveWallhavenUrl || getCurrentScreenWallpaperUrl();
+    if (!state.settings.wallhavenHistory) state.settings.wallhavenHistory = [];
+    if (prevUrl && prevUrl !== img.path && (!state.settings.wallhavenHistory.length || state.settings.wallhavenHistory[state.settings.wallhavenHistory.length - 1] !== prevUrl)) {
+        state.settings.wallhavenHistory.push(prevUrl);
+        if (state.settings.wallhavenHistory.length > 50) state.settings.wallhavenHistory.shift();
+    }
+
     state.currentActiveWallhavenUrl = img.path;
     localStorage.setItem('nova_active_wh_url', img.path);
+    try {
+        localStorage.setItem('nova_active_wh_meta', JSON.stringify({
+            path: img.path,
+            thumb: img.thumb,
+            resolution: img.resolution,
+            colors: img.colors
+        }));
+    } catch {}
 
     const pool = getWallhavenPool();
     const clickedIdx = pool.findIndex(p => isSameWallpaper(p.path, img.path));
     if (clickedIdx !== -1) {
-        const historyToAdd = pool.slice(0, clickedIdx).map(p => p.path).filter(p => !state.settings.wallhavenHistory.includes(p));
-        state.settings.wallhavenHistory.push(...historyToAdd);
-        if (state.settings.wallhavenHistory.length > 30) {
-            state.settings.wallhavenHistory = state.settings.wallhavenHistory.slice(-30);
-        }
         state.settings.wallhavenQueue = pool.slice(clickedIdx).map(p => p.path);
     } else {
         state.settings.wallhavenQueue = state.settings.wallhavenQueue.filter(u => !isSameWallpaper(u, img.path));
@@ -462,8 +659,10 @@ export async function selectWallhavenPreviewImage(img) {
     const hubTitle = document.getElementById('v_hub_launcher_title');
     if (hubTitle) hubTitle.textContent = 'Browse Wallhaven';
 
-    syncPreviewWithCurrentBackground(img.path);
     await storage.setSettings(state.settings);
+    updatePreviewHighlight(img.path);
+    updateActiveWallpaperCard();
+    updatePrevButtonState();
     await loadBackground(false, false);
 }
 
@@ -501,12 +700,18 @@ export async function submitDrawerQuery() {
     if (inputWhMode) inputWhMode.value = 'search';
     if (btnDrawerQueryClear) btnDrawerQueryClear.classList.remove('hidden');
     resetWallhavenSession();
+    state.currentWhOffset = 0;
+    const grid = document.getElementById('wallhaven-preview-grid');
+    if (grid) grid.innerHTML = '<div class="wh-preview-empty">Loading...</div>';
+    const countBadge = document.getElementById('v_wallhaven_preview_count');
+    if (countBadge) countBadge.textContent = '...';
     await storage.setSettings(state.settings);
     updateWallhavenCategoryChips();
     await doFetchWallhaven(1);
+    renderWallhavenPreviews(0);
 }
 
-export function toggleWhDrawer(forceState) {
+export function toggleWhDrawer(forceState, shouldSync = true) {
     const domWhDrawer = document.getElementById('wallhaven-preview-drawer');
     const domWhDrawerQuickBtn = document.getElementById('wh-drawer-quick-btn');
     if (!domWhDrawer) return;
@@ -515,24 +720,70 @@ export function toggleWhDrawer(forceState) {
     if (domWhDrawerQuickBtn) domWhDrawerQuickBtn.classList.toggle('active', stateVal);
     document.body.classList.toggle('drawer-open', stateVal);
     localStorage.setItem('nova_drawer_open', stateVal ? '1' : '0');
-    if (stateVal) {
-        state.activeDrawerTab = state.settings.bgType === 'local' ? 'local' : 'wallhaven';
-        if (state.activeDrawerTab === 'local') {
-            syncLocalPreviewWithCurrentBackground();
-        } else {
-            syncPreviewWithCurrentBackground();
-        }
+    saveSnapshot();
+    if (stateVal && shouldSync) {
+        syncPreviewWithActiveWallpaper(null, true);
     }
 }
 
 export function initDrawer() {
-    on('preview:sync', (detail) => {
-        if (state.activeDrawerTab === 'local' || state.settings.bgType === 'local') {
-            syncLocalPreviewWithCurrentBackground();
-        } else {
-            syncPreviewWithCurrentBackground(detail?.currentUrl);
+    on('preview:sync', async (detail) => {
+        await syncPreviewWithActiveWallpaper(detail?.currentUrl);
+    });
+
+    on('preview:rerender', () => {
+        if (state.activeDrawerTab === 'wallhaven') {
+            renderWallhavenPreviews(state.currentWhOffset);
         }
     });
+
+    const grid = document.getElementById('wallhaven-preview-grid');
+    if (grid) {
+        grid.addEventListener('click', async (e) => {
+            const item = e.target.closest('.wh-preview-item');
+            if (!item) return;
+            e.stopPropagation();
+            if (state.activeDrawerTab === 'local') {
+                const id = item.dataset.id;
+                if (!id) return;
+                if (state.settings.selectedLocalBg === id && state.settings.bgType === 'local') return;
+                const prevId = state.settings.selectedLocalBg;
+                if (!state.settings.localHistory) state.settings.localHistory = [];
+                if (prevId && prevId !== id) {
+                    state.settings.localHistory.push(prevId);
+                    if (state.settings.localHistory.length > 50) state.settings.localHistory.shift();
+                }
+                state.settings.bgType = 'local';
+                state.settings.selectedLocalBg = id;
+                const bgTypeInput = document.getElementById('i_bg_type');
+                if (bgTypeInput) bgTypeInput.value = 'local';
+                const hubTitle = document.getElementById('v_hub_launcher_title');
+                if (hubTitle) hubTitle.textContent = 'Browse Local Files';
+                await storage.setSettings(state.settings);
+                updatePreviewHighlight(id);
+                updateActiveWallpaperCard();
+                updatePrevButtonState();
+                renderGallery();
+                await loadBackground(false, false);
+            } else {
+                const path = item.dataset.path;
+                if (!path) return;
+                const pool = getWallhavenPool();
+                const matched = pool.find(p => isSameWallpaper(p.path, path));
+                if (matched) {
+                    selectWallhavenPreviewImage(matched);
+                } else {
+                    if (isSameWallpaper(getCurrentScreenWallpaperUrl(), path)) return;
+                    state.settings.bgType = 'wallhaven';
+                    state.currentActiveWallhavenUrl = path;
+                    localStorage.setItem('nova_active_wh_url', path);
+                    await storage.setSettings(state.settings);
+                    emit('preview:sync', { currentUrl: path });
+                    await loadBackground(false, false);
+                }
+            }
+        });
+    }
 
     const btnOpenWhDrawer = document.getElementById('b_open_wh_drawer');
     if (btnOpenWhDrawer) {
@@ -567,9 +818,15 @@ export function initDrawer() {
             state.settings.bgType = 'wallhaven';
             const bgTypeInput = document.getElementById('i_bg_type');
             if (bgTypeInput) bgTypeInput.value = 'wallhaven';
+            const hubTitle = document.getElementById('v_hub_launcher_title');
+            if (hubTitle) hubTitle.textContent = 'Browse Wallhaven';
+            const whOpts = document.getElementById('wallhaven-options');
+            if (whOpts) whOpts.classList.remove('hidden');
+            const localOpts = document.getElementById('local-options');
+            if (localOpts) localOpts.classList.add('hidden');
             await storage.setSettings(state.settings);
             emit('settings:dom_sync');
-            syncPreviewWithCurrentBackground();
+            await syncPreviewWithActiveWallpaper(null, true);
             await loadBackground(false, false);
         });
     }
@@ -583,9 +840,15 @@ export function initDrawer() {
             state.settings.bgType = 'local';
             const bgTypeInput = document.getElementById('i_bg_type');
             if (bgTypeInput) bgTypeInput.value = 'local';
+            const hubTitle = document.getElementById('v_hub_launcher_title');
+            if (hubTitle) hubTitle.textContent = 'Browse Local Files';
+            const whOpts = document.getElementById('wallhaven-options');
+            if (whOpts) whOpts.classList.add('hidden');
+            const localOpts = document.getElementById('local-options');
+            if (localOpts) localOpts.classList.remove('hidden');
             await storage.setSettings(state.settings);
             emit('settings:dom_sync');
-            syncLocalPreviewWithCurrentBackground();
+            await syncPreviewWithActiveWallpaper(null, true);
             await loadBackground(false, false);
         });
     }
@@ -597,9 +860,16 @@ export function initDrawer() {
             btnRefreshWhDrawer.classList.add('spinning');
             try {
                 if (state.activeDrawerTab === 'local') {
-                    renderLocalPreviews();
+                    await renderLocalPreviews();
                 } else {
+                    resetWallhavenSession();
+                    state.currentWhOffset = 0;
+                    const grid = document.getElementById('wallhaven-preview-grid');
+                    if (grid) grid.innerHTML = '<div class="wh-preview-empty">Loading...</div>';
+                    const countBadge = document.getElementById('v_wallhaven_preview_count');
+                    if (countBadge) countBadge.textContent = '...';
                     await doFetchWallhaven(1);
+                    renderWallhavenPreviews(0);
                 }
             } finally {
                 setTimeout(() => {
@@ -612,28 +882,40 @@ export function initDrawer() {
     const btnPrevWhPreview = document.getElementById('b_prev_wh_preview');
     const btnNextWhPreview = document.getElementById('b_next_wh_preview');
     if (btnPrevWhPreview) {
-        btnPrevWhPreview.addEventListener('click', (e) => {
+        btnPrevWhPreview.addEventListener('click', async (e) => {
             e.stopPropagation();
             if (state.activeDrawerTab === 'local') {
-                const currentOffset = parseInt(localStorage.getItem('nova_local_preview_offset') || '0');
-                const targetOffset = Math.max(0, currentOffset - 10);
-                localStorage.setItem('nova_local_preview_offset', String(targetOffset));
-                renderLocalPreviews();
+                const gallery = await storage.getGallery();
+                if (gallery.length <= 10) return;
+                let currentOffset = state.currentLocalOffset !== null 
+                    ? state.currentLocalOffset 
+                    : parseInt(localStorage.getItem('nova_local_preview_offset') || '0');
+                let targetOffset = currentOffset - 10;
+                if (targetOffset < 0) {
+                    targetOffset = Math.floor((gallery.length - 1) / 10) * 10;
+                }
+                await renderLocalPreviews(targetOffset);
             } else {
-                changeWallhavenPreviewOffset(-10);
+                await changeWallhavenPreviewOffset(-10);
             }
         });
     }
     if (btnNextWhPreview) {
-        btnNextWhPreview.addEventListener('click', (e) => {
+        btnNextWhPreview.addEventListener('click', async (e) => {
             e.stopPropagation();
             if (state.activeDrawerTab === 'local') {
-                const currentOffset = parseInt(localStorage.getItem('nova_local_preview_offset') || '0');
-                const targetOffset = currentOffset + 10;
-                localStorage.setItem('nova_local_preview_offset', String(targetOffset));
-                renderLocalPreviews();
+                const gallery = await storage.getGallery();
+                if (gallery.length <= 10) return;
+                let currentOffset = state.currentLocalOffset !== null 
+                    ? state.currentLocalOffset 
+                    : parseInt(localStorage.getItem('nova_local_preview_offset') || '0');
+                let targetOffset = currentOffset + 10;
+                if (targetOffset >= gallery.length) {
+                    targetOffset = 0;
+                }
+                await renderLocalPreviews(targetOffset);
             } else {
-                changeWallhavenPreviewOffset(10);
+                await changeWallhavenPreviewOffset(10);
             }
         });
     }
@@ -642,26 +924,7 @@ export function initDrawer() {
     if (btnDrawerPrevBg) {
         btnDrawerPrevBg.addEventListener('click', async (e) => {
             e.stopPropagation();
-            if (state.activeDrawerTab === 'local' || state.settings.bgType === 'local') {
-                const gallery = await storage.getGallery();
-                if (gallery.length > 1) {
-                    let idx = gallery.findIndex(img => img.id === state.settings.selectedLocalBg);
-                    idx = (idx - 1 + gallery.length) % gallery.length;
-                    state.settings.selectedLocalBg = gallery[idx].id;
-                    await storage.setSettings(state.settings);
-                    await loadBackground(false, false);
-                }
-            } else {
-                if (state.settings.wallhavenHistory.length > 0) {
-                    const prevUrl = state.settings.wallhavenHistory.pop();
-                    state.settings.wallhavenQueue.unshift(prevUrl);
-                    state.currentActiveWallhavenUrl = prevUrl;
-                    localStorage.setItem('nova_active_wh_url', prevUrl);
-                    syncPreviewWithCurrentBackground(prevUrl);
-                    await storage.setSettings(state.settings);
-                    await loadBackground(false, false);
-                }
-            }
+            await switchToPrevWallpaper();
         });
     }
 
@@ -669,7 +932,7 @@ export function initDrawer() {
     if (btnDrawerNextBg) {
         btnDrawerNextBg.addEventListener('click', async (e) => {
             e.stopPropagation();
-            await loadBackground(true, false);
+            await switchToNextWallpaper();
         });
     }
 
@@ -708,9 +971,15 @@ export function initDrawer() {
             const whModeInput = document.getElementById('i_wallhaven_mode');
             if (whModeInput) whModeInput.value = mode;
             resetWallhavenSession();
+            state.currentWhOffset = 0;
+            const grid = document.getElementById('wallhaven-preview-grid');
+            if (grid) grid.innerHTML = '<div class="wh-preview-empty">Loading...</div>';
+            const countBadge = document.getElementById('v_wallhaven_preview_count');
+            if (countBadge) countBadge.textContent = '...';
             await storage.setSettings(state.settings);
             updateWallhavenCategoryChips();
             await doFetchWallhaven(1);
+            renderWallhavenPreviews(0);
         });
     });
 
@@ -724,9 +993,15 @@ export function initDrawer() {
             const topRangeInput = document.getElementById('i_wallhaven_toprange');
             if (topRangeInput) topRangeInput.value = range;
             resetWallhavenSession();
+            state.currentWhOffset = 0;
+            const grid = document.getElementById('wallhaven-preview-grid');
+            if (grid) grid.innerHTML = '<div class="wh-preview-empty">Loading...</div>';
+            const countBadge = document.getElementById('v_wallhaven_preview_count');
+            if (countBadge) countBadge.textContent = '...';
             await storage.setSettings(state.settings);
             updateWallhavenCategoryChips();
             await doFetchWallhaven(1);
+            renderWallhavenPreviews(0);
         });
     });
 
@@ -738,8 +1013,14 @@ export function initDrawer() {
             const ratioInput = document.getElementById('i_wallhaven_ratio');
             if (ratioInput) ratioInput.value = e.target.value;
             resetWallhavenSession();
+            state.currentWhOffset = 0;
+            const grid = document.getElementById('wallhaven-preview-grid');
+            if (grid) grid.innerHTML = '<div class="wh-preview-empty">Loading...</div>';
+            const countBadge = document.getElementById('v_wallhaven_preview_count');
+            if (countBadge) countBadge.textContent = '...';
             await storage.setSettings(state.settings);
             await doFetchWallhaven(1);
+            renderWallhavenPreviews(0);
         });
     }
 
@@ -751,8 +1032,14 @@ export function initDrawer() {
             const resInput = document.getElementById('i_wallhaven_resolution');
             if (resInput) resInput.value = e.target.value;
             resetWallhavenSession();
+            state.currentWhOffset = 0;
+            const grid = document.getElementById('wallhaven-preview-grid');
+            if (grid) grid.innerHTML = '<div class="wh-preview-empty">Loading...</div>';
+            const countBadge = document.getElementById('v_wallhaven_preview_count');
+            if (countBadge) countBadge.textContent = '...';
             await storage.setSettings(state.settings);
             await doFetchWallhaven(1);
+            renderWallhavenPreviews(0);
         });
     }
 
@@ -770,6 +1057,7 @@ export function initDrawer() {
         drawerQueryInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
+                if (e.isComposing || e.keyCode === 229) return;
                 submitDrawerQuery();
             }
         });
@@ -791,9 +1079,15 @@ export function initDrawer() {
             const inputWhMode = document.getElementById('i_wallhaven_mode');
             if (inputWhMode) inputWhMode.value = 'top';
             resetWallhavenSession();
+            state.currentWhOffset = 0;
+            const grid = document.getElementById('wallhaven-preview-grid');
+            if (grid) grid.innerHTML = '<div class="wh-preview-empty">Loading...</div>';
+            const countBadge = document.getElementById('v_wallhaven_preview_count');
+            if (countBadge) countBadge.textContent = '...';
             await storage.setSettings(state.settings);
             updateWallhavenCategoryChips();
             await doFetchWallhaven(1);
+            renderWallhavenPreviews(0);
         });
     }
 
