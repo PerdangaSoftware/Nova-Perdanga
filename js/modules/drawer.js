@@ -66,6 +66,8 @@ export async function updateActiveWallpaperCard() {
     if (isLocal) {
         const gallery = await storage.getGallery();
         const current = gallery.find(img => img.id === state.settings.selectedLocalBg) || gallery[0];
+        const whDetailsCard = document.getElementById('drawer-wh-details-card');
+        if (whDetailsCard) whDetailsCard.classList.add('hidden');
         if (!current) {
             activeCard.classList.add('hidden');
             return;
@@ -110,8 +112,10 @@ export async function updateActiveWallpaperCard() {
         }
     } else {
         const currentUrl = state.currentActiveWallhavenUrl || getCurrentScreenWallpaperUrl();
+        const whDetailsCard = document.getElementById('drawer-wh-details-card');
         if (!currentUrl) {
             activeCard.classList.add('hidden');
+            if (whDetailsCard) whDetailsCard.classList.add('hidden');
             return;
         }
         activeCard.classList.remove('hidden');
@@ -170,6 +174,7 @@ export async function updateActiveWallpaperCard() {
         if (delBtn) {
             delBtn.classList.add('hidden');
         }
+        updateWallhavenTags(currentUrl);
     }
 }
 
@@ -200,6 +205,8 @@ export async function renderLocalPreviews(explicitOffset = null) {
     if (tabLocal) tabLocal.classList.add('active');
     if (drawerMode) drawerMode.textContent = 'Local Files';
     if (uploadCard) uploadCard.classList.remove('hidden');
+    const whDetailsCard = document.getElementById('drawer-wh-details-card');
+    if (whDetailsCard) whDetailsCard.classList.add('hidden');
     if (btnDrawerSave) btnDrawerSave.classList.add('hidden');
     if (searchBar) searchBar.classList.add('hidden');
     if (filterToggle) filterToggle.classList.add('hidden');
@@ -458,6 +465,8 @@ export function renderWallhavenPreviews(explicitOffset = null) {
     if (tabWh) tabWh.classList.add('active');
     if (tabLocal) tabLocal.classList.remove('active');
     if (uploadCard) uploadCard.classList.add('hidden');
+    const whDetailsCard = document.getElementById('drawer-wh-details-card');
+    if (whDetailsCard) whDetailsCard.classList.remove('hidden');
     if (btnDrawerSave) {
         btnDrawerSave.classList.remove('hidden');
         btnDrawerSave.innerHTML = '★ Save';
@@ -725,6 +734,143 @@ export async function submitDrawerQuery() {
     renderWallhavenPreviews(0);
 }
 
+export async function searchWallhavenTag(tagName) {
+    if (!tagName) return;
+    const drawerQueryInput = document.getElementById('i_drawer_query');
+    if (drawerQueryInput) {
+        drawerQueryInput.value = tagName;
+    }
+    await submitDrawerQuery();
+}
+
+const whTagsCache = new Map();
+let currentWhTagsSeq = 0;
+
+export async function updateWallhavenTags(wallpaperUrl) {
+    const card = document.getElementById('drawer-wh-details-card');
+    const tagsWrap = document.getElementById('drawer-wh-tags');
+    if (!card || !tagsWrap) return;
+
+    if (state.activeDrawerTab === 'local' || state.settings.bgType === 'local') {
+        card.classList.add('hidden');
+        return;
+    }
+    card.classList.remove('hidden');
+
+    if (!wallpaperUrl) {
+        tagsWrap.innerHTML = '<span class="wh-tag-empty">No tags available</span>';
+        return;
+    }
+
+    const pool = getWallhavenPool();
+    const meta = pool.find(item => isSameWallpaper(item.path, wallpaperUrl));
+    const idMatch = wallpaperUrl.match(/wallhaven-([a-zA-Z0-9]+)\./i) || wallpaperUrl.match(/\/([a-zA-Z0-9]+)\.(jpg|png|jpeg|webp)/i);
+    const id = meta?.id || (idMatch ? idMatch[1] : null);
+
+    if (!id) {
+        tagsWrap.innerHTML = '<span class="wh-tag-empty">No tags available</span>';
+        return;
+    }
+
+    if (whTagsCache.has(id)) {
+        renderWhTags(whTagsCache.get(id), tagsWrap);
+        return;
+    }
+
+    tagsWrap.innerHTML = '<span class="wh-tag-loading">Loading tags...</span>';
+    const thisSeq = ++currentWhTagsSeq;
+
+    try {
+        const res = await fetch(`https://wallhaven.cc/api/v1/w/${id}`);
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+        if (thisSeq !== currentWhTagsSeq) return;
+
+        const tags = (data && data.data && Array.isArray(data.data.tags)) ? data.data.tags : [];
+        whTagsCache.set(id, tags);
+
+        const currentActive = state.currentActiveWallhavenUrl || getCurrentScreenWallpaperUrl();
+        if (isSameWallpaper(currentActive, wallpaperUrl)) {
+            renderWhTags(tags, tagsWrap);
+        }
+    } catch (e) {
+        if (thisSeq === currentWhTagsSeq) {
+            tagsWrap.innerHTML = '<span class="wh-tag-empty">Tags unavailable</span>';
+        }
+    }
+}
+
+function renderWhTags(tags, container) {
+    if (!container) return;
+    if (!tags || tags.length === 0) {
+        container.innerHTML = '<span class="wh-tag-empty">No tags for this wallpaper</span>';
+        return;
+    }
+    container.replaceChildren();
+    tags.slice(0, 10).forEach(t => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'wh-tag-pill';
+        btn.textContent = '#' + t.name;
+        btn.title = `Search "${t.name}"`;
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            searchWallhavenTag(t.name);
+        });
+        container.appendChild(btn);
+    });
+}
+
+export async function downloadCurrentWallhaven() {
+    const currentUrl = state.currentActiveWallhavenUrl || getCurrentScreenWallpaperUrl();
+    if (!currentUrl) return;
+
+    const btn = document.getElementById('b_drawer_wh_download');
+    const origHtml = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.innerHTML = '<svg class="nova-spin" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg><span>Saving...</span>';
+        btn.style.pointerEvents = 'none';
+    }
+
+    try {
+        const res = await fetch(currentUrl);
+        if (!res.ok) throw new Error('Fetch failed');
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        
+        let filename = 'wallhaven-wallpaper.jpg';
+        const match = currentUrl.match(/wallhaven-([a-zA-Z0-9]+)\.(jpg|png|jpeg|webp)/i);
+        if (match) {
+            filename = `wallhaven-${match[1]}.${match[2]}`;
+        } else {
+            const ext = blob.type.includes('png') ? 'png' : 'jpg';
+            filename = `wallhaven-${Date.now()}.${ext}`;
+        }
+
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
+
+        if (btn) {
+            btn.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#2dd4bf" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span style="color:#2dd4bf">Saved</span>';
+            setTimeout(() => {
+                btn.innerHTML = origHtml;
+                btn.style.pointerEvents = '';
+            }, 1800);
+        }
+    } catch (err) {
+        if (btn) {
+            btn.innerHTML = origHtml;
+            btn.style.pointerEvents = '';
+        }
+        window.open(currentUrl, '_blank');
+    }
+}
+
 export function toggleWhDrawer(forceState, shouldSync = true) {
     const domWhDrawer = document.getElementById('wallhaven-preview-drawer');
     const domWhDrawerQuickBtn = document.getElementById('wh-drawer-quick-btn');
@@ -960,6 +1106,14 @@ export function initDrawer() {
             } else {
                 await saveCurrentWallhaven();
             }
+        });
+    }
+
+    const btnWhDownload = document.getElementById('b_drawer_wh_download');
+    if (btnWhDownload) {
+        btnWhDownload.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            await downloadCurrentWallhaven();
         });
     }
 
