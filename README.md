@@ -15,9 +15,11 @@
 <details>
   <summary><b>Smart Search & Real-Time Suggestions</b></summary>
   <br>
-  <a href="assets/screenshots/nova-perdanga-search.png">
-    <img src="assets/screenshots/nova-perdanga-search.png" alt="Smart Search & Real-Time Suggestions" width="100%">
-  </a>
+  <div align="center">
+    <a href="assets/screenshots/nova-perdanga-search-v1.4.png">
+      <img src="assets/screenshots/nova-perdanga-search-v1.4.png" alt="Smart Search & Real-Time Suggestions" width="100%">
+    </a>
+  </div>
 </details>
 
 <details>
@@ -40,30 +42,39 @@
   <summary><b>Accurate Weather Forecast & Dynamic Greetings</b></summary>
   <br>
   <div align="center">
-    <a href="assets/screenshots/nova-perdanga-weather.png">
-      <img src="assets/screenshots/nova-perdanga-weather.png" alt="Accurate Weather Forecast & Dynamic Greetings" width="58%">
-    </a>
-    &nbsp;&nbsp;
-    <a href="assets/screenshots/nova-perdanga-weather-settings.png">
-      <img src="assets/screenshots/nova-perdanga-weather-settings.png" alt="Weather & Greetings Settings" width="38%">
-    </a>
+    <table>
+      <tr>
+        <td align="center" valign="middle" width="60%">
+          <a href="assets/screenshots/nova-perdanga-weather-v1.4.png">
+            <img src="assets/screenshots/nova-perdanga-weather-v1.4.png" alt="Live Weather & Clock Widget" width="100%">
+          </a>
+        </td>
+        <td align="center" valign="middle" width="40%">
+          <a href="assets/screenshots/nova-perdanga-weather-settings-v1.4.png">
+            <img src="assets/screenshots/nova-perdanga-weather-settings-v1.4.png" alt="Weather & Greetings Settings" width="100%">
+          </a>
+        </td>
+      </tr>
+    </table>
   </div>
 </details>
 
 <details>
   <summary><b>Draggable Floating Timer</b></summary>
   <br>
-  <a href="assets/screenshots/nova-perdanga-timer.png">
-    <img src="assets/screenshots/nova-perdanga-timer.png" alt="Draggable Floating Timer" width="100%">
-  </a>
+  <div align="center">
+    <a href="assets/screenshots/nova-perdanga-timer-v1.4.png">
+      <img src="assets/screenshots/nova-perdanga-timer-v1.4.png" alt="Draggable Floating Timer" width="45%">
+    </a>
+  </div>
 </details>
 
 <details>
   <summary><b>Settings</b></summary>
   <br>
   <div align="center">
-    <a href="assets/screenshots/nova-perdanga-settings.png">
-      <img src="assets/screenshots/nova-perdanga-settings.png" alt="Settings" width="75%">
+    <a href="assets/screenshots/nova-perdanga-settings-v1.4.png">
+      <img src="assets/screenshots/nova-perdanga-settings-v1.4.png" alt="Settings" width="75%">
     </a>
   </div>
 </details>
