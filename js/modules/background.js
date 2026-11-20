@@ -175,9 +175,6 @@ export async function applyBackground(originalUrl, objectUrl = null, posY = 50) 
     const executeSwap = () => {
         if (currentSeq !== state.bgSwitchSeq) return;
 
-        const sStyle = document.getElementById('startup-bg-style');
-        if (sStyle) sStyle.remove();
-
         nextEl.style.backgroundImage = `url(${displayUrl})`;
         nextEl.style.backgroundPosition = `center ${posY}%`;
         

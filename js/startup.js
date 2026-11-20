@@ -87,7 +87,7 @@
         if (s.searchBlur !== undefined) hideCss += `:root { --search-blur: ${s.searchBlur}px; }\n`;
         if (s.searchBgOpacity !== undefined) hideCss += `:root { --search-bg-opacity: ${s.searchBgOpacity / 100}; }\n`;
         if (s.bgBrightness !== undefined) hideCss += `:root { --bg-brightness: ${s.bgBrightness / 100}; }\n`;
-        hideCss += `:root { --bg-fade: ${(s.bgFade !== undefined ? s.bgFade : 1000)}ms; }\n`;
+        if (s.bgFade !== undefined) hideCss += `:root { --bg-fade: ${s.bgFade}ms; }\n`;
         if (s.searchWidth !== undefined) hideCss += `:root { --search-width: ${s.searchWidth}px; }\n`;
         if (s.searchFontSize !== undefined) hideCss += `:root { --search-font-size: ${s.searchFontSize / 10}rem; }\n`;
         if (s.clockSize !== undefined) hideCss += `:root { --clock-size: ${s.clockSize / 10}rem; }\n`;
@@ -155,7 +155,7 @@
             const applyBgStyles = (url) => {
                 const bgStyle = document.createElement('style');
                 bgStyle.id = 'startup-bg-style';
-                bgStyle.textContent = `#bg-1 { background-image: url('${url}'); background-position: center ${startupBgPos}%; animation: bgStartupFadeIn var(--bg-fade) cubic-bezier(0.16, 1, 0.3, 1) forwards; }`;
+                bgStyle.textContent = `#bg-1 { background-image: url('${url}'); background-position: center ${startupBgPos}%; }`;
                 document.head.appendChild(bgStyle);
             };
 

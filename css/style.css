@@ -43,8 +43,7 @@ body {
 #background-wrapper {
     position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: -2;
     filter: blur(var(--bg-blur)) brightness(var(--bg-brightness));
-    transform: scale(1.05) translateZ(0);
-    will-change: filter;
+    transform: scale(1.05);
     transition: filter 0.3s ease;
 }
 
@@ -52,21 +51,10 @@ body {
     position: absolute; top: 0; left: 0; right: 0; bottom: 0;
     background-size: cover; background-position: center;
     opacity: 0; 
-    will-change: opacity;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    transition: opacity var(--bg-fade) cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity var(--bg-fade) cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 .bg-media.active { 
     opacity: 1; 
-}
-@keyframes bgStartupFadeIn {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
 }
 
 #bg-overlay {
