@@ -41,7 +41,7 @@
 </details>
 
 <details>
-  <summary><b>Accurate Weather Forecast & Dynamic Greetings</b></summary>
+  <summary><b>Weather & Greetings</b></summary>
   <br>
   <div align="center">
     <table>
