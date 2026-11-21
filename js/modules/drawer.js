@@ -107,15 +107,37 @@ export async function updateActiveWallpaperCard() {
             delBtn.onclick = async (e) => {
                 e.preventDefault();
                 let g = await storage.getGallery();
-                const imgToRemove = g.find(img => img.id === current.id);
+                const removeIdx = g.findIndex(img => img.id === current.id);
+                if (removeIdx === -1) return;
+                const imgToRemove = g[removeIdx];
                 if (imgToRemove && imgToRemove.type === 'local') await idb.remove(imgToRemove.id);
-                g = g.filter(img => img.id !== current.id);
-                state.settings.selectedLocalBg = g.length > 0 ? g[0].id : '';
+                g.splice(removeIdx, 1);
+
+                let curOffset = state.currentLocalOffset !== null 
+                    ? state.currentLocalOffset 
+                    : parseInt(localStorage.getItem('nova_local_preview_offset') || '0');
+                if (isNaN(curOffset) || curOffset < 0) curOffset = 0;
+
+                if (g.length === 0) {
+                    state.settings.selectedLocalBg = '';
+                    curOffset = 0;
+                } else {
+                    const newIdx = Math.min(removeIdx, g.length - 1);
+                    state.settings.selectedLocalBg = g[newIdx].id;
+                    if (curOffset >= g.length) {
+                        curOffset = Math.max(0, Math.floor((g.length - 1) / 10) * 10);
+                    }
+                }
+
+                state.currentLocalOffset = curOffset;
+                localStorage.setItem('nova_local_preview_offset', String(curOffset));
+                localStorage.setItem('nova_gallery_count', String(g.length));
+
                 await storage.setGallery(g);
                 await storage.setSettings(state.settings);
                 renderGallery();
-                renderLocalPreviews();
-                if (state.settings.bgType === 'local') loadBackground(false, false);
+                await renderLocalPreviews(curOffset);
+                if (state.settings.bgType === 'local') await loadBackground(false, false);
             };
         }
         const posInput = document.getElementById('i_drawer_local_pos');
@@ -245,7 +267,7 @@ export async function renderLocalPreviews(explicitOffset = null) {
             : parseInt(localStorage.getItem('nova_local_preview_offset') || '0'));
     if (isNaN(offset) || offset < 0) offset = 0;
     if (gallery.length > 0 && offset >= gallery.length) {
-        offset = 0;
+        offset = Math.max(0, Math.floor((gallery.length - 1) / 10) * 10);
     }
     state.currentLocalOffset = offset;
     localStorage.setItem('nova_local_preview_offset', String(offset));
