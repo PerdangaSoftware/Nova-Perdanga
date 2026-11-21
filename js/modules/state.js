@@ -42,19 +42,20 @@ export const defaultSettings = {
 
 function getInitialSettings() {
     try {
+        const validEngines = ['google', 'ddg', 'brave', 'startpage', 'qwant'];
         const rawSnap = localStorage.getItem('nova_snapshot');
         if (rawSnap) {
             const snap = JSON.parse(rawSnap);
             if (snap && snap.settings) {
                 const s = { ...defaultSettings, ...snap.settings };
-                if (s.engine === 'bing') s.engine = 'google';
+                if (!validEngines.includes(s.engine)) s.engine = 'google';
                 return s;
             }
         }
         const cached = localStorage.getItem('nova_settings_cache');
         if (cached) {
             const s = { ...defaultSettings, ...JSON.parse(cached) };
-            if (s.engine === 'bing') s.engine = 'google';
+            if (!validEngines.includes(s.engine)) s.engine = 'google';
             return s;
         }
     } catch {}

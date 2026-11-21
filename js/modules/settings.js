@@ -122,7 +122,7 @@ export function applySettingsToDOM() {
     if (inputFont) inputFont.value = settings.font;
     if (inputTextColor) inputTextColor.value = settings.textColor;
     if (inputEngine) {
-        if (settings.engine === 'bing') settings.engine = 'google';
+        if (!['google', 'ddg', 'brave', 'startpage', 'qwant'].includes(settings.engine)) settings.engine = 'google';
         inputEngine.value = settings.engine;
     }
     if (inputBgType) inputBgType.value = settings.bgType;
