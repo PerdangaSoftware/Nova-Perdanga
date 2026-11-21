@@ -5,8 +5,8 @@
 </div>
 
 <div align="center">
-  <a href="assets/screenshots/nova-perdanga-showcase.png">
-    <img src="assets/screenshots/nova-perdanga-showcase.png?raw=true" alt="Nova-Perdanga Interface" width="100%">
+  <a href="assets/screenshots/nova-perdanga-showcase.png?v=1.4">
+    <img src="assets/screenshots/nova-perdanga-showcase.png?raw=true&v=1.4" alt="Nova-Perdanga Interface" width="100%">
   </a>
 </div>
 
@@ -25,8 +25,8 @@
 <details>
   <summary><b>Wallhaven Hub & Color Palette Filter</b></summary>
   <br>
-  <a href="assets/screenshots/nova-perdanga-wallhaven.png">
-    <img src="assets/screenshots/nova-perdanga-wallhaven.png?raw=true" alt="Wallhaven Hub & Color Palette Filter" width="100%">
+  <a href="assets/screenshots/nova-perdanga-wallhaven.png?v=1.4">
+    <img src="assets/screenshots/nova-perdanga-wallhaven.png?raw=true&v=1.4" alt="Wallhaven Hub & Color Palette Filter" width="100%">
   </a>
 </details>
 
