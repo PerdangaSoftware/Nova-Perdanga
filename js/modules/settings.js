@@ -193,8 +193,6 @@ export function applySettingsToDOM() {
     const elWhResModeWrap = document.getElementById('wallhaven-res-mode-wrapper');
     if (elWhResModeWrap) elWhResModeWrap.classList.toggle('hidden', !settings.wallhavenResolution);
     
-    const localOptions = document.getElementById('local-options');
-    if (localOptions) localOptions.classList.toggle('hidden', settings.bgType !== 'local');
     const manualColorWrap = document.getElementById('manual-color-wrapper');
     if (manualColorWrap) manualColorWrap.classList.toggle('hidden', settings.searchAutoColor);
 

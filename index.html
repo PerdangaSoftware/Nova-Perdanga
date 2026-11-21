@@ -313,54 +313,6 @@
                 </button>
             </div>
 
-            <div id="local-options" class="bg-settings-group mt-15 hidden">
-                <div class="wrapper row-between section-header">
-                    <div class="header-with-badge">
-                        <label style="font-weight: 500;">My files</label>
-                        <span id="gallery-count" class="badge-count">0</span>
-                    </div>
-                    <label for="i_local_upload" class="add-new-btn">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        Add new
-                    </label>
-                    <input type="file" id="i_local_upload" accept="image/*" multiple hidden>
-                </div>
-                <div id="local-gallery" class="gallery-grid-3 mt-10"></div>
-                <div class="action-grid-2x2 mt-10">
-                    <button type="button" id="b_view_local" class="action-btn" disabled>
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        View
-                    </button>
-                    <button type="button" id="b_download_local" class="action-btn" disabled>
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Download
-                    </button>
-                    <button type="button" id="b_options_local" class="action-btn" disabled>
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M12 4v16M8 8l4-4 4 4M8 16l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Position
-                    </button>
-                    <button type="button" id="b_local_remove" class="action-btn" disabled>
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        Remove
-                    </button>
-                </div>
-                <div class="action-bar mt-10">
-                    <button type="button" id="b_download_all_local" class="action-btn" disabled>
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        Download All Wallpapers (.zip)
-                    </button>
-                </div>
-                <div id="local-image-options" class="hidden mt-10 param">
-                    <div class="wrapper row-between range-wrapper">
-                        <div class="label-with-val">
-                            <label>Vertical Position</label>
-                            <span class="val-badge" id="v_local_pos">50%</span>
-                        </div>
-                        <input type="range" id="i_local_pos" min="0" max="100" value="50">
-                    </div>
-                </div>
-            </div>
-
             <hr class="mt-15 mb-15">
             
             <div class="wrapper row-between range-wrapper">
@@ -576,6 +528,22 @@
                         <span class="wh-tag-loading">Loading tags...</span>
                     </div>
                 </div>
+
+                <div id="drawer-local-pos-card" class="active-card-pos-section hidden">
+                    <div class="active-pos-header" id="drawer-local-pos-toggle" role="button" tabindex="0" title="Click to collapse / expand position slider">
+                        <div class="active-pos-title-row">
+                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 4v16M8 8l4-4 4 4M8 16l4 4 4-4"></path>
+                            </svg>
+                            <span class="active-pos-heading">Vertical Position</span>
+                            <span id="drawer-local-pos-arrow" class="collapse-arrow open">▼</span>
+                        </div>
+                        <span id="drawer-v-local-pos" class="val-badge">50%</span>
+                    </div>
+                    <div id="drawer-local-pos-wrap" class="local-pos-wrap">
+                        <input type="range" id="i_drawer_local_pos" min="0" max="100" value="50">
+                    </div>
+                </div>
             </div>
 
             <div id="drawer-local-upload-card" class="drawer-local-upload-card hidden">
@@ -584,6 +552,18 @@
                     <small>PNG, JPG, WebP, GIF</small>
                 </label>
                 <input type="file" id="i_drawer_local_upload" accept="image/*" multiple hidden>
+            </div>
+
+            <div id="drawer-local-actions" class="drawer-local-actions hidden">
+                <button type="button" id="b_drawer_download_all_local" class="action-btn drawer-download-all-btn" title="Export all local wallpapers as ZIP">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 16v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                        <path d="M4 20h16"></path>
+                    </svg>
+                    <span>Download All Wallpapers (.zip)</span>
+                </button>
             </div>
         </div>
 

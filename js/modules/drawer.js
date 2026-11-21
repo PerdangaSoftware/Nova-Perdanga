@@ -2,7 +2,7 @@ import state, { emit, on } from './state.js';
 import { storage, idb, saveSnapshot } from './storage.js';
 import { isSameWallpaper, getCurrentScreenWallpaperUrl, loadBackground, switchToNextWallpaper, switchToPrevWallpaper } from './background.js';
 import { getWallhavenPool, saveWallhavenPool, fetchWallhavenApi, resetWallhavenSession, doFetchWallhaven, saveCurrentWallhaven } from './wallhaven.js';
-import { renderGallery } from './gallery.js';
+import { renderGallery, downloadAllWallpapersZip } from './gallery.js';
 
 export function updatePrevButtonState() {
     const btnPrev = document.getElementById('b_drawer_prev_bg');
@@ -58,7 +58,8 @@ export async function updateActiveWallpaperCard() {
         if (e.target.closest('#active-card-view-btn') || 
             e.target.closest('#active-card-delete-btn') ||
             e.target.closest('#b_drawer_wh_download') ||
-            e.target.closest('#drawer-wh-details-card')) return;
+            e.target.closest('#drawer-wh-details-card') ||
+            e.target.closest('#drawer-local-pos-card')) return;
         jumpToActiveWallpaper();
     };
     activeCard.style.cursor = 'pointer';
@@ -71,8 +72,10 @@ export async function updateActiveWallpaperCard() {
         const current = gallery.find(img => img.id === state.settings.selectedLocalBg) || gallery[0];
         const whDetailsCard = document.getElementById('drawer-wh-details-card');
         if (whDetailsCard) whDetailsCard.classList.add('hidden');
+        const localPosCard = document.getElementById('drawer-local-pos-card');
+        if (localPosCard) localPosCard.classList.remove('hidden');
         const btnWhDownload = document.getElementById('b_drawer_wh_download');
-        if (btnWhDownload) btnWhDownload.classList.add('hidden');
+        if (btnWhDownload) btnWhDownload.classList.remove('hidden');
         if (!current) {
             activeCard.classList.add('hidden');
             return;
@@ -115,7 +118,18 @@ export async function updateActiveWallpaperCard() {
                 if (state.settings.bgType === 'local') loadBackground(false, false);
             };
         }
+        const posInput = document.getElementById('i_drawer_local_pos');
+        const posBadge = document.getElementById('drawer-v-local-pos');
+        const curPos = current.positionY !== undefined ? current.positionY : 50;
+        if (posInput) {
+            posInput.value = curPos;
+            const fillVal = ((posInput.value - posInput.min) / (posInput.max - posInput.min)) * 100;
+            posInput.style.background = `linear-gradient(to right, var(--accent-blue) 0%, var(--accent-blue) ${fillVal}%, var(--border-color) ${fillVal}%, var(--border-color) 100%)`;
+        }
+        if (posBadge) posBadge.textContent = `${curPos}%`;
     } else {
+        const localPosCard = document.getElementById('drawer-local-pos-card');
+        if (localPosCard) localPosCard.classList.add('hidden');
         const currentUrl = state.currentActiveWallhavenUrl || getCurrentScreenWallpaperUrl();
         const whDetailsCard = document.getElementById('drawer-wh-details-card');
         if (!currentUrl) {
@@ -213,6 +227,8 @@ export async function renderLocalPreviews(explicitOffset = null) {
     if (tabLocal) tabLocal.classList.add('active');
     if (drawerMode) drawerMode.textContent = 'Local Files';
     if (uploadCard) uploadCard.classList.remove('hidden');
+    const localActions = document.getElementById('drawer-local-actions');
+    if (localActions) localActions.classList.remove('hidden');
     const whDetailsCard = document.getElementById('drawer-wh-details-card');
     if (whDetailsCard) whDetailsCard.classList.add('hidden');
     if (btnDrawerSave) btnDrawerSave.classList.add('hidden');
@@ -237,6 +253,8 @@ export async function renderLocalPreviews(explicitOffset = null) {
     const hasMultiplePages = gallery.length > 10;
     if (btnPrev) btnPrev.disabled = !hasMultiplePages;
     if (btnNext) btnNext.disabled = !hasMultiplePages;
+    const btnZip = document.getElementById('b_drawer_download_all_local');
+    if (btnZip) btnZip.disabled = gallery.length === 0;
 
     if (gallery.length === 0) {
         if (countBadge) countBadge.textContent = '0';
@@ -473,6 +491,10 @@ export function renderWallhavenPreviews(explicitOffset = null) {
     if (tabWh) tabWh.classList.add('active');
     if (tabLocal) tabLocal.classList.remove('active');
     if (uploadCard) uploadCard.classList.add('hidden');
+    const localActions = document.getElementById('drawer-local-actions');
+    if (localActions) localActions.classList.add('hidden');
+    const localPosCard = document.getElementById('drawer-local-pos-card');
+    if (localPosCard) localPosCard.classList.add('hidden');
     const whDetailsCard = document.getElementById('drawer-wh-details-card');
     if (whDetailsCard) whDetailsCard.classList.remove('hidden');
     if (btnDrawerSave) {
@@ -848,9 +870,7 @@ function renderWhTags(tags, container) {
 }
 
 export async function downloadCurrentWallhaven() {
-    const currentUrl = state.currentActiveWallhavenUrl || getCurrentScreenWallpaperUrl();
-    if (!currentUrl) return;
-
+    const isLocal = state.settings.bgType === 'local';
     const btn = document.getElementById('b_drawer_wh_download');
     const origHtml = btn ? btn.innerHTML : '';
     if (btn) {
@@ -859,20 +879,47 @@ export async function downloadCurrentWallhaven() {
     }
 
     try {
-        const res = await fetch(currentUrl);
-        if (!res.ok) throw new Error('Fetch failed');
-        const blob = await res.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        
-        let filename = 'wallhaven-wallpaper.jpg';
-        const match = currentUrl.match(/wallhaven-([a-zA-Z0-9]+)\.(jpg|png|jpeg|webp)/i);
-        if (match) {
-            filename = `wallhaven-${match[1]}.${match[2]}`;
+        let blob = null;
+        let filename = `Nova_Wallpaper_${Date.now()}.jpg`;
+
+        if (isLocal) {
+            const gallery = await storage.getGallery();
+            const current = gallery.find(img => img.id === state.settings.selectedLocalBg) || gallery[0];
+            if (!current) throw new Error('No local wallpaper');
+
+            if (current.type === 'local') {
+                blob = await idb.get(current.id);
+            } else if (current.url) {
+                const res = await fetch(current.url);
+                if (res.ok) blob = await res.blob();
+                const parts = current.url.split('/');
+                filename = parts[parts.length - 1] || filename;
+            }
         } else {
-            const ext = blob.type.includes('png') ? 'png' : 'jpg';
-            filename = `wallhaven-${Date.now()}.${ext}`;
+            const currentUrl = state.currentActiveWallhavenUrl || getCurrentScreenWallpaperUrl();
+            if (!currentUrl) throw new Error('No url');
+            const res = await fetch(currentUrl);
+            if (!res.ok) throw new Error('Fetch failed');
+            blob = await res.blob();
+            const match = currentUrl.match(/wallhaven-([a-zA-Z0-9]+)\.(jpg|png|jpeg|webp)/i);
+            if (match) {
+                filename = `wallhaven-${match[1]}.${match[2]}`;
+            } else {
+                const parts = currentUrl.split('/');
+                filename = parts[parts.length - 1] || filename;
+            }
         }
 
+        if (!blob) throw new Error('No blob');
+
+        let ext = '.jpg';
+        if (blob.type === 'image/png') ext = '.png';
+        else if (blob.type === 'image/webp') ext = '.webp';
+        else if (blob.type === 'image/gif') ext = '.gif';
+        else if (blob.type === 'image/jpeg') ext = '.jpg';
+        if (!filename.includes('.')) filename += ext;
+
+        const blobUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = blobUrl;
         a.download = filename;
@@ -893,7 +940,6 @@ export async function downloadCurrentWallhaven() {
             btn.innerHTML = origHtml;
             btn.style.pointerEvents = '';
         }
-        window.open(currentUrl, '_blank');
     }
 }
 
@@ -1006,10 +1052,6 @@ export function initDrawer() {
             if (bgTypeInput) bgTypeInput.value = 'wallhaven';
             const hubTitle = document.getElementById('v_hub_launcher_title');
             if (hubTitle) hubTitle.textContent = 'Browse Wallhaven';
-            const whOpts = document.getElementById('wallhaven-options');
-            if (whOpts) whOpts.classList.remove('hidden');
-            const localOpts = document.getElementById('local-options');
-            if (localOpts) localOpts.classList.add('hidden');
             await storage.setSettings(state.settings);
             emit('settings:dom_sync');
             await syncPreviewWithActiveWallpaper(null, true);
@@ -1028,10 +1070,6 @@ export function initDrawer() {
             if (bgTypeInput) bgTypeInput.value = 'local';
             const hubTitle = document.getElementById('v_hub_launcher_title');
             if (hubTitle) hubTitle.textContent = 'Browse Local Files';
-            const whOpts = document.getElementById('wallhaven-options');
-            if (whOpts) whOpts.classList.add('hidden');
-            const localOpts = document.getElementById('local-options');
-            if (localOpts) localOpts.classList.remove('hidden');
             await storage.setSettings(state.settings);
             emit('settings:dom_sync');
             await syncPreviewWithActiveWallpaper(null, true);
@@ -1322,5 +1360,60 @@ export function initDrawer() {
             colorGrid.classList.remove('collapsed');
             if (colorArrow) colorArrow.classList.add('open');
         }
+    }
+
+    const posToggle = document.getElementById('drawer-local-pos-toggle');
+    const posWrap = document.getElementById('drawer-local-pos-wrap');
+    const posArrow = document.getElementById('drawer-local-pos-arrow');
+    if (posToggle && posWrap) {
+        posToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isCollapsed = posWrap.classList.toggle('collapsed');
+            if (posArrow) posArrow.classList.toggle('open', !isCollapsed);
+            localStorage.setItem('nova_local_pos_collapsed', isCollapsed ? '1' : '0');
+        });
+        const savedCollapsed = localStorage.getItem('nova_local_pos_collapsed');
+        if (savedCollapsed === '1') {
+            posWrap.classList.add('collapsed');
+            if (posArrow) posArrow.classList.remove('open');
+        } else {
+            posWrap.classList.remove('collapsed');
+            if (posArrow) posArrow.classList.add('open');
+        }
+    }
+
+    const drawerLocalPosInput = document.getElementById('i_drawer_local_pos');
+    if (drawerLocalPosInput) {
+        drawerLocalPosInput.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            const fillVal = ((val - e.target.min) / (e.target.max - e.target.min)) * 100;
+            e.target.style.background = `linear-gradient(to right, var(--accent-blue) 0%, var(--accent-blue) ${fillVal}%, var(--border-color) ${fillVal}%, var(--border-color) 100%)`;
+            const badge = document.getElementById('drawer-v-local-pos');
+            if (badge) badge.textContent = `${val}%`;
+            if (state.settings.bgType === 'local') {
+                const activeEl = document.getElementById(`bg-${state.activeBg}`);
+                if (activeEl) activeEl.style.backgroundPosition = `center ${val}%`;
+            }
+        });
+
+        drawerLocalPosInput.addEventListener('change', async (e) => {
+            const val = parseInt(e.target.value);
+            const settings = state.settings;
+            const gallery = await storage.getGallery();
+            const currentImg = gallery.find(img => img.id === settings.selectedLocalBg);
+            if (currentImg) {
+                currentImg.positionY = val;
+                await storage.setGallery(gallery);
+                if (settings.bgType === 'local') preCalculateNextBackground();
+            }
+        });
+    }
+
+    const btnDrawerDownloadAll = document.getElementById('b_drawer_download_all_local');
+    if (btnDrawerDownloadAll) {
+        btnDrawerDownloadAll.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            await downloadAllWallpapersZip(btnDrawerDownloadAll);
+        });
     }
 }

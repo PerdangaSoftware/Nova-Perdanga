@@ -52,9 +52,8 @@
         if (!weatherEnabled) hideCss += 'html:not(.ready) #weather { display: none !important; }\n';
         if (!greetingsEnabled) hideCss += 'html:not(.ready) #greeting { display: none !important; }\n';
         if (s.bgType === 'local') {
-            hideCss += 'html:not(.ready) #drawer-search-bar, html:not(.ready) #b_drawer_filter_toggle, html:not(.ready) #drawer-quick-filters, html:not(.ready) #b_drawer_save, html:not(.ready) #drawer-wh-details-card, html:not(.ready) #b_drawer_wh_download { display: none !important; }\n';
-            hideCss += 'html:not(.ready) #drawer-local-upload-card { display: block !important; }\n';
-            hideCss += 'html:not(.ready) #local-options { display: block !important; }\n';
+            hideCss += 'html:not(.ready) #drawer-search-bar, html:not(.ready) #b_drawer_filter_toggle, html:not(.ready) #drawer-quick-filters, html:not(.ready) #b_drawer_save, html:not(.ready) #drawer-wh-details-card { display: none !important; }\n';
+            hideCss += 'html:not(.ready) #drawer-local-upload-card, html:not(.ready) #drawer-local-actions, html:not(.ready) #drawer-local-pos-card { display: block !important; }\n';
             const localTotal = parseInt(localStorage.getItem('nova_gallery_count') || '0');
             const localOffset = parseInt(localStorage.getItem('nova_local_preview_offset') || '0');
             if (localTotal > 0) {
@@ -62,12 +61,9 @@
                 const rows = Math.ceil(countOnPage / 2);
                 const approxHeight = rows * 88 + (rows - 1) * 8;
                 hideCss += `html:not(.ready) #wallhaven-preview-grid { min-height: ${approxHeight}px; }\n`;
-                const galleryRows = Math.ceil(Math.min(localTotal, 12) / 3);
-                hideCss += `html:not(.ready) #local-gallery { min-height: ${galleryRows * 72 + (galleryRows - 1) * 8}px; }\n`;
             }
         } else {
             hideCss += 'html:not(.ready) #wallhaven-preview-grid { min-height: 472px; }\n';
-            hideCss += 'html:not(.ready) #local-options { display: none !important; }\n';
         }
         if (s.searchAutoColor === false) {
             hideCss += 'html:not(.ready) #manual-color-wrapper { display: flex !important; }\n';
@@ -120,7 +116,7 @@
             ['i_date_size', s.dateSize ?? 15, 10, 30],
             ['i_greeting_size', s.greetingSize ?? 25, 15, 50],
             ['i_weather_size', s.weatherSize ?? 11, 8, 25],
-            ['i_local_pos', s.bgPosition ?? 50, 0, 100],
+            ['i_drawer_local_pos', s.bgPosition ?? 50, 0, 100],
             ['i_blur', s.bgBlur ?? 0, 0, 20],
             ['i_brightness', s.bgBrightness ?? 100, 10, 100],
             ['i_fade', s.bgFade ?? 1000, 0, 3000]

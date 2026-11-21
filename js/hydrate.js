@@ -24,7 +24,7 @@
         ['i_date_size', s.dateSize, 'v_date_size', 'rem', 10, 30, 10],
         ['i_greeting_size', s.greetingSize, 'v_greeting_size', 'rem', 15, 50, 10],
         ['i_weather_size', s.weatherSize, 'v_weather_size', 'rem', 8, 25, 10],
-        ['i_local_pos', s.bgPosition, 'v_local_pos', '%', 0, 100]
+        ['i_drawer_local_pos', s.bgPosition, 'drawer-v-local-pos', '%', 0, 100]
     ];
 
     for (const [id, val, badgeId, unit, min, max, divisor] of ranges) {
@@ -77,10 +77,6 @@
     const whOptions = document.getElementById('wallhaven-options');
     if (whOptions && s.bgType) {
         whOptions.classList.toggle('hidden', s.bgType !== 'wallhaven');
-    }
-    const localOptions = document.getElementById('local-options');
-    if (localOptions && s.bgType) {
-        localOptions.classList.toggle('hidden', s.bgType !== 'local');
     }
 
     const countBadge = document.getElementById('v_wallhaven_preview_count');
