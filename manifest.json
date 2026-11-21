@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Nova-Perdanga",
     "version": "1.4",
-    "description": "Nova-Perdanga is a minimal, open-source New Tab extension with built-in Wallhaven browsing and an offline local wallpaper library.",
+    "description": "A minimal, open-source New Tab extension with built-in Wallhaven browsing and an offline local wallpaper library.",
     "chrome_url_overrides": {
         "newtab": "index.html"
     },
