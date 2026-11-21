@@ -46,12 +46,16 @@ function getInitialSettings() {
         if (rawSnap) {
             const snap = JSON.parse(rawSnap);
             if (snap && snap.settings) {
-                return { ...defaultSettings, ...snap.settings };
+                const s = { ...defaultSettings, ...snap.settings };
+                if (s.engine === 'bing') s.engine = 'google';
+                return s;
             }
         }
         const cached = localStorage.getItem('nova_settings_cache');
         if (cached) {
-            return { ...defaultSettings, ...JSON.parse(cached) };
+            const s = { ...defaultSettings, ...JSON.parse(cached) };
+            if (s.engine === 'bing') s.engine = 'google';
+            return s;
         }
     } catch {}
     return { ...defaultSettings };

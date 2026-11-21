@@ -60,15 +60,27 @@ export function initSearch() {
             if (engine === 'ddg') {
                 res = await fetch(`https://duckduckgo.com/ac/?q=${encodeURIComponent(trimmedQuery)}`, { signal });
                 data = await res.json();
-                results = data.map(i => i.phrase).slice(0, 8);
-            } else if (engine === 'bing') {
-                res = await fetch(`https://api.bing.com/osjson.aspx?query=${encodeURIComponent(trimmedQuery)}`, { signal });
+                results = (data || []).map(i => i.phrase).slice(0, 8);
+            } else if (engine === 'ecosia') {
+                res = await fetch(`https://ac.ecosia.org/autocomplete?q=${encodeURIComponent(trimmedQuery)}&type=list`, { signal });
                 data = await res.json();
-                results = data[1].slice(0, 8);
+                results = (data[1] || []).slice(0, 8);
+            } else if (engine === 'kagi') {
+                res = await fetch(`https://kagi.com/api/autosuggest?q=${encodeURIComponent(trimmedQuery)}`, { signal });
+                data = await res.json();
+                results = (data[1] || []).slice(0, 8);
+            } else if (engine === 'yahoo') {
+                res = await fetch(`https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=fxjson&command=${encodeURIComponent(trimmedQuery)}`, { signal });
+                data = await res.json();
+                results = (data[1] || []).slice(0, 8);
+            } else if (engine === 'qwant') {
+                res = await fetch(`https://api.qwant.com/v3/suggest?q=${encodeURIComponent(trimmedQuery)}`, { signal });
+                data = await res.json();
+                results = (data && data.data && Array.isArray(data.data.items)) ? data.data.items.map(i => i.value).slice(0, 8) : [];
             } else {
                 res = await fetch(`https://suggestqueries.google.com/complete/search?client=chrome&q=${encodeURIComponent(trimmedQuery)}`, { signal });
                 data = await res.json();
-                results = data[1].slice(0, 8);
+                results = (data[1] || []).slice(0, 8);
             }
 
             suggestionCache.set(trimmedQuery, results);
@@ -248,7 +260,12 @@ export function initSearch() {
         const engines = { 
             google: 'https://www.google.com/search?q=', 
             ddg: 'https://duckduckgo.com/?q=', 
-            bing: 'https://www.bing.com/search?q=' 
+            brave: 'https://search.brave.com/search?q=',
+            ecosia: 'https://www.ecosia.org/search?q=',
+            kagi: 'https://kagi.com/search?q=',
+            yahoo: 'https://search.yahoo.com/search?p=',
+            startpage: 'https://www.startpage.com/sp/search?query=',
+            qwant: 'https://www.qwant.com/?q='
         };
         window.location.href = (engines[state.settings.engine] || engines.google) + encodeURIComponent(raw);
     });

@@ -22,6 +22,9 @@
         "https://get.geojs.io/*",
         "https://suggestqueries.google.com/*",
         "https://duckduckgo.com/*",
-        "https://api.bing.com/*"
+        "https://ac.ecosia.org/*",
+        "https://kagi.com/*",
+        "https://search.yahoo.com/*",
+        "https://api.qwant.com/*"
     ]
 }

@@ -121,7 +121,10 @@ export function applySettingsToDOM() {
 
     if (inputFont) inputFont.value = settings.font;
     if (inputTextColor) inputTextColor.value = settings.textColor;
-    if (inputEngine) inputEngine.value = settings.engine;
+    if (inputEngine) {
+        if (settings.engine === 'bing') settings.engine = 'google';
+        inputEngine.value = settings.engine;
+    }
     if (inputBgType) inputBgType.value = settings.bgType;
     if (inputBgFrequency) inputBgFrequency.value = settings.bgFrequency;
     if (inputWhMode) inputWhMode.value = settings.wallhavenMode;
