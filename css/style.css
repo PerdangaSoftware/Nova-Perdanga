@@ -1443,6 +1443,17 @@ html.init-bg-local:not(.ready) #drawer-local-pos-card {
     font-style: italic;
     padding: 0;
 }
+.wh-tag-retry-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.18s ease;
+    font-family: inherit;
+}
+.wh-tag-retry-btn:hover {
+    color: #5eead4;
+}
 
 .active-card-pos-section {
     border-top: 1px solid rgba(255, 255, 255, 0.08);

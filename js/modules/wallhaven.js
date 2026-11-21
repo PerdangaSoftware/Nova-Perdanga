@@ -179,6 +179,7 @@ export async function doFetchWallhaven(requestedPage = null) {
         const newItems = fetchedItems
             .filter(img => !existingPaths.has(img.path))
             .map(img => ({
+                id: img.id,
                 path: img.path,
                 thumb: img.thumbs?.small || img.thumbs?.original || img.path,
                 resolution: img.resolution || '',
@@ -224,6 +225,7 @@ export async function doFetchWallhaven(requestedPage = null) {
                             const latestPool = getWallhavenPool();
                             const paths = new Set(latestPool.map(p => p.path));
                             const more = p2Items.filter(img => !paths.has(img.path)).map(img => ({
+                                id: img.id,
                                 path: img.path,
                                 thumb: img.thumbs?.small || img.thumbs?.original || img.path,
                                 resolution: img.resolution || '',

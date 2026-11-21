@@ -796,9 +796,33 @@ export async function searchWallhavenTag(tagName) {
 }
 
 const whTagsCache = new Map();
-let currentWhTagsSeq = 0;
+try {
+    const stored = localStorage.getItem('nova_wh_tags_cache');
+    if (stored) {
+        const parsed = JSON.parse(stored);
+        for (const [k, v] of Object.entries(parsed)) {
+            whTagsCache.set(k, v);
+        }
+    }
+} catch {}
 
-export async function updateWallhavenTags(wallpaperUrl) {
+function saveWhTagsCache() {
+    try {
+        const obj = {};
+        const entries = Array.from(whTagsCache.entries());
+        const recent = entries.slice(-350);
+        for (const [k, v] of recent) {
+            obj[k] = v;
+        }
+        localStorage.setItem('nova_wh_tags_cache', JSON.stringify(obj));
+    } catch {}
+}
+
+let currentWhTagsSeq = 0;
+let tagsDebounceTimer = null;
+let tagsAbortController = null;
+
+export async function updateWallhavenTags(wallpaperUrl, isImmediate = false) {
     const card = document.getElementById('drawer-wh-details-card');
     const tagsWrap = document.getElementById('drawer-wh-tags');
     const countBadge = document.getElementById('drawer-wh-tags-count');
@@ -830,6 +854,14 @@ export async function updateWallhavenTags(wallpaperUrl) {
     }
 
     if (whTagsCache.has(id)) {
+        if (tagsDebounceTimer) {
+            clearTimeout(tagsDebounceTimer);
+            tagsDebounceTimer = null;
+        }
+        if (tagsAbortController) {
+            tagsAbortController.abort();
+            tagsAbortController = null;
+        }
         tagsWrap.classList.remove('loading-fade');
         renderWhTags(whTagsCache.get(id), tagsWrap);
         return;
@@ -842,28 +874,67 @@ export async function updateWallhavenTags(wallpaperUrl) {
     }
 
     if (countBadge) countBadge.textContent = '...';
+
+    if (tagsDebounceTimer) {
+        clearTimeout(tagsDebounceTimer);
+        tagsDebounceTimer = null;
+    }
+    if (tagsAbortController) {
+        tagsAbortController.abort();
+        tagsAbortController = null;
+    }
+
     const thisSeq = ++currentWhTagsSeq;
 
-    try {
-        const res = await fetch(`https://wallhaven.cc/api/v1/w/${id}`);
-        if (!res.ok) throw new Error('API error');
-        const data = await res.json();
+    const executeFetch = async (retryCount = 0) => {
         if (thisSeq !== currentWhTagsSeq) return;
+        tagsAbortController = new AbortController();
 
-        const tags = (data && data.data && Array.isArray(data.data.tags)) ? data.data.tags : [];
-        whTagsCache.set(id, tags);
+        try {
+            const res = await fetch(`https://wallhaven.cc/api/v1/w/${id}`, {
+                signal: tagsAbortController.signal
+            });
 
-        const currentActive = state.currentActiveWallhavenUrl || getCurrentScreenWallpaperUrl();
-        if (isSameWallpaper(currentActive, wallpaperUrl)) {
-            tagsWrap.classList.remove('loading-fade');
-            renderWhTags(tags, tagsWrap);
+            if (res.status === 429 && retryCount < 2) {
+                await new Promise(r => setTimeout(r, 1600 * (retryCount + 1)));
+                if (thisSeq !== currentWhTagsSeq) return;
+                return await executeFetch(retryCount + 1);
+            }
+
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            if (thisSeq !== currentWhTagsSeq) return;
+
+            const tags = (data && data.data && Array.isArray(data.data.tags)) ? data.data.tags : [];
+            whTagsCache.set(id, tags);
+            saveWhTagsCache();
+
+            const currentActive = state.currentActiveWallhavenUrl || getCurrentScreenWallpaperUrl();
+            if (isSameWallpaper(currentActive, wallpaperUrl)) {
+                tagsWrap.classList.remove('loading-fade');
+                renderWhTags(tags, tagsWrap);
+            }
+        } catch (e) {
+            if (e.name === 'AbortError') return;
+            if (thisSeq === currentWhTagsSeq) {
+                tagsWrap.classList.remove('loading-fade');
+                tagsWrap.innerHTML = '<button type="button" class="wh-tag-empty wh-tag-retry-btn" title="Click to retry loading tags">Tags unavailable (Click to retry)</button>';
+                const retryBtn = tagsWrap.querySelector('.wh-tag-retry-btn');
+                if (retryBtn) {
+                    retryBtn.onclick = (ev) => {
+                        ev.stopPropagation();
+                        updateWallhavenTags(wallpaperUrl, true);
+                    };
+                }
+                if (countBadge) countBadge.textContent = '0';
+            }
         }
-    } catch (e) {
-        if (thisSeq === currentWhTagsSeq) {
-            tagsWrap.classList.remove('loading-fade');
-            tagsWrap.innerHTML = '<div class="wh-tag-empty">Tags unavailable</div>';
-            if (countBadge) countBadge.textContent = '0';
-        }
+    };
+
+    if (isImmediate) {
+        await executeFetch();
+    } else {
+        tagsDebounceTimer = setTimeout(executeFetch, 280);
     }
 }
 
