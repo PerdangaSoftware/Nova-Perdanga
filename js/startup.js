@@ -60,13 +60,13 @@
             if (localTotal > 0) {
                 const countOnPage = Math.min(10, Math.max(1, localTotal - localOffset));
                 const rows = Math.ceil(countOnPage / 2);
-                const approxHeight = rows * 94 + (rows - 1) * 10;
+                const approxHeight = rows * 88 + (rows - 1) * 8;
                 hideCss += `html:not(.ready) #wallhaven-preview-grid { min-height: ${approxHeight}px; }\n`;
                 const galleryRows = Math.ceil(Math.min(localTotal, 12) / 3);
                 hideCss += `html:not(.ready) #local-gallery { min-height: ${galleryRows * 72 + (galleryRows - 1) * 8}px; }\n`;
             }
         } else {
-            hideCss += 'html:not(.ready) #wallhaven-preview-grid { min-height: 508px; }\n';
+            hideCss += 'html:not(.ready) #wallhaven-preview-grid { min-height: 472px; }\n';
             hideCss += 'html:not(.ready) #local-options { display: none !important; }\n';
         }
         if (s.searchAutoColor === false) {
