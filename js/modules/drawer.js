@@ -1,7 +1,7 @@
 import state, { emit, on } from './state.js';
 import { storage, idb, saveSnapshot } from './storage.js';
-import { isSameWallpaper, getCurrentScreenWallpaperUrl, loadBackground, switchToNextWallpaper, switchToPrevWallpaper } from './background.js';
-import { getWallhavenPool, saveWallhavenPool, fetchWallhavenApi, resetWallhavenSession, doFetchWallhaven, saveCurrentWallhaven } from './wallhaven.js';
+import { isSameWallpaper, getCurrentScreenWallpaperUrl, loadBackground, switchToNextWallpaper, switchToPrevWallpaper, preCalculateNextBackground } from './background.js';
+import { getWallhavenPool, saveWallhavenPool, fetchWallhavenApi, fetchWallhavenBatch, resetWallhavenSession, doFetchWallhaven, saveCurrentWallhaven } from './wallhaven.js';
 import { renderGallery, downloadAllWallpapersZip } from './gallery.js';
 
 export function updatePrevButtonState() {

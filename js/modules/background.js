@@ -2,7 +2,7 @@ import state, { emit } from './state.js';
 import { storage, idb } from './storage.js';
 import { extractAverageColor } from './utils.js';
 import BackgroundPreloader from './preloader.js';
-import { fetchWallhavenBatch, getWallhavenPool } from './wallhaven.js';
+import { fetchWallhavenBatch, getWallhavenPool, doFetchWallhaven } from './wallhaven.js';
 
 export function isSameWallpaper(url1, url2) {
     if (!url1 || !url2) return false;
