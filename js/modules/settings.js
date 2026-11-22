@@ -110,6 +110,7 @@ export function applySettingsToDOM() {
     const inputEngine = document.getElementById('i_engine');
     const inputBgType = document.getElementById('i_bg_type');
     const inputBgFrequency = document.getElementById('i_bg_frequency');
+    const inputLocalOrder = document.getElementById('i_local_order');
     const inputWhMode = document.getElementById('i_wallhaven_mode');
     const inputWhTopRange = document.getElementById('i_wallhaven_toprange');
     const inputWh = document.getElementById('i_wallhaven');
@@ -127,6 +128,7 @@ export function applySettingsToDOM() {
     }
     if (inputBgType) inputBgType.value = settings.bgType;
     if (inputBgFrequency) inputBgFrequency.value = settings.bgFrequency;
+    if (inputLocalOrder) inputLocalOrder.value = settings.localOrder || 'sequential';
     if (inputWhMode) inputWhMode.value = settings.wallhavenMode;
     if (inputWhTopRange) inputWhTopRange.value = settings.wallhavenTopRange;
     if (inputWh) inputWh.value = settings.wallhavenQuery;
@@ -195,6 +197,9 @@ export function applySettingsToDOM() {
     if (elWhTopRangeWrap) elWhTopRangeWrap.classList.toggle('hidden', settings.wallhavenMode !== 'top');
     const elWhResModeWrap = document.getElementById('wallhaven-res-mode-wrapper');
     if (elWhResModeWrap) elWhResModeWrap.classList.toggle('hidden', !settings.wallhavenResolution);
+    
+    const localOrderWrap = document.getElementById('local-order-wrapper');
+    if (localOrderWrap) localOrderWrap.classList.toggle('hidden', settings.bgType !== 'local');
     
     const manualColorWrap = document.getElementById('manual-color-wrapper');
     if (manualColorWrap) manualColorWrap.classList.toggle('hidden', settings.searchAutoColor);
@@ -300,6 +305,9 @@ export function initSettingsUI() {
 
     const inputBgFreq = document.getElementById('i_bg_frequency');
     if (inputBgFreq) inputBgFreq.addEventListener('change', e => updateSetting('bgFrequency', e.target.value));
+
+    const inputLocalOrder = document.getElementById('i_local_order');
+    if (inputLocalOrder) inputLocalOrder.addEventListener('change', e => updateSetting('localOrder', e.target.value));
 
     const inputWhMode = document.getElementById('i_wallhaven_mode');
     if (inputWhMode) {

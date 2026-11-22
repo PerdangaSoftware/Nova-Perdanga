@@ -7,6 +7,7 @@ export const defaultSettings = {
     engine: "google",
     bgType: "wallhaven", 
     bgFrequency: "every_tab",
+    localOrder: "sequential",
     wallhavenMode: "search",
     wallhavenTopRange: "1M",
     wallhavenQuery: "landscape",
@@ -49,6 +50,7 @@ function getInitialSettings() {
             if (snap && snap.settings) {
                 const s = { ...defaultSettings, ...snap.settings };
                 if (!validEngines.includes(s.engine)) s.engine = 'google';
+                if (!['sequential', 'random'].includes(s.localOrder)) s.localOrder = 'sequential';
                 return s;
             }
         }
@@ -56,6 +58,7 @@ function getInitialSettings() {
         if (cached) {
             const s = { ...defaultSettings, ...JSON.parse(cached) };
             if (!validEngines.includes(s.engine)) s.engine = 'google';
+            if (!['sequential', 'random'].includes(s.localOrder)) s.localOrder = 'sequential';
             return s;
         }
     } catch {}

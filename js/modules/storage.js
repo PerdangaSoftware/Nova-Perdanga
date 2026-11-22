@@ -92,6 +92,7 @@ export async function initSettings() {
     if (state.settings.wallhavenQueue === undefined) state.settings.wallhavenQueue = [];
     if (state.settings.wallhavenHistory === undefined) state.settings.wallhavenHistory = [];
     if (state.settings.localHistory === undefined) state.settings.localHistory = [];
+    if (state.settings.localOrder === undefined) state.settings.localOrder = "sequential";
     if (state.settings.wallhavenResolution === undefined) state.settings.wallhavenResolution = "";
     if (state.settings.wallhavenResolutionMode === undefined) state.settings.wallhavenResolutionMode = "atleast";
     if (state.settings.wallhavenTopRange === undefined) state.settings.wallhavenTopRange = "1M";

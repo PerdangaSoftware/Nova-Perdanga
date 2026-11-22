@@ -81,7 +81,13 @@ export async function preCalculateNextBackground() {
             
             let targetIndex = currentIndex;
             if (settings.bgFrequency === 'every_tab' && gallery.length > 1) {
-                targetIndex = (currentIndex + 1) % gallery.length;
+                if (settings.localOrder === 'random') {
+                    do {
+                        targetIndex = Math.floor(Math.random() * gallery.length);
+                    } while (targetIndex === currentIndex && gallery.length > 1);
+                } else {
+                    targetIndex = (currentIndex + 1) % gallery.length;
+                }
             }
             nextThumbUrl = gallery[targetIndex].thumb || gallery[targetIndex].url;
             
@@ -239,8 +245,21 @@ export async function switchToNextWallpaper() {
             return;
         }
 
+        if (settings.selectedLocalBg) {
+            if (!settings.localHistory) settings.localHistory = [];
+            settings.localHistory.push(settings.selectedLocalBg);
+            if (settings.localHistory.length > 50) settings.localHistory.shift();
+        }
+
         let currentIdx = gallery.findIndex(img => img.id === settings.selectedLocalBg);
-        let nextIdx = (currentIdx === -1) ? 0 : (currentIdx + 1) % gallery.length;
+        let nextIdx;
+        if (settings.localOrder === 'random') {
+            do {
+                nextIdx = Math.floor(Math.random() * gallery.length);
+            } while (nextIdx === currentIdx && gallery.length > 1);
+        } else {
+            nextIdx = (currentIdx === -1) ? 0 : (currentIdx + 1) % gallery.length;
+        }
         settings.selectedLocalBg = gallery[nextIdx].id;
         await storage.setSettings(settings);
         await loadBackground(false, false);
@@ -299,6 +318,17 @@ export async function switchToPrevWallpaper() {
             await storage.setSettings(settings);
             await loadBackground(false, false);
             return;
+        }
+
+        if (settings.localHistory && settings.localHistory.length > 0) {
+            const prevId = settings.localHistory.pop();
+            const exists = gallery.some(img => img.id === prevId);
+            if (exists && prevId !== settings.selectedLocalBg) {
+                settings.selectedLocalBg = prevId;
+                await storage.setSettings(settings);
+                await loadBackground(false, false);
+                return;
+            }
         }
 
         let currentIdx = gallery.findIndex(img => img.id === settings.selectedLocalBg);
@@ -370,7 +400,14 @@ export async function evaluateFrequencyAdvance(isStartup) {
                     settings.selectedLocalBg = nextId;
                 } else {
                     let idx = gallery.findIndex(img => img.id === settings.selectedLocalBg);
-                    let nextIdx = (idx + 1) % gallery.length;
+                    let nextIdx;
+                    if (settings.localOrder === 'random') {
+                        do {
+                            nextIdx = Math.floor(Math.random() * gallery.length);
+                        } while (nextIdx === idx && gallery.length > 1);
+                    } else {
+                        nextIdx = (idx + 1) % gallery.length;
+                    }
                     settings.selectedLocalBg = gallery[nextIdx].id;
                 }
                 await storage.setSettings(settings);
