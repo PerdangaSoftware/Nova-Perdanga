@@ -54,6 +54,9 @@
                     </button>
                 </div>
             </form>
+            <nav id="shortcuts-bar" class="shortcuts-bar" aria-label="Speed dial shortcuts">
+                <div id="shortcuts-grid" class="shortcuts-grid"></div>
+            </nav>
         </search>
     </main>
 
@@ -166,6 +169,11 @@
                     <span class="val-badge" id="v_search_opacity">25%</span>
                 </div>
                 <input type="range" id="i_search_opacity" min="0" max="100" value="25">
+            </div>
+            <hr>
+            <div class="wrapper row-between">
+                <label>Speed Dial Shortcuts</label>
+                <label class="toggle"><input type="checkbox" id="i_shortcuts_enable" checked><span class="toggle-slider"></span></label>
             </div>
         </div>
 
@@ -624,6 +632,39 @@
             </div>
         </div>
     </div>
+
+    <dialog id="shortcut-dialog" class="shortcut-dialog" aria-labelledby="shortcut-dialog-title">
+        <form id="shortcut-form" method="dialog" class="shortcut-dialog-content">
+            <div class="shortcut-dialog-header">
+                <h3 id="shortcut-dialog-title">Add Shortcut</h3>
+                <button type="button" id="b_close_shortcut_dialog" class="icon-btn" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            
+            <div class="shortcut-preview-preview">
+                <div class="shortcut-preview-circle" id="shortcut-dialog-icon-preview">
+                    <img id="shortcut-dialog-favicon" src="" alt="" class="shortcut-favicon hidden">
+                    <span id="shortcut-dialog-fallback" class="shortcut-fallback-letter">🌐</span>
+                </div>
+            </div>
+
+            <div class="shortcut-form-group">
+                <label for="i_shortcut_url">Website URL</label>
+                <input type="text" id="i_shortcut_url" class="dark-input" placeholder="e.g. github.com" required autocomplete="off">
+            </div>
+
+            <div class="shortcut-form-group">
+                <label for="i_shortcut_title">Name</label>
+                <input type="text" id="i_shortcut_title" class="dark-input" placeholder="e.g. GitHub" required autocomplete="off">
+            </div>
+
+            <div class="shortcut-dialog-actions">
+                <button type="button" id="b_cancel_shortcut" class="action-btn secondary">Cancel</button>
+                <button type="submit" id="b_save_shortcut" class="action-btn">Save</button>
+            </div>
+        </form>
+    </dialog>
 
     <div id="toast-container" aria-live="polite"></div>
 

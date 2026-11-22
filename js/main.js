@@ -7,6 +7,7 @@ import { initSettingsUI, applySettingsToDOM, initWallhavenColorGrid, toggleSetti
 import { initDrawer, toggleWhDrawer, hydrateDrawerHeader } from './modules/drawer.js';
 import { initHotkeys } from './modules/hotkeys.js';
 import { loadBackground } from './modules/background.js';
+import { initShortcuts } from './modules/shortcuts.js';
 
 if (localStorage.getItem('nova_settings_open') === '1') {
     toggleSettings(true);
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await initSettings();
     applySettingsToDOM();
+    initShortcuts();
     updateWeather();
 
     await loadBackground(false, true);

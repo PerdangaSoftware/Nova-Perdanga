@@ -201,6 +201,11 @@ export function applySettingsToDOM() {
     const localOrderWrap = document.getElementById('local-order-wrapper');
     if (localOrderWrap) localOrderWrap.classList.toggle('hidden', settings.bgType !== 'local');
     
+    const inputShortcuts = document.getElementById('i_shortcuts_enable');
+    if (inputShortcuts) inputShortcuts.checked = settings.shortcutsEnabled !== false;
+    const shortcutsBar = document.getElementById('shortcuts-bar');
+    if (shortcutsBar) shortcutsBar.classList.toggle('hidden', settings.shortcutsEnabled === false);
+
     const manualColorWrap = document.getElementById('manual-color-wrapper');
     if (manualColorWrap) manualColorWrap.classList.toggle('hidden', settings.searchAutoColor);
 
@@ -292,6 +297,15 @@ export function initSettingsUI() {
 
     const inputSearchColor = document.getElementById('i_search_bg_color');
     if (inputSearchColor) inputSearchColor.addEventListener('input', e => updateSetting('searchBgColor', e.target.value));
+
+    const inputShortcuts = document.getElementById('i_shortcuts_enable');
+    if (inputShortcuts) {
+        inputShortcuts.addEventListener('change', e => {
+            updateSetting('shortcutsEnabled', e.target.checked);
+            const shortcutsBar = document.getElementById('shortcuts-bar');
+            if (shortcutsBar) shortcutsBar.classList.toggle('hidden', !e.target.checked);
+        });
+    }
 
     const inputBgType = document.getElementById('i_bg_type');
     if (inputBgType) {

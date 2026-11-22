@@ -21,6 +21,7 @@
         "https://api.open-meteo.com/*",
         "https://get.geojs.io/*",
         "https://suggestqueries.google.com/*",
+        "https://www.google.com/*",
         "https://duckduckgo.com/*",
         "https://api.qwant.com/*"
     ]

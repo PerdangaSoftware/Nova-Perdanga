@@ -93,6 +93,8 @@ export async function initSettings() {
     if (state.settings.wallhavenHistory === undefined) state.settings.wallhavenHistory = [];
     if (state.settings.localHistory === undefined) state.settings.localHistory = [];
     if (state.settings.localOrder === undefined) state.settings.localOrder = "sequential";
+    if (state.settings.shortcutsEnabled === undefined) state.settings.shortcutsEnabled = true;
+    if (!Array.isArray(state.settings.shortcuts)) state.settings.shortcuts = structuredClone(defaultSettings.shortcuts);
     if (state.settings.wallhavenResolution === undefined) state.settings.wallhavenResolution = "";
     if (state.settings.wallhavenResolutionMode === undefined) state.settings.wallhavenResolutionMode = "atleast";
     if (state.settings.wallhavenTopRange === undefined) state.settings.wallhavenTopRange = "1M";

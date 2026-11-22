@@ -4,6 +4,13 @@ export const defaultSettings = {
     searchAutoColor: true,
     searchBgColor: "#ffffff",
     searchBgOpacity: 25,
+    shortcutsEnabled: true,
+    shortcuts: [
+        { id: "s1", title: "YouTube", url: "https://www.youtube.com" },
+        { id: "s2", title: "GitHub", url: "https://github.com" },
+        { id: "s3", title: "Reddit", url: "https://www.reddit.com" },
+        { id: "s4", title: "Wikipedia", url: "https://www.wikipedia.org" }
+    ],
     engine: "google",
     bgType: "wallhaven", 
     bgFrequency: "every_tab",
@@ -51,6 +58,8 @@ function getInitialSettings() {
                 const s = { ...defaultSettings, ...snap.settings };
                 if (!validEngines.includes(s.engine)) s.engine = 'google';
                 if (!['sequential', 'random'].includes(s.localOrder)) s.localOrder = 'sequential';
+                if (s.shortcutsEnabled === undefined) s.shortcutsEnabled = true;
+                if (!Array.isArray(s.shortcuts)) s.shortcuts = structuredClone(defaultSettings.shortcuts);
                 return s;
             }
         }
@@ -59,6 +68,8 @@ function getInitialSettings() {
             const s = { ...defaultSettings, ...JSON.parse(cached) };
             if (!validEngines.includes(s.engine)) s.engine = 'google';
             if (!['sequential', 'random'].includes(s.localOrder)) s.localOrder = 'sequential';
+            if (s.shortcutsEnabled === undefined) s.shortcutsEnabled = true;
+            if (!Array.isArray(s.shortcuts)) s.shortcuts = structuredClone(defaultSettings.shortcuts);
             return s;
         }
     } catch {}
