@@ -93,7 +93,7 @@ export async function initSettings() {
     if (state.settings.wallhavenHistory === undefined) state.settings.wallhavenHistory = [];
     if (state.settings.localHistory === undefined) state.settings.localHistory = [];
     if (state.settings.localOrder === undefined) state.settings.localOrder = "sequential";
-    if (state.settings.shortcutsEnabled === undefined) state.settings.shortcutsEnabled = true;
+    if (state.settings.shortcutsEnabled === undefined) state.settings.shortcutsEnabled = false;
     if (state.settings.shortcutsPosition === undefined || !['bottom', 'top'].includes(state.settings.shortcutsPosition)) state.settings.shortcutsPosition = 'bottom';
     if (state.settings.shortcutsSize === undefined || !['small', 'medium', 'large'].includes(state.settings.shortcutsSize)) state.settings.shortcutsSize = 'medium';
     if (!Array.isArray(state.settings.shortcuts)) state.settings.shortcuts = structuredClone(defaultSettings.shortcuts);

@@ -227,7 +227,7 @@ export function openAddShortcutDialog(editItem = null) {
 export function applyShortcutsLayout() {
     const bar = document.getElementById('shortcuts-bar');
     const searchContainer = document.getElementById('search-container');
-    const isEnabled = state.settings.shortcutsEnabled !== false;
+    const isEnabled = Boolean(state.settings.shortcutsEnabled);
     const pos = state.settings.shortcutsPosition || 'bottom';
     const size = state.settings.shortcutsSize || 'medium';
 
@@ -432,7 +432,7 @@ export function renderShortcuts() {
     const bar = document.getElementById('shortcuts-bar');
     if (!grid) return;
 
-    const isEnabled = state.settings.shortcutsEnabled !== false;
+    const isEnabled = Boolean(state.settings.shortcutsEnabled);
     if (bar) bar.classList.toggle('hidden', !isEnabled);
 
     grid.innerHTML = '';

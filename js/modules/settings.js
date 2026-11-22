@@ -203,9 +203,9 @@ export function applySettingsToDOM() {
     if (localOrderWrap) localOrderWrap.classList.toggle('hidden', settings.bgType !== 'local');
     
     const inputShortcuts = document.getElementById('i_shortcuts_enable');
-    if (inputShortcuts) inputShortcuts.checked = settings.shortcutsEnabled !== false;
+    if (inputShortcuts) inputShortcuts.checked = Boolean(settings.shortcutsEnabled);
     const shortcutsBar = document.getElementById('shortcuts-bar');
-    if (shortcutsBar) shortcutsBar.classList.toggle('hidden', settings.shortcutsEnabled === false);
+    if (shortcutsBar) shortcutsBar.classList.toggle('hidden', !settings.shortcutsEnabled);
 
     const inputShortcutsPos = document.getElementById('i_shortcuts_position');
     if (inputShortcutsPos) inputShortcutsPos.value = settings.shortcutsPosition || 'bottom';
@@ -214,7 +214,7 @@ export function applySettingsToDOM() {
 
     const posWrap = document.getElementById('shortcuts-position-wrapper');
     const sizeWrap = document.getElementById('shortcuts-size-wrapper');
-    const scEnabled = settings.shortcutsEnabled !== false;
+    const scEnabled = Boolean(settings.shortcutsEnabled);
     if (posWrap) posWrap.classList.toggle('hidden', !scEnabled);
     if (sizeWrap) sizeWrap.classList.toggle('hidden', !scEnabled);
     applyShortcutsLayout();

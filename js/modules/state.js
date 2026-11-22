@@ -4,7 +4,7 @@ export const defaultSettings = {
     searchAutoColor: true,
     searchBgColor: "#ffffff",
     searchBgOpacity: 25,
-    shortcutsEnabled: true,
+    shortcutsEnabled: false,
     shortcutsPosition: "bottom",
     shortcutsSize: "medium",
     shortcuts: [
@@ -60,7 +60,7 @@ function getInitialSettings() {
                 const s = { ...defaultSettings, ...snap.settings };
                 if (!validEngines.includes(s.engine)) s.engine = 'google';
                 if (!['sequential', 'random'].includes(s.localOrder)) s.localOrder = 'sequential';
-                if (s.shortcutsEnabled === undefined) s.shortcutsEnabled = true;
+                if (s.shortcutsEnabled === undefined) s.shortcutsEnabled = false;
                 if (!['bottom', 'top'].includes(s.shortcutsPosition)) s.shortcutsPosition = 'bottom';
                 if (!['small', 'medium', 'large'].includes(s.shortcutsSize)) s.shortcutsSize = 'medium';
                 if (!Array.isArray(s.shortcuts)) s.shortcuts = structuredClone(defaultSettings.shortcuts);
@@ -72,7 +72,7 @@ function getInitialSettings() {
             const s = { ...defaultSettings, ...JSON.parse(cached) };
             if (!validEngines.includes(s.engine)) s.engine = 'google';
             if (!['sequential', 'random'].includes(s.localOrder)) s.localOrder = 'sequential';
-            if (s.shortcutsEnabled === undefined) s.shortcutsEnabled = true;
+            if (s.shortcutsEnabled === undefined) s.shortcutsEnabled = false;
             if (!['bottom', 'top'].includes(s.shortcutsPosition)) s.shortcutsPosition = 'bottom';
             if (!['small', 'medium', 'large'].includes(s.shortcutsSize)) s.shortcutsSize = 'medium';
             if (!Array.isArray(s.shortcuts)) s.shortcuts = structuredClone(defaultSettings.shortcuts);

@@ -55,7 +55,7 @@
     setChecked('i_greetings_enable', s.greetingsEnabled);
     setChecked('i_weather_enable', s.weatherEnabled);
     setChecked('i_search_auto_color', s.searchAutoColor);
-    setChecked('i_shortcuts_enable', s.shortcutsEnabled !== false);
+    setChecked('i_shortcuts_enable', Boolean(s.shortcutsEnabled));
 
     const setValue = (id, val) => {
         if (!val) return;
@@ -79,7 +79,7 @@
     }
     const posWrap = document.getElementById('shortcuts-position-wrapper');
     const sizeWrap = document.getElementById('shortcuts-size-wrapper');
-    const scEnabled = s.shortcutsEnabled !== false;
+    const scEnabled = Boolean(s.shortcutsEnabled);
     if (posWrap) posWrap.classList.toggle('hidden', !scEnabled);
     if (sizeWrap) sizeWrap.classList.toggle('hidden', !scEnabled);
     const whOptions = document.getElementById('wallhaven-options');
@@ -346,7 +346,7 @@
         const grid = document.getElementById('shortcuts-grid');
         const searchContainer = document.getElementById('search-container');
         if (bar && grid) {
-            const isEnabled = s.shortcutsEnabled !== false;
+            const isEnabled = Boolean(s.shortcutsEnabled);
             if (!isEnabled) {
                 bar.classList.add('hidden');
             } else {

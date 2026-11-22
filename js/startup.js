@@ -51,7 +51,7 @@
         if (!dateEnabled) hideCss += 'html:not(.ready) #date { display: none !important; }\n';
         if (!weatherEnabled) hideCss += 'html:not(.ready) #weather { display: none !important; }\n';
         if (!greetingsEnabled) hideCss += 'html:not(.ready) #greeting { display: none !important; }\n';
-        if (s.shortcutsEnabled === false) hideCss += 'html:not(.ready) #shortcuts-bar, html:not(.ready) #shortcuts-position-wrapper, html:not(.ready) #shortcuts-size-wrapper { display: none !important; }\n';
+        if (!s.shortcutsEnabled) hideCss += 'html:not(.ready) #shortcuts-bar, html:not(.ready) #shortcuts-position-wrapper, html:not(.ready) #shortcuts-size-wrapper { display: none !important; }\n';
         if (s.bgType === 'local') {
             hideCss += 'html:not(.ready) #drawer-search-bar, html:not(.ready) #b_drawer_filter_toggle, html:not(.ready) #drawer-quick-filters, html:not(.ready) #b_drawer_save, html:not(.ready) #drawer-wh-details-card { display: none !important; }\n';
             hideCss += 'html:not(.ready) #drawer-local-upload-card, html:not(.ready) #drawer-local-actions, html:not(.ready) #drawer-local-pos-card { display: block !important; }\n';

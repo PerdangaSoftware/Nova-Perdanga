@@ -54,7 +54,7 @@
                     </button>
                 </div>
             </form>
-            <nav id="shortcuts-bar" class="shortcuts-bar" aria-label="Shortcuts">
+            <nav id="shortcuts-bar" class="shortcuts-bar hidden" aria-label="Shortcuts">
                 <div id="shortcuts-grid" class="shortcuts-grid"></div>
             </nav>
         </search>
@@ -173,16 +173,16 @@
             <hr>
             <div class="wrapper row-between">
                 <label>Shortcuts</label>
-                <label class="toggle"><input type="checkbox" id="i_shortcuts_enable" checked><span class="toggle-slider"></span></label>
+                <label class="toggle"><input type="checkbox" id="i_shortcuts_enable"><span class="toggle-slider"></span></label>
             </div>
-            <div class="wrapper row-between mt-10" id="shortcuts-position-wrapper">
+            <div class="wrapper row-between mt-10 hidden" id="shortcuts-position-wrapper">
                 <label>Position</label>
                 <select id="i_shortcuts_position" class="dark-select">
                     <option value="bottom">Below Search</option>
                     <option value="top">Above Search</option>
                 </select>
             </div>
-            <div class="wrapper row-between mt-10" id="shortcuts-size-wrapper">
+            <div class="wrapper row-between mt-10 hidden" id="shortcuts-size-wrapper">
                 <label>Size</label>
                 <select id="i_shortcuts_size" class="dark-select">
                     <option value="small">Small</option>
