@@ -5,6 +5,8 @@ export const defaultSettings = {
     searchBgColor: "#ffffff",
     searchBgOpacity: 25,
     shortcutsEnabled: true,
+    shortcutsPosition: "bottom",
+    shortcutsSize: "medium",
     shortcuts: [
         { id: "s1", title: "YouTube", url: "https://www.youtube.com" },
         { id: "s2", title: "GitHub", url: "https://github.com" },
@@ -59,6 +61,8 @@ function getInitialSettings() {
                 if (!validEngines.includes(s.engine)) s.engine = 'google';
                 if (!['sequential', 'random'].includes(s.localOrder)) s.localOrder = 'sequential';
                 if (s.shortcutsEnabled === undefined) s.shortcutsEnabled = true;
+                if (!['bottom', 'top'].includes(s.shortcutsPosition)) s.shortcutsPosition = 'bottom';
+                if (!['small', 'medium', 'large'].includes(s.shortcutsSize)) s.shortcutsSize = 'medium';
                 if (!Array.isArray(s.shortcuts)) s.shortcuts = structuredClone(defaultSettings.shortcuts);
                 return s;
             }
@@ -69,6 +73,8 @@ function getInitialSettings() {
             if (!validEngines.includes(s.engine)) s.engine = 'google';
             if (!['sequential', 'random'].includes(s.localOrder)) s.localOrder = 'sequential';
             if (s.shortcutsEnabled === undefined) s.shortcutsEnabled = true;
+            if (!['bottom', 'top'].includes(s.shortcutsPosition)) s.shortcutsPosition = 'bottom';
+            if (!['small', 'medium', 'large'].includes(s.shortcutsSize)) s.shortcutsSize = 'medium';
             if (!Array.isArray(s.shortcuts)) s.shortcuts = structuredClone(defaultSettings.shortcuts);
             return s;
         }

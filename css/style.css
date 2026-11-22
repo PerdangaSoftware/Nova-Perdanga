@@ -95,11 +95,25 @@ body {
     left: 0;
     right: 0;
     margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+    transition: bottom 0.25s ease;
+}
+
+#search-container.shortcuts-pos-top {
+    bottom: clamp(32px, 8.5vh, 85px);
+}
+
+#search-container.shortcuts-pos-bottom {
+    bottom: clamp(18px, 4.5vh, 45px);
 }
 
 .search-form {
     width: 100%;
     position: relative;
+    order: 2;
 }
 
 .search-input-wrapper {
@@ -2069,13 +2083,64 @@ kbd {
 .nova-timer-widget.nova-timer-complete .nova-timer-time { color: var(--accent-green); }
 
 .shortcuts-bar {
+    --sc-size: 46px;
+    --sc-icon: 22px;
+    --sc-width: 62px;
+    --sc-font: 0.72rem;
+    --sc-gap: 16px;
+    --sc-del-size: 18px;
+    --sc-del-font: 11px;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 16px;
     width: 100%;
     user-select: none;
     transition: opacity 0.3s ease, transform 0.3s ease;
+    order: 3;
+    margin-top: 14px;
+    margin-bottom: 0;
+}
+
+.shortcuts-bar.pos-top {
+    order: 1;
+    margin-top: 0;
+    margin-bottom: 14px;
+}
+
+.shortcuts-bar.pos-bottom {
+    order: 3;
+    margin-top: 14px;
+    margin-bottom: 0;
+}
+
+.shortcuts-bar.size-small {
+    --sc-size: 38px;
+    --sc-icon: 18px;
+    --sc-width: 52px;
+    --sc-font: 0.65rem;
+    --sc-gap: 12px;
+    --sc-del-size: 16px;
+    --sc-del-font: 10px;
+}
+
+.shortcuts-bar.size-medium {
+    --sc-size: 46px;
+    --sc-icon: 22px;
+    --sc-width: 62px;
+    --sc-font: 0.72rem;
+    --sc-gap: 16px;
+    --sc-del-size: 18px;
+    --sc-del-font: 11px;
+}
+
+.shortcuts-bar.size-large {
+    --sc-size: 56px;
+    --sc-icon: 28px;
+    --sc-width: 74px;
+    --sc-font: 0.82rem;
+    --sc-gap: 20px;
+    --sc-del-size: 20px;
+    --sc-del-font: 12px;
 }
 
 .shortcuts-bar.hidden {
@@ -2087,7 +2152,7 @@ kbd {
     justify-content: center;
     align-items: flex-start;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: var(--sc-gap);
     max-width: 100%;
 }
 
@@ -2097,22 +2162,38 @@ kbd {
     align-items: center;
     text-decoration: none;
     color: var(--text-color);
-    width: 58px;
+    width: var(--sc-width);
     position: relative;
-    cursor: pointer;
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: grab;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
     background: transparent;
     border: none;
     padding: 0;
+}
+
+.shortcut-item:active {
+    cursor: grabbing;
 }
 
 .shortcut-item:hover {
     transform: translateY(-3px);
 }
 
+.shortcut-item.is-dragging {
+    opacity: 0.35;
+    transform: scale(0.9);
+}
+
+.shortcut-item.drag-over .shortcut-icon-circle,
+.shortcut-add-btn.drag-over .shortcut-add-circle {
+    border-color: #60a5fa;
+    box-shadow: 0 0 18px rgba(96, 165, 250, 0.6), 0 8px 24px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
 .shortcut-icon-circle {
-    width: 44px;
-    height: 44px;
+    width: var(--sc-size);
+    height: var(--sc-size);
     border-radius: 50%;
     background: rgba(var(--search-bg-r, 255), var(--search-bg-g, 255), var(--search-bg-b, 255), max(0.12, calc(var(--search-bg-opacity, 25) / 200)));
     backdrop-filter: blur(calc(var(--search-blur, 10px) + 4px));
@@ -2134,58 +2215,65 @@ kbd {
 }
 
 .shortcut-favicon {
-    width: 22px;
-    height: 22px;
+    width: var(--sc-icon);
+    height: var(--sc-icon);
     object-fit: contain;
     border-radius: 4px;
     pointer-events: none;
 }
 
 .shortcut-fallback-letter {
-    font-size: 1.05rem;
+    font-size: calc(var(--sc-icon) * 0.95);
     font-weight: 600;
     color: var(--text-color);
     text-transform: uppercase;
     line-height: 1;
+    pointer-events: none;
 }
 
 .shortcut-title {
-    font-size: 0.72rem;
+    font-size: var(--sc-font);
     margin-top: 6px;
-    max-width: 58px;
+    max-width: var(--sc-width);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     text-align: center;
     color: var(--text-color);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.7);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 8px rgba(0, 0, 0, 0.8);
     opacity: 0.9;
     transition: opacity 0.2s ease;
+    pointer-events: none;
 }
 
 .shortcut-item:hover .shortcut-title {
     opacity: 1;
 }
 
-.shortcut-del-btn {
+.shortcut-del-btn,
+.shortcut-edit-btn {
     position: absolute;
     top: -4px;
-    right: 3px;
-    width: 18px;
-    height: 18px;
+    width: var(--sc-del-size);
+    height: var(--sc-del-size);
     border-radius: 50%;
-    background: rgba(239, 68, 68, 0.92);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.3);
     display: none;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 11px;
+    font-size: var(--sc-del-font);
     line-height: 1;
     z-index: 5;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
     transition: transform 0.15s ease, background 0.15s ease;
+    padding: 0;
+}
+
+.shortcut-del-btn {
+    right: 2px;
+    background: rgba(239, 68, 68, 0.92);
 }
 
 .shortcut-del-btn:hover {
@@ -2193,7 +2281,18 @@ kbd {
     transform: scale(1.15);
 }
 
-.shortcut-item:hover .shortcut-del-btn {
+.shortcut-edit-btn {
+    left: 2px;
+    background: rgba(59, 130, 246, 0.92);
+}
+
+.shortcut-edit-btn:hover {
+    background: rgb(70, 150, 255);
+    transform: scale(1.15);
+}
+
+.shortcut-item:hover .shortcut-del-btn,
+.shortcut-item:hover .shortcut-edit-btn {
     display: flex;
 }
 
@@ -2204,7 +2303,7 @@ kbd {
     background: none;
     border: none;
     cursor: pointer;
-    width: 58px;
+    width: var(--sc-width);
     color: var(--text-color);
     transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     font-family: inherit;
@@ -2216,8 +2315,8 @@ kbd {
 }
 
 .shortcut-add-circle {
-    width: 44px;
-    height: 44px;
+    width: var(--sc-size);
+    height: var(--sc-size);
     border-radius: 50%;
     border: 1px dashed rgba(255, 255, 255, 0.35);
     background: rgba(255, 255, 255, 0.06);
@@ -2230,6 +2329,11 @@ kbd {
     color: var(--text-color);
 }
 
+.shortcut-add-circle svg {
+    width: var(--sc-icon);
+    height: var(--sc-icon);
+}
+
 .shortcut-add-btn:hover .shortcut-add-circle {
     border-style: solid;
     border-color: rgba(255, 255, 255, 0.7);
@@ -2238,7 +2342,7 @@ kbd {
 }
 
 .shortcut-add-title {
-    font-size: 0.72rem;
+    font-size: var(--sc-font);
     margin-top: 6px;
     opacity: 0.75;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);

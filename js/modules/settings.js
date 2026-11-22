@@ -5,6 +5,7 @@ import { updateWeather } from './weather.js';
 import { loadBackground, preCalculateNextBackground, switchToNextWallpaper } from './background.js';
 import { resetWallhavenSession, doFetchWallhaven } from './wallhaven.js';
 import { syncPreviewWithActiveWallpaper, toggleWhDrawer, renderLocalPreviews, renderWallhavenPreviews } from './drawer.js';
+import { applyShortcutsLayout, renderShortcuts } from './shortcuts.js';
 
 export const wallhavenColors = [
     '660000', '990000', 'cc0000', 'cc3333', 'ea4c88', '993399',
@@ -206,6 +207,18 @@ export function applySettingsToDOM() {
     const shortcutsBar = document.getElementById('shortcuts-bar');
     if (shortcutsBar) shortcutsBar.classList.toggle('hidden', settings.shortcutsEnabled === false);
 
+    const inputShortcutsPos = document.getElementById('i_shortcuts_position');
+    if (inputShortcutsPos) inputShortcutsPos.value = settings.shortcutsPosition || 'bottom';
+    const inputShortcutsSize = document.getElementById('i_shortcuts_size');
+    if (inputShortcutsSize) inputShortcutsSize.value = settings.shortcutsSize || 'medium';
+
+    const posWrap = document.getElementById('shortcuts-position-wrapper');
+    const sizeWrap = document.getElementById('shortcuts-size-wrapper');
+    const scEnabled = settings.shortcutsEnabled !== false;
+    if (posWrap) posWrap.classList.toggle('hidden', !scEnabled);
+    if (sizeWrap) sizeWrap.classList.toggle('hidden', !scEnabled);
+    applyShortcutsLayout();
+
     const manualColorWrap = document.getElementById('manual-color-wrapper');
     if (manualColorWrap) manualColorWrap.classList.toggle('hidden', settings.searchAutoColor);
 
@@ -301,9 +314,31 @@ export function initSettingsUI() {
     const inputShortcuts = document.getElementById('i_shortcuts_enable');
     if (inputShortcuts) {
         inputShortcuts.addEventListener('change', e => {
-            updateSetting('shortcutsEnabled', e.target.checked);
+            const enabled = e.target.checked;
+            updateSetting('shortcutsEnabled', enabled);
             const shortcutsBar = document.getElementById('shortcuts-bar');
-            if (shortcutsBar) shortcutsBar.classList.toggle('hidden', !e.target.checked);
+            if (shortcutsBar) shortcutsBar.classList.toggle('hidden', !enabled);
+            const posWrap = document.getElementById('shortcuts-position-wrapper');
+            const sizeWrap = document.getElementById('shortcuts-size-wrapper');
+            if (posWrap) posWrap.classList.toggle('hidden', !enabled);
+            if (sizeWrap) sizeWrap.classList.toggle('hidden', !enabled);
+            applyShortcutsLayout();
+        });
+    }
+
+    const inputShortcutsPos = document.getElementById('i_shortcuts_position');
+    if (inputShortcutsPos) {
+        inputShortcutsPos.addEventListener('change', e => {
+            updateSetting('shortcutsPosition', e.target.value);
+            applyShortcutsLayout();
+        });
+    }
+
+    const inputShortcutsSize = document.getElementById('i_shortcuts_size');
+    if (inputShortcutsSize) {
+        inputShortcutsSize.addEventListener('change', e => {
+            updateSetting('shortcutsSize', e.target.value);
+            applyShortcutsLayout();
         });
     }
 
