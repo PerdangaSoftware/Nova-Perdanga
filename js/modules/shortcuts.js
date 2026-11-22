@@ -2,6 +2,7 @@ import state from './state.js';
 import { storage } from './storage.js';
 
 let currentEditingId = null;
+let currentEditingCustomIcon = '';
 let draggedIndex = null;
 let isDragging = false;
 let dragEndTimeout = null;
@@ -18,23 +19,23 @@ function saveIconCache() {
     } catch {}
 }
 
+const PRESET_SVGS = {
+    web: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>',
+    film: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><rect x="2" y="2" width="20" height="20" rx="3"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>',
+    code: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>',
+    star: '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" class="shortcut-fallback-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
+    game: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><rect x="2" y="6" width="20" height="12" rx="4"></rect><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><circle cx="15.5" cy="11.5" r="1" fill="currentColor"></circle><circle cx="17.5" cy="13.5" r="1" fill="currentColor"></circle></svg>',
+    music: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>'
+};
+
+export function getPresetSvg(name) {
+    return PRESET_SVGS[name] || PRESET_SVGS.web;
+}
+
 export function createFallbackIcon() {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('width', '20');
-    svg.setAttribute('height', '20');
-    svg.setAttribute('fill', 'none');
-    svg.setAttribute('stroke', 'currentColor');
-    svg.setAttribute('stroke-width', '1.8');
-    svg.setAttribute('stroke-linecap', 'round');
-    svg.setAttribute('stroke-linejoin', 'round');
-    svg.classList.add('shortcut-fallback-icon');
-    svg.innerHTML = `
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="2" y1="12" x2="22" y2="12"></line>
-        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-    `;
-    return svg;
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = PRESET_SVGS.web;
+    return wrapper.firstElementChild;
 }
 
 export function getFaviconUrl(url) {
@@ -84,7 +85,7 @@ export async function deleteShortcut(id) {
     renderShortcuts();
 }
 
-export async function updateShortcut(id, title, url) {
+export async function updateShortcut(id, title, url, customIcon = undefined) {
     const list = state.settings.shortcuts || [];
     const item = list.find(s => s.id === id);
     if (!item) return false;
@@ -97,12 +98,19 @@ export async function updateShortcut(id, title, url) {
     saveIconCache();
     item.url = finalUrl;
     item.title = title.trim() || suggestTitleFromUrl(finalUrl) || 'Site';
+    if (customIcon !== undefined) {
+        if (customIcon) {
+            item.customIcon = customIcon;
+        } else {
+            delete item.customIcon;
+        }
+    }
     await storage.setSettings(state.settings);
     renderShortcuts();
     return true;
 }
 
-export async function addShortcut(title, url) {
+export async function addShortcut(title, url, customIcon = undefined) {
     const list = state.settings.shortcuts || [];
     if (list.length >= 8) return false;
     const finalUrl = formatUrl(url);
@@ -113,11 +121,21 @@ export async function addShortcut(title, url) {
         title: finalTitle,
         url: finalUrl
     };
+    if (customIcon) {
+        newShortcut.customIcon = customIcon;
+    }
     list.push(newShortcut);
     state.settings.shortcuts = list;
     await storage.setSettings(state.settings);
     renderShortcuts();
     return true;
+}
+
+function updatePresetButtonsState() {
+    document.querySelectorAll('.preset-icon-btn[data-preset]').forEach(btn => {
+        const p = 'preset:' + btn.dataset.preset;
+        btn.classList.toggle('active', currentEditingCustomIcon === p);
+    });
 }
 
 function updateDialogPreview(rawUrl) {
@@ -127,6 +145,21 @@ function updateDialogPreview(rawUrl) {
     if (!previewCircle || !imgPreview) return;
 
     if (fallbackPreview) fallbackPreview.style.display = 'none';
+
+    if (currentEditingCustomIcon) {
+        if (currentEditingCustomIcon.startsWith('preset:')) {
+            imgPreview.src = '';
+            imgPreview.classList.add('hidden');
+            const pKey = currentEditingCustomIcon.slice(7);
+            previewCircle.innerHTML = getPresetSvg(pKey);
+            return;
+        }
+        imgPreview.src = currentEditingCustomIcon;
+        imgPreview.classList.remove('hidden');
+        const oldSvg = previewCircle.querySelector('.shortcut-fallback-icon');
+        if (oldSvg) oldSvg.remove();
+        return;
+    }
 
     const trimmed = (rawUrl || '').trim();
     if (!trimmed) {
@@ -142,7 +175,7 @@ function updateDialogPreview(rawUrl) {
         imgPreview.src = favUrl;
         imgPreview.onload = () => {
             imgPreview.classList.remove('hidden');
-            let oldSvg = previewCircle.querySelector('.shortcut-fallback-icon');
+            const oldSvg = previewCircle.querySelector('.shortcut-fallback-icon');
             if (oldSvg) oldSvg.remove();
         };
         imgPreview.onerror = () => {
@@ -168,17 +201,21 @@ export function openAddShortcutDialog(editItem = null) {
 
     if (editItem) {
         currentEditingId = editItem.id;
+        currentEditingCustomIcon = editItem.customIcon || '';
         if (dialogTitle) dialogTitle.textContent = 'Edit Shortcut';
         if (saveBtn) saveBtn.textContent = 'Save';
         if (inputUrl) inputUrl.value = editItem.url;
         if (inputTitle) inputTitle.value = editItem.title;
+        updatePresetButtonsState();
         updateDialogPreview(editItem.url);
     } else {
         currentEditingId = null;
+        currentEditingCustomIcon = '';
         if (dialogTitle) dialogTitle.textContent = 'Add Shortcut';
         if (saveBtn) saveBtn.textContent = 'Add';
         if (inputUrl) inputUrl.value = '';
         if (inputTitle) inputTitle.value = '';
+        updatePresetButtonsState();
         updateDialogPreview('');
     }
 
@@ -287,34 +324,46 @@ export function renderShortcuts() {
         const circle = document.createElement('div');
         circle.className = 'shortcut-icon-circle';
 
-        const cachedStatus = iconCache[item.url];
-
-        if (cachedStatus === 'fallback') {
-            circle.appendChild(createFallbackIcon());
-        } else {
-            const favicon = document.createElement('img');
-            favicon.className = 'shortcut-favicon';
-            favicon.alt = item.title;
-            favicon.loading = 'eager';
-
-            const faviconUrl = getFaviconUrl(item.url);
-            if (faviconUrl) {
-                favicon.src = faviconUrl;
-                favicon.onload = () => {
-                    if (iconCache[item.url] !== 'ok') {
-                        iconCache[item.url] = 'ok';
-                        saveIconCache();
-                    }
-                };
-                favicon.onerror = () => {
-                    favicon.remove();
-                    circle.appendChild(createFallbackIcon());
-                    iconCache[item.url] = 'fallback';
-                    saveIconCache();
-                };
-                circle.appendChild(favicon);
+        if (item.customIcon) {
+            if (item.customIcon.startsWith('preset:')) {
+                const pKey = item.customIcon.slice(7);
+                circle.innerHTML = getPresetSvg(pKey);
             } else {
+                const img = document.createElement('img');
+                img.className = 'shortcut-favicon';
+                img.src = item.customIcon;
+                img.alt = item.title;
+                circle.appendChild(img);
+            }
+        } else {
+            const cachedStatus = iconCache[item.url];
+            if (cachedStatus === 'fallback') {
                 circle.appendChild(createFallbackIcon());
+            } else {
+                const favicon = document.createElement('img');
+                favicon.className = 'shortcut-favicon';
+                favicon.alt = item.title;
+                favicon.loading = 'eager';
+
+                const faviconUrl = getFaviconUrl(item.url);
+                if (faviconUrl) {
+                    favicon.src = faviconUrl;
+                    favicon.onload = () => {
+                        if (iconCache[item.url] !== 'ok') {
+                            iconCache[item.url] = 'ok';
+                            saveIconCache();
+                        }
+                    };
+                    favicon.onerror = () => {
+                        favicon.remove();
+                        circle.appendChild(createFallbackIcon());
+                        iconCache[item.url] = 'fallback';
+                        saveIconCache();
+                    };
+                    circle.appendChild(favicon);
+                } else {
+                    circle.appendChild(createFallbackIcon());
+                }
             }
         }
 
@@ -419,8 +468,45 @@ export function initShortcuts() {
     const inputTitle = document.getElementById('i_shortcut_title');
     const btnClose = document.getElementById('b_close_shortcut_dialog');
     const btnCancel = document.getElementById('b_cancel_shortcut');
+    const btnUpload = document.getElementById('b_shortcut_upload_icon');
+    const inputFile = document.getElementById('i_shortcut_icon_file');
+    const btnResetIcon = document.getElementById('b_shortcut_reset_icon');
 
     if (!dialog) return;
+
+    if (btnUpload && inputFile) {
+        btnUpload.addEventListener('click', () => inputFile.click());
+        inputFile.addEventListener('change', () => {
+            const file = inputFile.files?.[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    currentEditingCustomIcon = reader.result;
+                    updatePresetButtonsState();
+                    updateDialogPreview(inputUrl?.value || '');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    document.querySelectorAll('.preset-icon-btn[data-preset]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const p = 'preset:' + btn.dataset.preset;
+            currentEditingCustomIcon = (currentEditingCustomIcon === p) ? '' : p;
+            updatePresetButtonsState();
+            updateDialogPreview(inputUrl?.value || '');
+        });
+    });
+
+    if (btnResetIcon) {
+        btnResetIcon.addEventListener('click', () => {
+            currentEditingCustomIcon = '';
+            if (inputFile) inputFile.value = '';
+            updatePresetButtonsState();
+            updateDialogPreview(inputUrl?.value || '');
+        });
+    }
 
     if (inputUrl) {
         let titleWasManual = false;
@@ -451,9 +537,9 @@ export function initShortcuts() {
             const titleVal = inputTitle?.value || '';
             if (urlVal.trim()) {
                 if (currentEditingId) {
-                    await updateShortcut(currentEditingId, titleVal, urlVal);
+                    await updateShortcut(currentEditingId, titleVal, urlVal, currentEditingCustomIcon);
                 } else {
-                    await addShortcut(titleVal, urlVal);
+                    await addShortcut(titleVal, urlVal, currentEditingCustomIcon);
                 }
                 dialog.close();
             }
@@ -486,5 +572,6 @@ export default {
     applyShortcutsLayout,
     renderShortcuts,
     initShortcuts,
-    createFallbackIcon
+    createFallbackIcon,
+    getPresetSvg
 };

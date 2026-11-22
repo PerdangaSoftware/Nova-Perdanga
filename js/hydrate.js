@@ -293,4 +293,151 @@
             }
         }
     }
+
+    try {
+        const timeEl = document.getElementById('time');
+        const clockEl = document.getElementById('clock');
+        const dateEl = document.getElementById('date');
+        if (s.timeEnabled === false) {
+            if (timeEl) timeEl.style.display = 'none';
+        } else if (clockEl) {
+            const now = new Date();
+            let h = now.getHours();
+            const m = String(now.getMinutes()).padStart(2, '0');
+            if (s.time12h) {
+                h = h % 12 || 12;
+            }
+            let timeStr = `${String(h).padStart(2, '0')}:${m}`;
+            if (s.timeSeconds) {
+                timeStr += `:${String(now.getSeconds()).padStart(2, '0')}`;
+            }
+            clockEl.textContent = timeStr;
+        }
+        if (s.dateEnabled === false) {
+            if (dateEl) dateEl.style.display = 'none';
+        } else if (dateEl) {
+            const now = new Date();
+            dateEl.textContent = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+        }
+    } catch {}
+
+    try {
+        const wEl = document.getElementById('weather');
+        if (s.weatherEnabled === false) {
+            if (wEl) wEl.style.display = 'none';
+        } else if (wEl) {
+            const rawWeather = localStorage.getItem('nova_weather_cache');
+            if (rawWeather) {
+                const w = JSON.parse(rawWeather);
+                const tempEl = document.getElementById('weather-temp');
+                const descEl = document.getElementById('weather-desc');
+                const iconEl = document.getElementById('weather-icon');
+                if (tempEl && w.temp) tempEl.textContent = w.temp;
+                if (descEl && w.desc) descEl.textContent = w.desc;
+                if (iconEl && w.icon) iconEl.textContent = w.icon;
+                if (w.serviceUrl) wEl.href = w.serviceUrl;
+                wEl.classList.remove('hidden');
+            }
+        }
+    } catch {}
+
+    try {
+        const bar = document.getElementById('shortcuts-bar');
+        const grid = document.getElementById('shortcuts-grid');
+        const searchContainer = document.getElementById('search-container');
+        if (bar && grid) {
+            const isEnabled = s.shortcutsEnabled !== false;
+            if (!isEnabled) {
+                bar.classList.add('hidden');
+            } else {
+                const pos = s.shortcutsPosition || 'bottom';
+                const size = s.shortcutsSize || 'medium';
+                bar.classList.remove('hidden', 'size-small', 'size-medium', 'size-large', 'pos-top', 'pos-bottom');
+                bar.classList.add(`size-${size}`, `pos-${pos}`);
+                if (searchContainer) {
+                    searchContainer.classList.remove('shortcuts-pos-top', 'shortcuts-pos-bottom');
+                    searchContainer.classList.add(`shortcuts-pos-${pos}`);
+                }
+                const shortcuts = Array.isArray(s.shortcuts) ? s.shortcuts : [];
+                if (shortcuts.length > 0) {
+                    const presetSvgs = {
+                        web: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>',
+                        film: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><rect x="2" y="2" width="20" height="20" rx="3"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>',
+                        code: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>',
+                        star: '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" class="shortcut-fallback-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
+                        game: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><rect x="2" y="6" width="20" height="12" rx="4"></rect><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><circle cx="15.5" cy="11.5" r="1" fill="currentColor"></circle><circle cx="17.5" cy="13.5" r="1" fill="currentColor"></circle></svg>',
+                        music: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>'
+                    };
+                    grid.innerHTML = '';
+                    shortcuts.slice(0, 8).forEach(item => {
+                        const itemEl = document.createElement('a');
+                        itemEl.className = 'shortcut-item';
+                        itemEl.href = item.url;
+                        itemEl.title = `${item.title} (${item.url})`;
+
+                        const circle = document.createElement('div');
+                        circle.className = 'shortcut-icon-circle';
+
+                        if (item.customIcon) {
+                            if (item.customIcon.startsWith('preset:')) {
+                                const presetKey = item.customIcon.slice(7);
+                                circle.innerHTML = presetSvgs[presetKey] || presetSvgs.web;
+                            } else {
+                                const img = document.createElement('img');
+                                img.className = 'shortcut-favicon';
+                                img.src = item.customIcon;
+                                img.alt = item.title;
+                                circle.appendChild(img);
+                            }
+                        } else {
+                            let host = '';
+                            try {
+                                const u = new URL(item.url.startsWith('http') ? item.url : 'https://' + item.url);
+                                host = u.hostname;
+                            } catch {}
+                            const favUrl = host ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=128&default_icon=none` : '';
+                            if (favUrl) {
+                                const img = document.createElement('img');
+                                img.className = 'shortcut-favicon';
+                                img.src = favUrl;
+                                img.alt = item.title;
+                                img.onerror = () => {
+                                    img.remove();
+                                    circle.innerHTML = presetSvgs.web;
+                                };
+                                circle.appendChild(img);
+                            } else {
+                                circle.innerHTML = presetSvgs.web;
+                            }
+                        }
+
+                        const titleEl = document.createElement('span');
+                        titleEl.className = 'shortcut-title';
+                        titleEl.textContent = item.title;
+
+                        itemEl.appendChild(circle);
+                        itemEl.appendChild(titleEl);
+                        grid.appendChild(itemEl);
+                    });
+
+                    if (shortcuts.length < 8) {
+                        const addBtn = document.createElement('button');
+                        addBtn.type = 'button';
+                        addBtn.className = 'shortcut-add-btn';
+                        addBtn.title = 'Add new shortcut';
+                        addBtn.innerHTML = `
+                            <div class="shortcut-add-circle">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                            </div>
+                            <span class="shortcut-add-title">Add</span>
+                        `;
+                        grid.appendChild(addBtn);
+                    }
+                }
+            }
+        }
+    } catch {}
 })();
