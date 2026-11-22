@@ -55,6 +55,7 @@
     setChecked('i_greetings_enable', s.greetingsEnabled);
     setChecked('i_weather_enable', s.weatherEnabled);
     setChecked('i_search_auto_color', s.searchAutoColor);
+    setChecked('i_shortcuts_enable', s.shortcutsEnabled !== false);
 
     const setValue = (id, val) => {
         if (!val) return;
@@ -69,11 +70,18 @@
     setValue('i_weather_service', s.weatherService);
     setValue('i_text_color', s.textColor);
     setValue('i_search_bg_color', s.searchBgColor);
+    setValue('i_shortcuts_position', s.shortcutsPosition || 'bottom');
+    setValue('i_shortcuts_size', s.shortcutsSize || 'medium');
 
     const manualColorWrap = document.getElementById('manual-color-wrapper');
     if (manualColorWrap && s.searchAutoColor !== undefined) {
         manualColorWrap.classList.toggle('hidden', s.searchAutoColor);
     }
+    const posWrap = document.getElementById('shortcuts-position-wrapper');
+    const sizeWrap = document.getElementById('shortcuts-size-wrapper');
+    const scEnabled = s.shortcutsEnabled !== false;
+    if (posWrap) posWrap.classList.toggle('hidden', !scEnabled);
+    if (sizeWrap) sizeWrap.classList.toggle('hidden', !scEnabled);
     const whOptions = document.getElementById('wallhaven-options');
     if (whOptions && s.bgType) {
         whOptions.classList.toggle('hidden', s.bgType !== 'wallhaven');

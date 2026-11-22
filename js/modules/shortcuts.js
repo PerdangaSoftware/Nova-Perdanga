@@ -6,6 +6,60 @@ let draggedIndex = null;
 let isDragging = false;
 let dragEndTimeout = null;
 
+let iconCache = {};
+try {
+    const rawCache = localStorage.getItem('nova_shortcut_icon_cache');
+    if (rawCache) iconCache = JSON.parse(rawCache);
+} catch {}
+
+function saveIconCache() {
+    try {
+        localStorage.setItem('nova_shortcut_icon_cache', JSON.stringify(iconCache));
+    } catch {}
+}
+
+const BADGE_GRADIENTS = [
+    'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    'linear-gradient(135deg, #3b82f6, #06b6d4)',
+    'linear-gradient(135deg, #10b981, #059669)',
+    'linear-gradient(135deg, #f43f5e, #e11d48)',
+    'linear-gradient(135deg, #f59e0b, #d97706)',
+    'linear-gradient(135deg, #8b5cf6, #ec4899)',
+    'linear-gradient(135deg, #06b6d4, #3b82f6)',
+    'linear-gradient(135deg, #14b8a6, #0d9488)',
+    'linear-gradient(135deg, #a855f7, #6366f1)',
+    'linear-gradient(135deg, #f97316, #ef4444)'
+];
+
+export function getBadgeGradient(str) {
+    let hash = 0;
+    const s = String(str || '');
+    for (let i = 0; i < s.length; i++) {
+        hash = (hash << 5) - hash + s.charCodeAt(i);
+        hash |= 0;
+    }
+    const idx = Math.abs(hash) % BADGE_GRADIENTS.length;
+    return BADGE_GRADIENTS[idx];
+}
+
+export function getMonogramText(title, url) {
+    const raw = (title || '').trim();
+    if (raw) {
+        const parts = raw.split(/[\s\-_.]+/).filter(Boolean);
+        if (parts.length >= 2 && parts[0] && parts[1]) {
+            return (parts[0][0] + parts[1][0]).toUpperCase();
+        }
+        return raw.slice(0, 2).toUpperCase();
+    }
+    try {
+        const u = new URL(formatUrl(url));
+        const host = u.hostname.replace(/^www\./i, '');
+        return host.slice(0, 2).toUpperCase();
+    } catch {
+        return '?';
+    }
+}
+
 export function getFaviconUrl(url) {
     try {
         let domain = url.trim();
@@ -43,6 +97,11 @@ export function suggestTitleFromUrl(raw) {
 
 export async function deleteShortcut(id) {
     const list = state.settings.shortcuts || [];
+    const item = list.find(s => s.id === id);
+    if (item && iconCache[item.url]) {
+        delete iconCache[item.url];
+        saveIconCache();
+    }
     state.settings.shortcuts = list.filter(item => item.id !== id);
     await storage.setSettings(state.settings);
     renderShortcuts();
@@ -54,6 +113,11 @@ export async function updateShortcut(id, title, url) {
     if (!item) return false;
     const finalUrl = formatUrl(url);
     if (!finalUrl) return false;
+    if (item.url !== finalUrl && iconCache[item.url]) {
+        delete iconCache[item.url];
+    }
+    delete iconCache[finalUrl];
+    saveIconCache();
     item.url = finalUrl;
     item.title = title.trim() || suggestTitleFromUrl(finalUrl) || 'Site';
     await storage.setSettings(state.settings);
@@ -80,43 +144,53 @@ export async function addShortcut(title, url) {
 }
 
 function updateDialogPreview(rawUrl, rawTitle) {
+    const previewCircle = document.getElementById('shortcut-dialog-icon-preview');
     const imgPreview = document.getElementById('shortcut-dialog-favicon');
     const fallbackPreview = document.getElementById('shortcut-dialog-fallback');
-    if (!imgPreview || !fallbackPreview) return;
+    if (!previewCircle || !imgPreview || !fallbackPreview) return;
 
     const trimmed = (rawUrl || '').trim();
     if (!trimmed) {
         imgPreview.src = '';
         imgPreview.classList.add('hidden');
+        previewCircle.classList.remove('is-fallback-badge');
+        previewCircle.style.removeProperty('--badge-gradient');
         fallbackPreview.textContent = '🌐';
         fallbackPreview.style.display = 'block';
         return;
     }
 
+    const titleText = rawTitle || suggestTitleFromUrl(trimmed) || trimmed;
+    const monoText = getMonogramText(titleText, trimmed);
+    const grad = getBadgeGradient(titleText);
+
+    const applyFallback = () => {
+        imgPreview.src = '';
+        imgPreview.classList.add('hidden');
+        previewCircle.classList.add('is-fallback-badge');
+        previewCircle.style.setProperty('--badge-gradient', grad);
+        fallbackPreview.textContent = monoText;
+        fallbackPreview.style.display = 'block';
+    };
+
     const favUrl = getFaviconUrl(trimmed);
     if (favUrl) {
         imgPreview.src = favUrl;
         imgPreview.onload = () => {
+            if (imgPreview.naturalWidth <= 16 && imgPreview.naturalHeight <= 16) {
+                applyFallback();
+                return;
+            }
             imgPreview.classList.remove('hidden');
+            previewCircle.classList.remove('is-fallback-badge');
+            previewCircle.style.removeProperty('--badge-gradient');
             fallbackPreview.style.display = 'none';
         };
         imgPreview.onerror = () => {
-            let triedDdg = false;
-            try {
-                const p = new URL(formatUrl(trimmed));
-                imgPreview.src = `https://icons.duckduckgo.com/ip3/${encodeURIComponent(p.hostname)}.ico`;
-                triedDdg = true;
-            } catch {}
-            if (!triedDdg) {
-                imgPreview.classList.add('hidden');
-                fallbackPreview.textContent = (rawTitle || trimmed).charAt(0).toUpperCase() || '🌐';
-                fallbackPreview.style.display = 'block';
-            }
+            applyFallback();
         };
     } else {
-        imgPreview.classList.add('hidden');
-        fallbackPreview.textContent = (rawTitle || trimmed).charAt(0).toUpperCase() || '🌐';
-        fallbackPreview.style.display = 'block';
+        applyFallback();
     }
 }
 
@@ -250,42 +324,66 @@ export function renderShortcuts() {
         const circle = document.createElement('div');
         circle.className = 'shortcut-icon-circle';
 
-        const favicon = document.createElement('img');
-        favicon.className = 'shortcut-favicon';
-        favicon.alt = item.title;
-        favicon.loading = 'lazy';
+        const monogram = document.createElement('span');
+        monogram.className = 'shortcut-fallback-letter';
+        monogram.textContent = getMonogramText(item.title, item.url);
 
-        const letterFallback = document.createElement('span');
-        letterFallback.className = 'shortcut-fallback-letter';
-        letterFallback.textContent = (item.title || item.url || '?').charAt(0).toUpperCase();
+        const cachedStatus = iconCache[item.url];
 
-        const faviconUrl = getFaviconUrl(item.url);
-        if (faviconUrl) {
-            favicon.src = faviconUrl;
-            let ddgTried = false;
-            favicon.onerror = () => {
-                if (!ddgTried) {
-                    ddgTried = true;
-                    try {
-                        const parsed = new URL(formatUrl(item.url));
-                        favicon.src = `https://icons.duckduckgo.com/ip3/${encodeURIComponent(parsed.hostname)}.ico`;
-                        return;
-                    } catch {}
-                }
-                favicon.style.display = 'none';
-                letterFallback.style.display = 'block';
-            };
-            favicon.onload = () => {
-                favicon.style.display = 'block';
-                letterFallback.style.display = 'none';
-            };
+        if (cachedStatus === 'fallback') {
+            circle.classList.add('is-fallback-badge');
+            circle.style.setProperty('--badge-gradient', getBadgeGradient(item.title || item.url));
+            circle.appendChild(monogram);
         } else {
-            favicon.style.display = 'none';
-            letterFallback.style.display = 'block';
-        }
+            circle.appendChild(monogram);
 
-        circle.appendChild(favicon);
-        circle.appendChild(letterFallback);
+            const favicon = document.createElement('img');
+            favicon.className = 'shortcut-favicon';
+            favicon.alt = item.title;
+            favicon.loading = 'eager';
+
+            if (cachedStatus === 'ok') {
+                favicon.classList.add('loaded');
+                monogram.style.display = 'none';
+            }
+
+            const faviconUrl = getFaviconUrl(item.url);
+            if (faviconUrl) {
+                favicon.src = faviconUrl;
+                favicon.onload = () => {
+                    if (favicon.naturalWidth <= 16 && favicon.naturalHeight <= 16) {
+                        favicon.remove();
+                        circle.classList.add('is-fallback-badge');
+                        circle.style.setProperty('--badge-gradient', getBadgeGradient(item.title || item.url));
+                        monogram.style.display = 'block';
+                        iconCache[item.url] = 'fallback';
+                        saveIconCache();
+                        return;
+                    }
+                    favicon.classList.add('loaded');
+                    monogram.style.display = 'none';
+                    circle.classList.remove('is-fallback-badge');
+                    circle.style.removeProperty('--badge-gradient');
+                    if (iconCache[item.url] !== 'ok') {
+                        iconCache[item.url] = 'ok';
+                        saveIconCache();
+                    }
+                };
+                favicon.onerror = () => {
+                    favicon.remove();
+                    circle.classList.add('is-fallback-badge');
+                    circle.style.setProperty('--badge-gradient', getBadgeGradient(item.title || item.url));
+                    monogram.style.display = 'block';
+                    iconCache[item.url] = 'fallback';
+                    saveIconCache();
+                };
+                circle.appendChild(favicon);
+            } else {
+                circle.classList.add('is-fallback-badge');
+                circle.style.setProperty('--badge-gradient', getBadgeGradient(item.title || item.url));
+                monogram.style.display = 'block';
+            }
+        }
 
         const titleEl = document.createElement('span');
         titleEl.className = 'shortcut-title';
@@ -395,6 +493,7 @@ export function initShortcuts() {
         let titleWasManual = false;
         inputTitle.addEventListener('input', () => {
             titleWasManual = inputTitle.value.trim().length > 0;
+            updateDialogPreview(inputUrl.value.trim(), inputTitle.value.trim());
         });
 
         inputUrl.addEventListener('input', () => {
@@ -453,5 +552,7 @@ export default {
     openAddShortcutDialog,
     applyShortcutsLayout,
     renderShortcuts,
-    initShortcuts
+    initShortcuts,
+    getBadgeGradient,
+    getMonogramText
 };
