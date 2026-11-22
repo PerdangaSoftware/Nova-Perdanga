@@ -1,5 +1,5 @@
 import state from './state.js';
-import storage from './storage.js';
+import { storage } from './storage.js';
 
 export function getFaviconUrl(url) {
     try {

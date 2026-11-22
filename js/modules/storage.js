@@ -110,3 +110,5 @@ export async function initSettings() {
 
     return state.settings;
 }
+
+export default storage;
