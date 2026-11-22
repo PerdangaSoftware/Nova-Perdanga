@@ -2119,30 +2119,30 @@ kbd {
 
 .shortcuts-bar.size-small {
     --sc-size: 38px;
-    --sc-icon: 18px;
-    --sc-width: 54px;
-    --sc-font: 0.65rem;
+    --sc-icon: 20px;
+    --sc-width: 68px;
+    --sc-font: 0.68rem;
     --sc-gap: 8px;
     --sc-del-size: 16px;
     --sc-del-font: 10px;
 }
 
 .shortcuts-bar.size-medium {
-    --sc-size: 44px;
-    --sc-icon: 22px;
-    --sc-width: 62px;
-    --sc-font: 0.70rem;
-    --sc-gap: 10px;
+    --sc-size: 46px;
+    --sc-icon: 24px;
+    --sc-width: 78px;
+    --sc-font: 0.72rem;
+    --sc-gap: 12px;
     --sc-del-size: 18px;
     --sc-del-font: 11px;
 }
 
 .shortcuts-bar.size-large {
-    --sc-size: 52px;
-    --sc-icon: 26px;
-    --sc-width: 72px;
-    --sc-font: 0.76rem;
-    --sc-gap: 12px;
+    --sc-size: 54px;
+    --sc-icon: 28px;
+    --sc-width: 86px;
+    --sc-font: 0.78rem;
+    --sc-gap: 14px;
     --sc-del-size: 20px;
     --sc-del-font: 12px;
 }
@@ -2253,10 +2253,16 @@ kbd {
     opacity: 0.92;
     transition: opacity 0.2s ease;
     pointer-events: none;
-    white-space: nowrap;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.2;
+    line-height: 1.22;
+    min-height: 2.44em;
+    word-break: normal;
+    overflow-wrap: break-word;
 }
 
 .shortcut-item:hover .shortcut-title {
@@ -2362,10 +2368,11 @@ kbd {
     text-align: center;
     opacity: 0.75;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.22;
+    min-height: 2.44em;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
 }
 
 .shortcut-add-btn:hover .shortcut-add-title {

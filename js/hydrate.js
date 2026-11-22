@@ -358,67 +358,94 @@
                     searchContainer.classList.remove('shortcuts-pos-top', 'shortcuts-pos-bottom');
                     searchContainer.classList.add(`shortcuts-pos-${pos}`);
                 }
-                const shortcuts = Array.isArray(s.shortcuts) ? s.shortcuts : [];
-                if (shortcuts.length > 0) {
-                    const presetSvgs = {
-                        web: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>',
-                        film: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><rect x="2" y="2" width="20" height="20" rx="3"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>',
-                        code: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>',
-                        star: '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" class="shortcut-fallback-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
-                        game: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><rect x="2" y="6" width="20" height="12" rx="4"></rect><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><circle cx="15.5" cy="11.5" r="1" fill="currentColor"></circle><circle cx="17.5" cy="13.5" r="1" fill="currentColor"></circle></svg>',
-                        music: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>'
-                    };
-                    grid.innerHTML = '';
-                    shortcuts.slice(0, 8).forEach(item => {
-                        const itemEl = document.createElement('a');
-                        itemEl.className = 'shortcut-item';
-                        itemEl.href = item.url;
-                        itemEl.title = `${item.title} (${item.url})`;
+            let iconCache = {};
+            try {
+                const rawIconCache = localStorage.getItem('nova_shortcut_cache_v4');
+                if (rawIconCache) iconCache = JSON.parse(rawIconCache);
+            } catch {}
 
-                        const circle = document.createElement('div');
-                        circle.className = 'shortcut-icon-circle';
+            const presetSvgs = {
+                web: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" class="shortcut-fallback-icon"><circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.6" opacity="0.9"></circle><ellipse cx="12" cy="12" rx="4.5" ry="9.5" stroke="currentColor" stroke-width="1.4" opacity="0.75"></ellipse><path d="M2.5 12h19" stroke="currentColor" stroke-width="1.6" opacity="0.9"></path><path d="M4.5 7h15" stroke="currentColor" stroke-width="1.2" opacity="0.6"></path><path d="M4.5 17h15" stroke="currentColor" stroke-width="1.2" opacity="0.6"></path></svg>',
+                film: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><rect x="2" y="2" width="20" height="20" rx="3"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>',
+                code: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>',
+                star: '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" class="shortcut-fallback-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
+                game: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><rect x="2" y="6" width="20" height="12" rx="4"></rect><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><circle cx="15.5" cy="11.5" r="1" fill="currentColor"></circle><circle cx="17.5" cy="13.5" r="1" fill="currentColor"></circle></svg>',
+                music: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>',
+                chat: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shortcut-fallback-icon"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>'
+            };
+            const shortcuts = Array.isArray(s.shortcuts) ? s.shortcuts : [];
+            if (shortcuts.length > 0) {
+                grid.innerHTML = '';
+                shortcuts.slice(0, 8).forEach(item => {
+                    const itemEl = document.createElement('a');
+                    itemEl.className = 'shortcut-item';
+                    itemEl.href = item.url;
+                    itemEl.title = `${item.title} (${item.url})`;
+                    itemEl.dataset.id = item.id;
 
-                        if (item.customIcon) {
-                            if (item.customIcon.startsWith('preset:')) {
-                                const presetKey = item.customIcon.slice(7);
-                                circle.innerHTML = presetSvgs[presetKey] || presetSvgs.web;
-                            } else {
-                                const img = document.createElement('img');
-                                img.className = 'shortcut-favicon';
-                                img.src = item.customIcon;
-                                img.alt = item.title;
-                                circle.appendChild(img);
-                            }
+                    const circle = document.createElement('div');
+                    circle.className = 'shortcut-icon-circle';
+
+                    if (item.customIcon) {
+                        if (item.customIcon.startsWith('preset:')) {
+                            const presetKey = item.customIcon.slice(7);
+                            circle.innerHTML = presetSvgs[presetKey] || presetSvgs.web;
+                        } else {
+                            const img = document.createElement('img');
+                            img.className = 'shortcut-favicon';
+                            img.src = item.customIcon;
+                            img.alt = item.title;
+                            circle.appendChild(img);
+                        }
+                    } else {
+                        const cached = iconCache[item.url];
+                        if (cached === 'fallback') {
+                            circle.innerHTML = presetSvgs.web;
                         } else {
                             let host = '';
                             try {
                                 const u = new URL(item.url.startsWith('http') ? item.url : 'https://' + item.url);
                                 host = u.hostname;
                             } catch {}
-                            const favUrl = host ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=128&default_icon=none` : '';
+                            const favUrl = host ? `https://icons.duckduckgo.com/ip3/${host}.ico` : '';
                             if (favUrl) {
                                 const img = document.createElement('img');
                                 img.className = 'shortcut-favicon';
                                 img.src = favUrl;
                                 img.alt = item.title;
+                                img.onload = () => {
+                                    if (img.naturalWidth <= 16 && img.naturalHeight <= 16) {
+                                        img.remove();
+                                        circle.innerHTML = presetSvgs.web;
+                                        try {
+                                            iconCache[item.url] = 'fallback';
+                                            localStorage.setItem('nova_shortcut_cache_v4', JSON.stringify(iconCache));
+                                        } catch {}
+                                    }
+                                };
                                 img.onerror = () => {
                                     img.remove();
                                     circle.innerHTML = presetSvgs.web;
+                                    try {
+                                        iconCache[item.url] = 'fallback';
+                                        localStorage.setItem('nova_shortcut_cache_v4', JSON.stringify(iconCache));
+                                    } catch {}
                                 };
                                 circle.appendChild(img);
                             } else {
                                 circle.innerHTML = presetSvgs.web;
                             }
                         }
+                    }
 
-                        const titleEl = document.createElement('span');
-                        titleEl.className = 'shortcut-title';
-                        titleEl.textContent = item.title;
+                    const titleEl = document.createElement('span');
+                    titleEl.className = 'shortcut-title';
+                    titleEl.textContent = item.title;
 
-                        itemEl.appendChild(circle);
-                        itemEl.appendChild(titleEl);
-                        grid.appendChild(itemEl);
-                    });
+                    itemEl.appendChild(circle);
+                    itemEl.appendChild(titleEl);
+                    grid.appendChild(itemEl);
+                });
 
                     if (shortcuts.length < 8) {
                         const addBtn = document.createElement('button');
