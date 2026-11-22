@@ -1,0 +1,252 @@
+.nova-timer-button {
+    position: fixed;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(var(--search-bg-r), var(--search-bg-g), var(--search-bg-b), 0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 30px;
+    color: var(--text-color);
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.nova-timer-button:active { cursor: grabbing; }
+.nova-timer-button:hover { background: rgba(var(--search-bg-r), var(--search-bg-g), var(--search-bg-b), 0.35); }
+.nova-timer-button.nova-timer-hidden { opacity: 0; transform: scale(0.3); pointer-events: none; }
+
+.nova-timer-button-time {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px;
+    min-width: 36px;
+}
+
+.nova-timer-button.nova-timer-running .nova-timer-icon {
+    animation: nova-timer-icon-pulse 2s ease-in-out infinite;
+}
+
+@keyframes nova-timer-icon-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.nova-timer-widget {
+    position: fixed;
+    z-index: 50;
+    width: 280px;
+    background: rgba(var(--search-bg-r), var(--search-bg-g), var(--search-bg-b), 0.2);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    padding: 20px;
+    color: var(--text-color);
+    opacity: 0;
+    transform: scale(0.3);
+    transform-origin: top left;
+    pointer-events: none;
+    transition: opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.nova-timer-widget.nova-timer-expanded {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+.nova-timer-widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    cursor: grab;
+}
+
+.nova-timer-widget-header:active { cursor: grabbing; }
+
+.nova-timer-widget-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.6;
+    font-weight: 500;
+}
+
+.nova-timer-collapse-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--text-color);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.nova-timer-collapse-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.nova-timer-circle-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 20px;
+}
+
+.nova-timer-progress-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.nova-timer-progress-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 4;
+}
+
+.nova-timer-progress-fill {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.85);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 565.49;
+    stroke-dashoffset: 565.49;
+    transition: stroke-dashoffset 0.4s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.5s ease;
+}
+
+.nova-timer-widget.nova-timer-running .nova-timer-progress-fill {
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.3));
+}
+
+.nova-timer-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.nova-timer-time {
+    font-size: 2.5rem;
+    font-weight: 300;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.nova-timer-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.nova-timer-start-btn, .nova-timer-reset-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: var(--text-color);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nova-timer-start-btn:hover, .nova-timer-reset-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    transform: translateY(-1px);
+}
+
+.nova-timer-start-btn:active, .nova-timer-reset-btn:active {
+    transform: translateY(0px) scale(0.97);
+}
+
+.nova-timer-start-btn {
+    background: rgba(74, 222, 128, 0.15);
+    border-color: rgba(74, 222, 128, 0.25);
+}
+
+.nova-timer-start-btn:hover {
+    background: rgba(74, 222, 128, 0.25);
+}
+
+.nova-timer-reset-btn.nova-timer-stop-active {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    animation: nova-timer-stop-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes nova-timer-stop-pulse {
+    0%, 100% { background: rgba(239, 68, 68, 0.2); }
+    50% { background: rgba(239, 68, 68, 0.4); }
+}
+
+.nova-timer-presets {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+.nova-timer-preset {
+    flex: 1;
+    padding: 6px 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: var(--text-color);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 500;
+    opacity: 0.65;
+    transition: all 0.2s ease;
+}
+
+.nova-timer-preset:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.nova-timer-preset.active {
+    opacity: 1;
+    background: rgba(20, 184, 166, 0.2);
+    border-color: rgba(20, 184, 166, 0.4);
+}
+
+@keyframes nova-timer-pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35); }
+    50% { transform: scale(1.04); box-shadow: 0 20px 80px rgba(74, 222, 128, 0.35); }
+}
+
+.nova-timer-widget.nova-timer-complete {
+    animation: nova-timer-pulse 0.6s ease-in-out 3;
+}
+.nova-timer-widget.nova-timer-complete .nova-timer-progress-fill { stroke: var(--accent-green); }
+.nova-timer-widget.nova-timer-complete .nova-timer-time { color: var(--accent-green); }
+
