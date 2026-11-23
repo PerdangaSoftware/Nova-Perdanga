@@ -236,7 +236,9 @@ export function initSearch() {
                     return query ? `https://${lang}.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(query)}` : `https://${lang}.wikipedia.org`;
                 },
                 '!r': () => query ? `https://www.reddit.com/search/?q=${encodeURIComponent(query)}` : 'https://www.reddit.com',
-                '!gh': () => query ? `https://github.com/search?q=${encodeURIComponent(query)}` : 'https://github.com'
+                '!gh': () => query ? `https://github.com/search?q=${encodeURIComponent(query)}` : 'https://github.com',
+                '!pss': () => query ? `https://gitlab.com/perdanga/perdanga-software-solutions/-/search?search=${encodeURIComponent(query)}` : 'https://gitlab.com/perdanga/perdanga-software-solutions',
+                '!nova': () => query ? `https://github.com/PerdangaSoftware/Nova-Perdanga/search?q=${encodeURIComponent(query)}` : 'https://github.com/PerdangaSoftware/Nova-Perdanga'
             };
 
             if (bangsMap[bang]) {

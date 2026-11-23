@@ -114,6 +114,8 @@
   - `!wiki <query>` → Wikipedia (supports multilingual & Cyrillic queries)
   - `!r <query>` → Reddit
   - `!gh <query>` → GitHub
+  - `!pss` → Perdanga Software Solutions (GitLab)
+  - `!nova` → Nova-Perdanga (GitHub)
 
 ### Keyboard Shortcuts
 
