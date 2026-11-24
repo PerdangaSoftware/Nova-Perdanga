@@ -180,6 +180,12 @@ body {
 #search-btn:active {
     transform: translateY(-50%) scale(0.95);
 }
+#search-btn.is-bang {
+    border-color: var(--bang-color, rgba(255, 255, 255, 0.4));
+    box-shadow: 0 0 14px var(--bang-color, rgba(255, 255, 255, 0.25));
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--bang-color, var(--text-color));
+}
 
 #search-suggestions {
     position: absolute;
@@ -230,6 +236,178 @@ body {
 }
 #search-suggestions li:not(:last-child) {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+#search-suggestions li.sugg-bang-item {
+    padding: 10px 16px;
+    justify-content: space-between;
+    gap: 12px;
+}
+.sugg-bang-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex: 1;
+}
+.sugg-bang-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--bang-bg, rgba(255, 255, 255, 0.1));
+    border: 1px solid var(--bang-border, rgba(255, 255, 255, 0.2));
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.sugg-bang-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.sugg-bang-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.sugg-bang-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    letter-spacing: 0.5px;
+    color: var(--text-color);
+}
+.sugg-bang-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-color);
+}
+.sugg-bang-desc {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+    color: var(--text-color);
+}
+.sugg-bang-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+    flex-shrink: 0;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    color: var(--text-color);
+}
+#search-suggestions li:hover .sugg-bang-arrow,
+#search-suggestions li.active .sugg-bang-arrow {
+    opacity: 1;
+    transform: translate(2px, -2px);
+    color: var(--bang-color, var(--text-color));
+}
+
+.search-bang-hud {
+    position: absolute;
+    bottom: calc(100% + 15px);
+    left: 4%;
+    width: 92%;
+    background: rgba(var(--search-bg-r), var(--search-bg-g), var(--search-bg-b), max(0.4, calc(var(--search-bg-opacity) + 0.15)));
+    backdrop-filter: blur(calc(var(--search-blur) + 12px));
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    color: var(--text-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    z-index: 12;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    cursor: pointer;
+}
+.search-bang-hud.hide {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    display: none;
+}
+.search-bang-hud-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex: 1;
+}
+.search-bang-hud-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--bang-bg, rgba(255, 255, 255, 0.1));
+    border: 1px solid var(--bang-border, rgba(255, 255, 255, 0.2));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.search-bang-hud-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.search-bang-hud-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.search-bang-hud-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    letter-spacing: 0.5px;
+    color: var(--text-color);
+}
+.search-bang-hud-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-color);
+}
+.search-bang-hud-target {
+    font-size: 0.82rem;
+    opacity: 0.85;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-color);
+}
+.search-bang-hud-action {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    opacity: 0.85;
+    color: var(--bang-color, var(--text-color));
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 #show-settings {
