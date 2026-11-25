@@ -269,12 +269,13 @@
             </div>
             <hr>
             <div class="wrapper row-between">
-                <label>Detailed Forecast</label>
-                <select id="i_weather_service" class="dark-select">
-                    <option value="google" selected>Google</option>
-                    <option value="weathercom">Weather.com</option>
-                    <option value="yandex">Yandex</option>
-                    <option value="ventusky">Ventusky</option>
+                <label>Weather Source</label>
+                <select id="i_weather_provider" class="dark-select">
+                    <option value="auto" selected>Auto</option>
+                    <option value="openmeteo">Open-Meteo</option>
+                    <option value="metno">MET Norway</option>
+                    <option value="7timer">7Timer!</option>
+                    <option value="wttr">wttr.in</option>
                 </select>
             </div>
             <hr>
@@ -720,6 +721,53 @@
             </div>
         </form>
     </dialog>
+
+    <div id="weather-backdrop" class="weather-backdrop hide"></div>
+    <div id="weather-card" class="weather-card hide" role="region" aria-label="Detailed Weather Forecast">
+        <div class="wc-header">
+            <div class="wc-header-left">
+                <span class="wc-city" id="wc-city">Local</span>
+                <button type="button" class="wc-provider-badge" id="wc-provider-badge" title="Click to switch weather source">Open-Meteo</button>
+            </div>
+            <div class="wc-header-actions">
+                <a id="wc-external-link" href="#" target="_blank" rel="noopener noreferrer" class="wc-icon-btn" title="Open forecast in new tab">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                </a>
+                <button type="button" id="wc-close-btn" class="wc-icon-btn" aria-label="Close weather card">✕</button>
+            </div>
+        </div>
+        <div class="wc-current">
+            <div class="wc-current-main">
+                <span class="wc-current-icon" id="wc-current-icon">☀️</span>
+                <div class="wc-current-info">
+                    <span class="wc-current-temp" id="wc-current-temp">--°</span>
+                    <span class="wc-current-desc" id="wc-current-desc">--</span>
+                </div>
+            </div>
+            <div class="wc-current-metrics">
+                <div class="wc-metric" title="Wind Speed">
+                    <span class="wc-metric-icon">💨</span>
+                    <span class="wc-metric-val" id="wc-wind">--</span>
+                </div>
+                <div class="wc-metric" title="Relative Humidity">
+                    <span class="wc-metric-icon">💧</span>
+                    <span class="wc-metric-val" id="wc-humidity">--</span>
+                </div>
+                <div class="wc-metric" title="Daily Range">
+                    <span class="wc-metric-icon">🌡️</span>
+                    <span class="wc-metric-val" id="wc-range">--</span>
+                </div>
+            </div>
+        </div>
+        <div class="wc-section-label">Hourly (24h)</div>
+        <div class="wc-hourly-scroll" id="wc-hourly-list"></div>
+        <div class="wc-section-label">5-Day Forecast</div>
+        <div class="wc-daily-list" id="wc-daily-list"></div>
+    </div>
 
     <div id="toast-container" aria-live="polite"></div>
 

@@ -46,7 +46,7 @@ export const defaultSettings = {
     weatherEnabled: true,
     weatherCity: "",
     weatherUnit: "celsius",
-    weatherService: "google",
+    weatherProvider: "auto",
     greetingsEnabled: true
 };
 

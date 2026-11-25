@@ -250,7 +250,7 @@
     height: var(--sc-size);
     border-radius: 50%;
     border: 1px dashed rgba(255, 255, 255, 0.35);
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(var(--search-bg-r, 255), var(--search-bg-g, 255), var(--search-bg-b, 255), 0.08);
     backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
@@ -268,7 +268,7 @@
 .shortcut-add-btn:hover .shortcut-add-circle {
     border-style: solid;
     border-color: rgba(255, 255, 255, 0.7);
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(var(--search-bg-r, 255), var(--search-bg-g, 255), var(--search-bg-b, 255), 0.22);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 

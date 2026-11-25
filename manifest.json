@@ -19,6 +19,12 @@
     "host_permissions": [
         "https://*.wallhaven.cc/*",
         "https://api.open-meteo.com/*",
+        "https://geocoding-api.open-meteo.com/*",
+        "https://api.met.no/*",
+        "https://www.7timer.info/*",
+        "https://nominatim.openstreetmap.org/*",
+        "https://wttr.in/*",
+        "https://freeipapi.com/*",
         "https://get.geojs.io/*",
         "https://suggestqueries.google.com/*",
         "https://www.google.com/*",

@@ -6,6 +6,7 @@ import { loadBackground, preCalculateNextBackground, switchToNextWallpaper } fro
 import { resetWallhavenSession, doFetchWallhaven } from './wallhaven.js';
 import { syncPreviewWithActiveWallpaper, toggleWhDrawer, renderLocalPreviews, renderWallhavenPreviews } from './drawer.js';
 import { applyShortcutsLayout, renderShortcuts } from './shortcuts.js';
+import { applyPalette } from './utils.js';
 
 export const wallhavenColors = [
     '660000', '990000', 'cc0000', 'cc3333', 'ea4c88', '993399',
@@ -98,9 +99,7 @@ export function applySettingsToDOM() {
         const hex = settings.searchBgColor || "#ffffff";
         let r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
         if (!isNaN(r)) { 
-            rootStyle.setProperty('--search-bg-r', r); 
-            rootStyle.setProperty('--search-bg-g', g); 
-            rootStyle.setProperty('--search-bg-b', b); 
+            applyPalette({ r, g, b });
         }
     }
     
@@ -177,7 +176,7 @@ export function applySettingsToDOM() {
     const weatherEnable = document.getElementById('i_weather_enable');
     const weatherCity = document.getElementById('i_weather_city');
     const weatherUnit = document.getElementById('i_weather_unit');
-    const weatherService = document.getElementById('i_weather_service');
+    const weatherProvider = document.getElementById('i_weather_provider');
     const greetingsEnable = document.getElementById('i_greetings_enable');
 
     if (timeEnable) timeEnable.checked = settings.timeEnabled;
@@ -187,7 +186,7 @@ export function applySettingsToDOM() {
     if (weatherEnable) weatherEnable.checked = settings.weatherEnabled;
     if (weatherCity) weatherCity.value = settings.weatherCity;
     if (weatherUnit) weatherUnit.value = settings.weatherUnit;
-    if (weatherService) weatherService.value = settings.weatherService;
+    if (weatherProvider) weatherProvider.value = settings.weatherProvider || 'auto';
     if (greetingsEnable) greetingsEnable.checked = settings.greetingsEnabled;
 
     const elWhOptions = document.getElementById('wallhaven-options');
@@ -432,8 +431,13 @@ export function initSettingsUI() {
     const weatherUnit = document.getElementById('i_weather_unit');
     if (weatherUnit) weatherUnit.addEventListener('change', e => updateSetting('weatherUnit', e.target.value, () => updateWeather(true)));
 
-    const weatherService = document.getElementById('i_weather_service');
-    if (weatherService) weatherService.addEventListener('change', e => updateSetting('weatherService', e.target.value, () => updateWeather(true)));
+    const weatherProvider = document.getElementById('i_weather_provider');
+    if (weatherProvider) weatherProvider.addEventListener('change', e => updateSetting('weatherProvider', e.target.value, () => updateWeather(true)));
+
+    on('weather:setProvider', (provider) => {
+        if (weatherProvider) weatherProvider.value = provider;
+        updateSetting('weatherProvider', provider, () => updateWeather(true));
+    });
 
     const greetingsEnable = document.getElementById('i_greetings_enable');
     if (greetingsEnable) greetingsEnable.addEventListener('change', e => updateSetting('greetingsEnabled', e.target.checked));

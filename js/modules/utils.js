@@ -13,15 +13,44 @@ export function showToast(message, duration = 2200) {
     }, duration);
 }
 
-export async function extractAverageColor(url) {
+export function applyPalette(palette) {
+    if (!palette) return;
+    const root = document.documentElement;
+    const amb = palette.ambient || palette;
+    const acc = palette.accent || palette;
+
+    root.style.setProperty('--palette-r', amb.r);
+    root.style.setProperty('--palette-g', amb.g);
+    root.style.setProperty('--palette-b', amb.b);
+
+    root.style.setProperty('--palette-accent-r', acc.r);
+    root.style.setProperty('--palette-accent-g', acc.g);
+    root.style.setProperty('--palette-accent-b', acc.b);
+
+    root.style.setProperty('--palette-accent', `rgb(${acc.r}, ${acc.g}, ${acc.b})`);
+    root.style.setProperty('--palette-glow', `rgba(${acc.r}, ${acc.g}, ${acc.b}, 0.35)`);
+    root.style.setProperty('--palette-border', `rgba(${acc.r}, ${acc.g}, ${acc.b}, 0.3)`);
+    root.style.setProperty('--palette-glass', `rgba(${amb.r}, ${amb.g}, ${amb.b}, var(--search-bg-opacity, 0.25))`);
+
+    root.style.setProperty('--search-bg-r', amb.r);
+    root.style.setProperty('--search-bg-g', amb.g);
+    root.style.setProperty('--search-bg-b', amb.b);
+}
+
+try {
+    if (localStorage.getItem('nova_search_auto') !== 'false') {
+        const saved = localStorage.getItem('nova_active_palette');
+        if (saved) applyPalette(JSON.parse(saved));
+    }
+} catch {}
+
+export async function extractPalette(url) {
     try {
-        const colorMap = JSON.parse(localStorage.getItem('nova_wh_colors') || '{}');
-        if (colorMap[url]) {
-            const hex = colorMap[url];
-            const r = parseInt(hex.slice(1, 3), 16);
-            const g = parseInt(hex.slice(3, 5), 16);
-            const b = parseInt(hex.slice(5, 7), 16);
-            if (!isNaN(r) && !isNaN(g) && !isNaN(b)) return { r, g, b };
+        const cacheRaw = localStorage.getItem('nova_palette_cache');
+        const cache = cacheRaw ? JSON.parse(cacheRaw) : {};
+        if (cache[url]) {
+            applyPalette(cache[url]);
+            return cache[url];
         }
 
         let objectUrl = url;
@@ -45,32 +74,58 @@ export async function extractAverageColor(url) {
                 if (isBlob) URL.revokeObjectURL(objectUrl);
 
                 const data = ctx.getImageData(0, 0, 64, 64).data;
-                let r = 0, g = 0, b = 0, count = 0;
-                let maxVibrant = 0, domR = 0, domG = 0, domB = 0;
+                let sumR = 0, sumG = 0, sumB = 0, count = 0;
+                let bestVibrantScore = -1;
+                let accentR = 255, accentG = 255, accentB = 255;
 
                 for (let i = 0; i < data.length; i += 16) {
-                    let pr = data[i], pg = data[i+1], pb = data[i+2];
-                    let max = Math.max(pr, pg, pb), min = Math.min(pr, pg, pb);
-                    let sat = max === 0 ? 0 : (max - min) / max;
-                    
-                    if (sat * max > maxVibrant) {
-                        maxVibrant = sat * max;
-                        domR = pr; 
-                        domG = pg; 
-                        domB = pb;
+                    const r = data[i], g = data[i+1], b = data[i+2];
+                    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+                    const sat = max === 0 ? 0 : (max - min) / max;
+                    const bright = max / 255;
+
+                    if (max > 25 && min < 240) {
+                        const vibrantScore = sat * 0.7 + bright * 0.3;
+                        if (vibrantScore > bestVibrantScore) {
+                            bestVibrantScore = vibrantScore;
+                            accentR = r;
+                            accentG = g;
+                            accentB = b;
+                        }
                     }
-                    r += pr; 
-                    g += pg; 
-                    b += pb; 
+
+                    sumR += r;
+                    sumG += g;
+                    sumB += b;
                     count++;
                 }
-                
-                let avgR = r / count, avgG = g / count, avgB = b / count;
-                let finalR = Math.round((avgR + domR) / 2);
-                let finalG = Math.round((avgG + domG) / 2);
-                let finalB = Math.round((avgB + domB) / 2);
-                
-                resolve({ r: finalR, g: finalG, b: finalB });
+
+                const avgR = count > 0 ? Math.round(sumR / count) : 255;
+                const avgG = count > 0 ? Math.round(sumG / count) : 255;
+                const avgB = count > 0 ? Math.round(sumB / count) : 255;
+
+                const ambientR = Math.round((avgR * 0.65) + (accentR * 0.35));
+                const ambientG = Math.round((avgG * 0.65) + (accentG * 0.35));
+                const ambientB = Math.round((avgB * 0.65) + (accentB * 0.35));
+
+                const result = {
+                    ambient: { r: ambientR, g: ambientG, b: ambientB },
+                    accent: { r: accentR, g: accentG, b: accentB },
+                    r: ambientR,
+                    g: ambientG,
+                    b: ambientB
+                };
+
+                try {
+                    cache[url] = result;
+                    const keys = Object.keys(cache);
+                    if (keys.length > 50) delete cache[keys[0]];
+                    localStorage.setItem('nova_palette_cache', JSON.stringify(cache));
+                    localStorage.setItem('nova_active_palette', JSON.stringify(result));
+                } catch {}
+
+                applyPalette(result);
+                resolve(result);
             };
             img.onerror = () => {
                 if (isBlob) URL.revokeObjectURL(objectUrl);
@@ -78,10 +133,12 @@ export async function extractAverageColor(url) {
             };
             img.src = objectUrl;
         });
-    } catch (e) { 
+    } catch { 
         return null; 
     }
 }
+
+export const extractAverageColor = extractPalette;
 
 export function crc32(uint8) {
     const crcTable = new Uint32Array(256);

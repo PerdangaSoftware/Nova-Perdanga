@@ -1,6 +1,6 @@
 import state, { emit } from './state.js';
 import { storage, idb } from './storage.js';
-import { extractAverageColor } from './utils.js';
+import { extractPalette, applyPalette } from './utils.js';
 import BackgroundPreloader from './preloader.js';
 import { fetchWallhavenBatch, getWallhavenPool, doFetchWallhaven } from './wallhaven.js';
 
@@ -158,7 +158,7 @@ export async function preCalculateNextBackground() {
             }
 
             if (settings.searchAutoColor) {
-                const color = await extractAverageColor(nextThumbUrl);
+                const color = await extractPalette(nextThumbUrl);
                 if (color) localStorage.setItem('nova_startup_bg_color', JSON.stringify(color));
             }
         }
@@ -222,11 +222,9 @@ export async function applyBackground(originalUrl, objectUrl = null, posY = 50) 
     };
 
     if (settings.searchAutoColor) {
-        const c = await extractAverageColor(originalUrl);
+        const c = await extractPalette(originalUrl);
         if (c && currentSeq === state.bgSwitchSeq) {
-            state.rootStyle.setProperty('--search-bg-r', c.r);
-            state.rootStyle.setProperty('--search-bg-g', c.g);
-            state.rootStyle.setProperty('--search-bg-b', c.b);
+            applyPalette(c);
         }
     }
 }
@@ -499,12 +497,8 @@ export async function loadBackground(forceNext = false, isStartup = false) {
                         state.activeBg = 1;
                         
                         if (settings.searchAutoColor) {
-                            const c = await extractAverageColor(originalUrl);
-                            if (c) {
-                                state.rootStyle.setProperty('--search-bg-r', c.r);
-                                state.rootStyle.setProperty('--search-bg-g', c.g);
-                                state.rootStyle.setProperty('--search-bg-b', c.b);
-                            }
+                            const c = await extractPalette(originalUrl);
+                            if (c) applyPalette(c);
                         }
                         preCalculateNextBackground();
                         preloadAdjacentLocalWallpapers(gallery, img.id);
@@ -586,12 +580,8 @@ export async function loadBackground(forceNext = false, isStartup = false) {
                     state.activeBg = 1;
                     
                     if (settings.searchAutoColor) {
-                        const c = await extractAverageColor(currentUrl);
-                        if (c) {
-                            state.rootStyle.setProperty('--search-bg-r', c.r);
-                            state.rootStyle.setProperty('--search-bg-g', c.g);
-                            state.rootStyle.setProperty('--search-bg-b', c.b);
-                        }
+                        const c = await extractPalette(currentUrl);
+                        if (c) applyPalette(c);
                     }
                     preCalculateNextBackground();
                     preloadAdjacentWallhavenWallpapers(pool, poolIdx, currentUrl);

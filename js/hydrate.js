@@ -67,6 +67,7 @@
     setValue('i_bg_type', s.bgType);
     setValue('i_weather_city', s.weatherCity);
     setValue('i_weather_unit', s.weatherUnit);
+    setValue('i_weather_provider', s.weatherProvider);
     setValue('i_weather_service', s.weatherService);
     setValue('i_text_color', s.textColor);
     setValue('i_search_bg_color', s.searchBgColor);

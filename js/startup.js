@@ -96,14 +96,16 @@
             const hex = s.searchBgColor;
             const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
             if (!isNaN(r)) {
-                hideCss += `:root { --search-bg-r: ${r}; --search-bg-g: ${g}; --search-bg-b: ${b}; }\n`;
+                hideCss += `:root { --search-bg-r: ${r}; --search-bg-g: ${g}; --search-bg-b: ${b}; --palette-r: ${r}; --palette-g: ${g}; --palette-b: ${b}; --palette-accent-r: ${r}; --palette-accent-g: ${g}; --palette-accent-b: ${b}; --palette-accent: rgb(${r}, ${g}, ${b}); --palette-glow: rgba(${r}, ${g}, ${b}, 0.35); --palette-border: rgba(${r}, ${g}, ${b}, 0.3); --palette-glass: rgba(${r}, ${g}, ${b}, var(--search-bg-opacity, 0.25)); }\n`;
             }
         } else {
-            const savedColor = localStorage.getItem('nova_startup_bg_color');
+            const savedColor = localStorage.getItem('nova_active_palette') || localStorage.getItem('nova_startup_bg_color');
             if (savedColor) {
                 try {
                     const c = JSON.parse(savedColor);
-                    hideCss += `:root { --search-bg-r: ${c.r}; --search-bg-g: ${c.g}; --search-bg-b: ${c.b}; }\n`;
+                    const amb = c.ambient || c;
+                    const acc = c.accent || c;
+                    hideCss += `:root { --search-bg-r: ${amb.r}; --search-bg-g: ${amb.g}; --search-bg-b: ${amb.b}; --palette-r: ${amb.r}; --palette-g: ${amb.g}; --palette-b: ${amb.b}; --palette-accent-r: ${acc.r}; --palette-accent-g: ${acc.g}; --palette-accent-b: ${acc.b}; --palette-accent: rgb(${acc.r}, ${acc.g}, ${acc.b}); --palette-glow: rgba(${acc.r}, ${acc.g}, ${acc.b}, 0.35); --palette-border: rgba(${acc.r}, ${acc.g}, ${acc.b}, 0.3); --palette-glass: rgba(${amb.r}, ${amb.g}, ${amb.b}, var(--search-bg-opacity, 0.25)); }\n`;
                 } catch {}
             }
         }
